@@ -5,14 +5,12 @@ buildscript {
     }
   }
   dependencies {
-    classpath "net.saliman:gradle-cobertura-plugin:2.2.8"
     classpath group: "org.asciidoctor", name: "asciidoctorj-pdf", version: "1.5.0-alpha.11"
     classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:3.0.0"
   }
 }
 
 plugins {
-  id "org.sonarqube" version "1.0"
   id "org.asciidoctor.convert" version "1.5.3"
 }
 
@@ -46,7 +44,6 @@ configure(javaProjects) {
   apply plugin: "osgi"
   apply plugin: "maven"
   apply plugin: "signing"
-  apply plugin: "net.saliman.cobertura"
   apply plugin: "biz.aQute.bnd.builder"
 
   uploadArchives.enabled = false
@@ -85,29 +82,6 @@ configure(javaProjects) {
     }
   }
 
-  cobertura {
-  
-    dependencies {
-      testCompile "org.slf4j:slf4j-simple:1.6.1"
-    }
-    coverageFormats = ["html", "xml"]
-    coverageIgnoreTrivial = true
-    coverageIgnores = ["org.slf4j.Logger.*"]
-    coverageReportDir = new File("$buildDir/reports/cobertura")
-    coverageTestTasks {
-      project.tasks.withType(Test).matching {it.name == "test"}
-    }
-   
-  }
-
-  sonarqube {
-    properties {
-      property "sonar.exclusions", "src/main/java-gen/**/*,**/app/**/*"
-      property "sonar.java.coveragePlugin", "cobertura"
-      property "sonar.cobertura.reportPath", "build/reports/cobertura/coverage.xml"
-    }
-  }
-  
   task jarAll(type: Copy) {
     dependsOn(configurations.default.getAllArtifacts().getBuildDependencies())
 
