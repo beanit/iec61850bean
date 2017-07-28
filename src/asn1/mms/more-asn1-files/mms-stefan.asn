@@ -1,0 +1,318 @@
+MMSDEF DEFINITIONS::=
+BEGIN
+
+MMSpdu ::= CHOICE {
+confirmed_RequestPDU [0] IMPLICIT Confirmed_RequestPDU,
+confirmed_ResponsePDU [1] IMPLICIT Confirmed_ResponsePDU,
+initiate_RequestPDU [8] IMPLICIT Initiate_RequestPDU,
+initiate_ResponsePDU [9] IMPLICIT Initiate_ResponsePDU
+}
+
+Initiate_RequestPDU ::= SEQUENCE {
+	localDetailCalling [0] IMPLICIT Integer32 OPTIONAL,
+	proposedMaxServOutstandingCalling [1] IMPLICIT Integer16,
+	proposedMaxServOutstandingCalled [2] IMPLICIT Integer16,
+	proposedDataStructureNestingLevel [3] IMPLICIT Integer8 OPTIONAL,
+	initRequestDetail [4] IMPLICIT SEQUENCE {
+        proposedVersionNumber [0] IMPLICIT Integer16,
+        proposedParameterCBB [1] IMPLICIT ParameterSupportOptions,
+        servicesSupportedCalling [2] IMPLICIT ServiceSupportOptions
+    }
+}
+
+Initiate_ResponsePDU ::= SEQUENCE {
+	localDetailCalled [0] IMPLICIT Integer32 OPTIONAL,
+	negotiatedMaxServOutstandingCalling [1] IMPLICIT Integer16,
+	negotiatedMaxServOutstandingCalled [2] IMPLICIT Integer16,
+	negotiatedDataStructureNestingLevel [3] IMPLICIT Integer8 OPTIONAL,
+	initResponseDetail [4] IMPLICIT SEQUENCE {
+        negotiatedVersionNumber [0] IMPLICIT Integer16,
+        negotiatedParameterCBB [1] IMPLICIT ParameterSupportOptions,
+        servicesSupportedCalled [2] IMPLICIT ServiceSupportOptions
+    }
+}
+
+ParameterSupportOptions ::= BIT STRING {
+
+      str1 (0),
+      str2 (1),
+      vnam (2),
+      valt (3),
+      vadr (4),
+      -- bit 5 is reserved
+      vsca (5),
+      tpy (6),
+      vlis (7),
+      -- bit 8 is reserved
+      -- bit 9 is reserved
+      cei (10),
+      aco (11),
+      sem (12),
+      csr (13),
+      csnc (14),
+      csplc (15),
+      cspi (16) 
+}
+
+ServiceSupportOptions ::= BIT STRING {
+      status (0),
+      getNameList (1),
+      identify (2),
+      rename (3),
+      read (4),
+      write (5),
+      getVariableAccessAttributes (6),
+      defineNamedVariable (7),
+      -- bit 8 is reserved for use of a service defined in annex E
+      defineScatteredAccess (8),
+      -- bit 9 is reserved for use of a service defined in annex E
+      getScatteredAccessAttributes (9),
+      deleteVariableAccess (10),
+      defineNamedVariableList (11),
+      getNamedVariableListAttributes (12),
+      deleteNamedVariableList (13),
+      defineNamedType (14),
+      getNamedTypeAttributes (15),
+      deleteNamedType (16),
+      input (17),
+      output (18),
+      takeControl (19),
+      relinquishControl (20),
+      defineSemaphore (21),
+      deleteSemaphore (22),
+      reportSemaphoreStatus (23),
+      reportPoolSemaphoreStatus (24),
+      reportSemaphoreEntryStatus (25),
+      initiateDownloadSequence (26),
+      downloadSegment (27),
+      terminateDownloadSequence (28),
+      initiateUploadSequence (29),
+      uploadSegment (30),
+      terminateUploadSequence (31),
+      requestDomainDownload (32),
+      requestDomainUpload (33),
+      loadDomainContent (34),
+      storeDomainContent (35),
+      deleteDomain (36),
+      getDomainAttributes (37),
+      createProgramInvocation (38),
+      deleteProgramInvocation (39),
+      start (40),
+      stop (41),
+      resume (42),
+      reset (43),
+      kill (44),
+      getProgramInvocationAttributes (45),
+      obtainFile (46),
+      defineEventCondition (47),
+      deleteEventCondition (48),
+      getEventConditionAttributes (49),
+      reportEventConditionStatus (50),
+      alterEventConditionMonitoring (51),
+      triggerEvent (52),
+      defineEventAction (53),
+      deleteEventAction (54),
+      getEventActionAttributes (55),
+      reportEventActionStatus (56),
+      defineEventEnrollment (57),
+      deleteEventEnrollment (58),
+      alterEventEnrollment (59),
+      reportEventEnrollmentStatus (60),
+      getEventEnrollmentAttributes (61),
+      acknowledgeEventNotification (62),
+      getAlarmSummary (63),
+      getAlarmEnrollmentSummary (64),
+      readJournal (65),
+      writeJournal (66),
+      initializeJournal (67),
+      reportJournalStatus (68),
+      createJournal (69),
+      deleteJournal (70),
+      getCapabilityList (71),
+      -- bit 72 is reserved for use of a service defined in annex D
+      fileOpen (72),
+      -- bit 73 is reserved for use of a service defined in annex D
+      fileRead (73),
+      -- bit 74 is reserved for use of a service defined in annex D
+      fileClose (74),
+      -- bit 75 is reserved for use of a service defined in annex D
+      fileRename (75),
+      -- bit 76 is reserved for use of a service defined in annex D
+      fileDelete (76),
+      -- bit 77 is reserved for use of a service defined in annex D
+      fileDirectory (77),
+      unsolicitedStatus (78),
+      informationReport (79),
+      eventNotification (80),
+      attachToEventCondition (81),
+      attachToSemaphore (82),
+      conclude (83),
+      cancel (84),
+      getDataExchangeAttributes (85),
+      -- Shall not appear in minor version one
+      exchangeData (86),
+      -- Shall not appear in minor version one
+      defineAccessControlList (87),
+      -- Shall not appear in minor version one or two
+      getAccessControlListAttributes (88),
+      -- Shall not appear in minor version one or two
+      reportAccessControlledObjects (89),
+      -- Shall not appear in minor version one or two
+      deleteAccessControlList (90),
+      -- Shall not appear in minor version one or two
+      alterAccessControl (91),
+      -- Shall not appear in minor version one or two
+      reconfigureProgramInvocation (92)
+}
+
+
+
+Confirmed_RequestPDU ::= SEQUENCE {
+invokeID Unsigned32,
+service ConfirmedServiceRequest
+}
+
+Confirmed_ResponsePDU ::= SEQUENCE {
+invokeID Unsigned32,
+service ConfirmedServiceResponse
+}
+
+GetNameList_Response ::= SEQUENCE {
+listOfIdentifier [0] IMPLICIT SEQUENCE OF Identifier,
+moreFollows [1] IMPLICIT BOOLEAN DEFAULT TRUE
+}
+
+
+
+Integer8 ::= INTEGER(-128..127) -- range -128 <= i <= 127
+Integer16 ::= INTEGER(-32768..32767) -- range -32,768 <= i <= 32,767
+Integer32 ::= INTEGER(-2147483648..2147483647) -- range -2**31 <= i < 2**31
+Unsigned8  ::= INTEGER
+
+  Unsigned16 ::= INTEGER(0..32767)  -- range 0 <= i <= 32767
+
+Unsigned32 ::= INTEGER(0..2147483647) -- range 0 <= i <= 2**31 - 1
+
+ConfirmedServiceRequest ::= CHOICE {
+	getNameList [1] IMPLICIT GetNameList_Request,
+	getVariableAccessAttributes	[6] GetVariableAccessAttributes_Request
+}
+
+GetVariableAccessAttributes_Request ::= CHOICE
+{
+	name		[0] ObjectName,
+	address		[1] Address
+}
+
+ObjectName ::= CHOICE 
+	{
+	vmd_specific		[0] IMPLICIT Identifier,
+	domain_specific	        [1] IMPLICIT SEQUENCE
+		{
+		domainId 	Identifier,
+		itemId		Identifier
+		},
+	aa_specific		[2] IMPLICIT Identifier
+	}
+	
+	Address ::= CHOICE
+	{
+	numericAddress		[0] IMPLICIT Unsigned32,
+	symbolicAddress		[1] IMPLICIT VisibleString,
+	unconstrainedAddress	[2] IMPLICIT OCTET STRING
+	}
+	
+
+
+ConfirmedServiceResponse ::= CHOICE {
+	getNameList [1] IMPLICIT GetNameList_Response,
+	getVariableAccessAttributes	[6]	IMPLICIT GetVariableAccessAttributes_Response
+}
+
+GetVariableAccessAttributes_Response ::= SEQUENCE
+	{
+	mmsDeletable		[0] IMPLICIT BOOLEAN,
+	address			[1] Address OPTIONAL,
+	typeSpecification	[2] TypeSpecification
+	}
+
+TypeSpecification ::= CHOICE 
+	{
+	typeName		[0] ObjectName,
+	array			[1] IMPLICIT SEQUENCE
+		{
+		packed			[0] IMPLICIT BOOLEAN DEFAULT FALSE,
+		numberOfElements	[1] IMPLICIT Unsigned32,
+		elementType		[2] TypeSpecification
+		},
+	structure		[2] IMPLICIT SEQUENCE
+		{
+		packed			[0] IMPLICIT BOOLEAN DEFAULT FALSE,
+		components		[1] IMPLICIT SEQUENCE OF StructComponent
+		},
+	
+	-- Simple Type -------- Size ---------
+	tboolean			[3] IMPLICIT NULL,
+	bit_string		[4] IMPLICIT Integer32,
+	integer			[5] IMPLICIT Unsigned8,
+	unsigned		[6] IMPLICIT Unsigned8,
+	floating_point [7] IMPLICIT SEQUENCE {
+
+      format_width Unsigned8, -- number of bits of
+      -- floating point value
+      -- including sign, exponent,
+      -- and fraction
+      exponent_width Unsigned8 -- size of exponent in bits
+      },
+	octet_string		[9] IMPLICIT Integer32,
+	visible_string		[10] IMPLICIT Integer32,
+	generalized_time	[11] IMPLICIT NULL,
+	binary_time		[12] IMPLICIT BOOLEAN,
+	bcd			[13] IMPLICIT Unsigned8,
+	objId			[15] IMPLICIT NULL,
+    mMSString   [16] Integer32,
+    -- added by stefan
+    timestamp   [17] IMPLICIT NULL
+	}
+	
+StructComponent ::=	SEQUENCE
+	{
+	componentName		[0] IMPLICIT Identifier OPTIONAL,
+	componentType		[1] TypeSpecification
+	}
+
+
+GetNameList_Request ::= SEQUENCE {
+	objectClass [0] ObjectClass,
+	objectScope [1] CHOICE {
+    	vmdSpecific [0] IMPLICIT NULL,
+    	domainSpecific [1] IMPLICIT Identifier
+	},
+	continueAfter [2] IMPLICIT Identifier OPTIONAL
+}
+
+
+
+Identifier ::= VisibleString
+
+ObjectClass ::= CHOICE {
+
+basicObjectClass [0] IMPLICIT INTEGER {
+        namedVariable (0),
+        scatteredAccess (1),
+        namedVariableList (2),
+        namedType (3),
+        semaphore (4),
+        eventCondition (5),
+        eventAction (6),
+        eventEnrollment (7),
+        journal (8),
+        domain (9),
+        programInvocation (10),
+        operatorStation (11),
+        dataExchange (12), -- Shall not appear in minor version 1
+        accessControlList (13) -- Shall not appear in minor version 1 or 2
+        }
+}
+
+END

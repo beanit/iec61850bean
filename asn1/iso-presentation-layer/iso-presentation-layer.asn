@@ -1,0 +1,143 @@
+ASN1 DEFINITIONS ::=
+BEGIN
+
+
+CP_type ::= SET {
+	mode_selector [0] IMPLICIT Mode_selector,
+	--x410_mode_parameters [1] IMPLICIT SET {
+	--	COMPONENTS OF Reliable_Transfer_APDUs.RTORQapdu
+	--} OPTIONAL,
+	--- Shall be used for X.410 mode only. Shall be bitwise
+	--- compatible with CCITT Recommendation X.410_1984.
+	--- This shall be the User data parameter of the CP PPDU1)
+	normal_mode_parameters [2] IMPLICIT SEQUENCE {
+		protocol_version [0] IMPLICIT Protocol_version DEFAULT {version_1},
+		calling_presentation_selector [1] IMPLICIT Calling_presentation_selector OPTIONAL,
+		called_presentation_selector [2] IMPLICIT Called_presentation_selector OPTIONAL,
+		presentation_context_definition_list [4] IMPLICIT Presentation_context_definition_list OPTIONAL,
+		default_context_name [6] IMPLICIT Default_context_name OPTIONAL,
+		presentation_requirements [8] IMPLICIT Presentation_requirements OPTIONAL,
+		user_session_requirements [9] IMPLICIT User_session_requirements OPTIONAL
+		-- shall not be present if equal to the Revised session
+		-- requirements parameter -- ,
+		user_data User_data OPTIONAL
+	} OPTIONAL
+	-- Shall be used for normal mode only.
+	-- Shall be the parameters of the CP PPDU.
+}
+
+CPA_PPDU ::= SET {
+	mode_selector [0] IMPLICIT Mode_selector,
+	--x410_mode_parameters [1] IMPLICIT SET {
+	--	COMPONENTS OF Reliable_Transfer_APDUs.RTOACapdu
+	--} OPTIONAL,
+	--- Shall be used for X.410 mode only. Shall be bitwise
+	--- compatible with CCITT Recommendation X.410_1984.
+	--- This shall be the User data parameter of the CPA PPDU1)
+	normal_mode_parameters [2] IMPLICIT SEQUENCE {
+		protocol_version [0] IMPLICIT Protocol_version DEFAULT {version_1},
+		responding_presentation_selector [3] IMPLICIT Responding_presentation_selector OPTIONAL,
+		presentation_context_definition_result_list [5] IMPLICIT Presentation_context_definition_result_list OPTIONAL,
+		presentation_requirements [8] IMPLICIT Presentation_requirements OPTIONAL,
+		user_session_requirements [9] IMPLICIT User_session_requirements OPTIONAL,
+		-- shall not be present if equal to the Revised session
+		-- requirements parameter --
+		user_data User_data OPTIONAL
+	} OPTIONAL
+	-- Shall be used for normal mode only.
+}
+
+Responding_presentation_selector ::= Presentation_selector
+Presentation_context_definition_result_list ::= Result_list
+
+Result_list ::= SEQUENCE OF SEQUENCE {
+	result [0] IMPLICIT Result,
+	transfer_syntax_name [1] IMPLICIT Transfer_syntax_name OPTIONAL,
+	provider_reason [2] IMPLICIT INTEGER {
+		reason_not_specified (0),
+		abstract_syntax_not_supported (1),
+		proposed_transfer_syntaxes_not_supported (2),
+		local_limit_on_DCS_exceeded (3)
+	} OPTIONAL
+}
+
+Result ::= INTEGER {
+	acceptance (0),
+	user_rejection (1),
+	provider_rejection (2)
+}
+
+Mode_selector ::= SET { 
+	mode_value [0] IMPLICIT INTEGER { x410_1984_mode (0), normal_mode (1) } 
+}
+
+
+User_data ::= CHOICE {
+	simply_encoded_data [APPLICATION 0] IMPLICIT Simply_encoded_data,
+	fully_encoded_data [APPLICATION 1] IMPLICIT Fully_encoded_data
+}
+-- Subclause 8.4 defines when each of the two alternatives shall be used.
+
+Simply_encoded_data ::= OCTET STRING
+-- See 8.4.1.
+
+Fully_encoded_data ::= SEQUENCE OF PDV_list
+-- contains one or more PDV_list values.
+-- See 8.4.2.
+
+PDV_list ::= SEQUENCE {
+	transfer_syntax_name Transfer_syntax_name OPTIONAL,
+	presentation_context_identifier Presentation_context_identifier,
+	presentation_data_values CHOICE {
+		single_ASN1_type [0] ANY,
+		-- Type corresponding to presentation context identifier
+		octet_aligned [1] IMPLICIT OCTET STRING,
+		arbitrary [2] IMPLICIT BIT STRING
+	}
+	-- Contains one or more presentation data values from the same
+	-- presentation context.
+	-- See 8.4.2.
+}
+
+
+Presentation_context_definition_list ::= Context_list
+
+Context_list ::= SEQUENCE OF SEQUENCE {
+	presentation_context_identifier Presentation_context_identifier,
+	abstract_syntax_name Abstract_syntax_name,
+	transfer_syntax_name_list SEQUENCE OF Transfer_syntax_name
+}
+
+Presentation_context_identifier ::= INTEGER
+Abstract_syntax_name ::= OBJECT IDENTIFIER
+Transfer_syntax_name ::= OBJECT IDENTIFIER
+Protocol_version ::= BIT STRING { version_1 (0) }
+Calling_presentation_selector ::= Presentation_selector
+Called_presentation_selector ::= Presentation_selector
+Presentation_selector ::= OCTET STRING
+
+
+Default_context_name ::= SEQUENCE {
+	abstract_syntax_name [0] IMPLICIT Abstract_syntax_name,
+	transfer_syntax_name [1] IMPLICIT Transfer_syntax_name
+}
+
+Presentation_requirements ::= BIT STRING { context_management (0), restoration (1) }
+
+User_session_requirements ::= BIT STRING {
+	half_duplex (0),
+	duplex (1),
+	expedited_data (2),
+	minor_synchronize (3),
+	major_synchronize (4),
+	resynchronize (5),
+	activity_management (6),
+	negotiated_release (7),
+	capability_data (8),
+	exceptions (9),
+	typed_data (10),
+	symmetric_synchronize (11),
+	data_separation (12)
+}
+
+END

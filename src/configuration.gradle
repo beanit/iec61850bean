@@ -1,0 +1,125 @@
+
+project.ext {
+
+  cfgVersion = "1.4.1-SNAPSHOT"
+  
+  cfgGroup = "org.openmuc"
+
+  cfgCopyDependencies = true
+
+  cfgCopyToRoot = false
+
+  cfgSignPom = true
+
+  cfgRepository = project.properties.sonatypeRepository
+
+  cfgSnapshotRepository = project.properties.sonatypeSnapshotRepository
+
+  cfgRepositoryUser = project.properties.sonatypeUser
+
+  cfgRepositoryPass = project.properties.sonatypePass
+
+  javaProjects = allprojects
+
+  distributionProjects = javaProjects
+
+  docProjects = javaProjects
+
+  repositoryProjects = javaProjects
+}
+
+tasks.withType(Tar) {
+
+  into(project.name) {
+    from("./") {
+      include "build.gradle"
+      include "configuration.gradle"
+      include "license/**"
+      include "doc/CHANGELOG.txt"
+      include "run-scripts/**"
+      include "gradle/wrapper/**"
+      include "gradlew"
+      include "gradlew.bat"
+      include "build/libs-all/**"
+      include "src/**"
+
+      include "asn1/**"
+    }
+
+    if (name.equals("tar") ){
+      exclude "**/dependencies/**/src"
+    }
+
+  }
+
+  into(project.name + "/doc/user-guide/") {
+    from("./build/asciidoc/html5/") {
+      include "**"
+    }
+    from("./build/asciidoc/pdf/") {
+      include "*.pdf"
+    }
+  }
+
+  into(project.name + "/doc/") {
+    from("./build/docs/") {
+      include "javadoc/**"
+    }
+  }
+
+}
+
+
+
+//------------------project specific configurations--------------------
+
+apply plugin: "java"
+apply plugin: "eclipse"
+apply plugin: "osgi"
+apply plugin: "maven"
+apply plugin: "signing"
+
+def projectName = 'OpenIEC61850'
+
+dependencies {
+  compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+  compile group: 'org.openmuc', name: 'jasn1', version: '1.8.0'
+  compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'
+  compile group: 'com.toedter', name: 'jcalendar', version: '1.4'
+}
+
+jar {
+  manifest {
+    name = projectName
+    instruction 'Export-Package', '!*.internal.*,*'
+    instruction 'Import-Package', 'org.openmuc.jasn1.*,javax.net,*;resolution:=optional'
+  }
+}
+
+sourceSets {
+  main {
+    java.srcDirs = ['src/main/java', 'src/main/java-gen']
+  }
+}
+
+uploadArchives {
+  repositories {
+    mavenDeployer {
+      pom.project {
+        name projectName
+        packaging 'jar'
+        description 'OpenIEC61850 is a library implementing the IEC 61850 MMS communication standard (client and server).'
+        url 'http://www.openmuc.org/'
+	
+        licenses {
+          license {
+            name 'Apache License, Version 2.0'
+            url 'http://www.apache.org/licenses/LICENSE-2.0'
+            distribution 'repo'
+          }
+        }
+        
+      }
+    }
+  }
+}

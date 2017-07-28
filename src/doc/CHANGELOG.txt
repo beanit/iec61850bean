@@ -1,0 +1,242 @@
+v1.4.0 30-May-2017
+------------------
+
+- extended toString() method of all model node classes to print its
+  complete submodel tree.
+
+- merged all projects openiec61850, jositransport, josistack,
+  openiec61850-clientgui, and openiec61850-sample into a single
+  project "openiec61850".
+
+- removed all slf4j logging for client part. Thus if library is only
+  used on client side slf4j is no longer needed.
+
+- replaced sample client and server by console applications
+
+- fixed setting functional constraint correctly for all BRCB
+  elements. Thanks to Stefan Goldmann.
+
+- fixed client side processing of reports when inclusion bit string is
+  not padded with zeros, thanks to Thomas Schönle from Bachmann
+
+- fixed ServerSAP.stop() to close timer threads correctly
+
+- made several imports in OSGi MANIFEST file optional because they are
+  not necessarily required
+
+- library now depends on jASN1 1.8.0
+
+
+v1.3.3 09-Mar-2017
+------------------
+
+- fixes bug introduced in 1.3.2: report control block instance names
+  should start at 01 instead of 00
+
+- library now depends on jASN1 1.7.1
+
+v1.3.2 01-Mar-2017
+------------------
+
+- fixes object reference of child attributes of array elements: old:
+  LD/LN.DO.Array(1)child, new LD/LN.DO.Array(1).child
+
+- fixes setting of RptEna DA in server to true when reports are enabled.
+
+- fixes reading report control blocks with "max" attribute greater 1
+  from SCL file
+
+- added check whether received BitString has correct size before setting it
+  in model
+
+v1.3.1 24-Feb-2017
+------------------
+
+- fixed TapCommand data attribute default value
+
+- types based on BdaBitString now check in setValue(byte[] value)
+  whether passed byte array has correct length
+
+
+v1.3.0 17-Jan-2017
+------------------
+
+- fixed bug that urcb reservation was not canceled after connection
+  was closed
+
+- fixed support for reserving buffered report control blocks on the
+  client side thanks to Bo Orsted Andresen
+
+- fixed support for receiving buffered and unbuffered reports when the
+  data set reference is not part of the report thanks to Bo Orsted
+  Andresen
+
+- fixed bug in parsing scl file, in some cases predefined values were
+  not set, thanks to Wu Yongming
+
+- added support for parsing ObjRef in SCL file
+
+- added support for multiple report control block instances by
+  specifying RptEnabled max attribute in SCL file
+
+v1.2.0 20-Mar-2016
+------------------
+- changed license from LGPL to Apache 2.0
+- added methods to ServerModel class to retrieve BRCBs on the client
+  side, thanks to Thomas Saabye from EURISCO
+- added support for parsing "Val" elements inside "DA" elements of SCL
+  file
+- several minor bug fixes
+
+v1.1.1 11-Dec-2014
+------------------
+- set default max TPDU size to 1024
+- fix: server stops sending reports when client closed association
+- fix in sample model to enable general interrogation
+
+v1.1.0 17-Oct-2014
+------------------
+- fixed ServerSap.stop()
+- added possibility change more settings in ClientSap
+- setDataSetValues will now only call a single call back function of a
+  server application. The syntax of the call back function had to be
+  changed for that.
+- fixed doclint errors and warnings. doclint is used by Java8
+
+v1.0 31-Jul-2014
+----------------
+- added support for reporting on server side.
+- minor bug fixes
+- improvements to logging messages
+- added maxtpdu size to all Transport Layer Connection Requests
+  (thanks to Michael Volz)
+- client can now receive reports via callback method
+- improved documentation
+- fixed build file for newest gradle
+- improved documentation
+
+v0.17.1 27-Jan-2014
+-------------------
+- extracted jOSIStack lib from openiec61850 lib so it can be used
+  separately (e.g. for the TASE.2 protocol)
+- fixed bugs in client Report functionality
+- readded ClientReportingSample application
+- fixed copying of arrays
+- support for decoding authentication value, though the authentication
+  value is NOT being checked at the moment
+- added full server side support for nonpersistent DataSets
+- fixed bug in runSampleServer.bat script
+- jars are now uploaded to the central maven repository
+
+v0.16.0 03-Sep-2013
+-------------------
+- renamed many functions and classes
+- added Client GUI project to easily browse the device model of an IEC
+  61850 IED.
+- openiec61850-client, -server, -common and jmms where combined into a
+  single openiec61850 library. The split was of no real use and caused
+  split package problems in OSGi environments.
+- client ACSI functions now throw two types of exceptions: IOException
+  (fatal exception, client needs to reconnect to server) and
+  ServiceError for Errors that did not affect the active
+  assocition/connection.
+- The way the server library works was completely changed: DataSources
+  no longer exist and there is no need for property files anymore. The
+  readValue() callback method in the DataSource is no longer needed
+  because GetDataValues requests are handled by the server library
+  without consulting the server application. Instead the server
+  application now has to fill the internal model of the server library
+  with up to date values. This change was necessary in order to be
+  able to efficiently implement reporting and controling services in
+  the future.
+- Basic control services are now part of the library and no longer
+  have to be handled by the server application.
+- Several bug fixes in the SCL-parser
+- fix so that FunctionalConstraints such as GS that are not supported
+  by openIEC61850 yet do not cause a null pointer exception when they
+  are part of a DataSet
+
+v0.14.4 30-Oct-2012
+-------------------
+- fixed another bug when decoding Float64 
+- getDataDefinition of all kinds of DataObjects and DataAttributes now
+  possible
+- modified toString() function of most DataAttributes to print more
+  valuable information
+
+v0.14.3 18-Sep-2012
+-------------------
+- fixed decoding of Float32 and Float64 
+- fixed getChildren(fc) Function in LogicalNode
+
+v0.14.2 23-Aug-2012
+-------------------
+- major refactoring to make code more efficient and easier to
+  maintain. Many classes have been renamed and/or relocated.
+- the ability to use different SCSM was completely removed because
+  only one mapping existed so far: the MMS mapping. No other Mapping
+  seems to have a chance against MMS simply because MMS is already in
+  use and works.
+- note that the syntax of the properties file for the StandaloneServer
+  changed a little, see the sampeServer for details
+
+v0.12.0 31-Jul-2012
+-------------------
+- changed from LGPLv3 to LGPLv2.1
+- replaced OCTET_STRING64, OCTET_STRING8 and so on with a general
+  OCTET_STRING class
+- the same was done for UNICODE_STRING and VISIBLE_STRING
+- client no longer hangs when receiving ApplError Reports
+
+v0.11.0 02-Jul-2012
+-------------------
+- new jASN1 version that can decode empty Object Identifiers
+- added mms authentication capability
+- fixed multi thread issues in TSAPConnection of MMS mapping
+- added FLOAT64 from IEC61400-2
+- added SampleReportClient to demonstrate how to use reporting with the client
+- some improvements to client receiver thread
+- some other small bug fixes
+
+v0.10.0 14-Mai-2012
+-------------------
+- restructuring: code moved to src folder
+- new jASN1 version which fixes bug in decoding empty bitstrings
+- receving "Check" data does not cause errors anymore
+- ASN.1 buffers are automatically resized in the client
+
+v0.9.9 29-Mar-2012
+------------------
+- added DataSet Services for client and server
+- added getReport methods and processReport for the client -> they
+  will get a report from the queue and return a report object with the
+  updated data
+- fixed getDataValues for array structures 
+- disabled sending SpecificationWithResult in read request because
+  some clients cannot cope with it
+- fixed bug in RFC 1006 part
+- added receiver thread in client so that reports can be received at any time
+- added VisibleString65 to be compatible with some version1.0 servers
+- avoid srcRef == 0 because some servers cannot cope with it 
+
+v0.9.8 22-Feb-2012
+------------------
+- fixed path in runSampleServer.sh and runSampleClient.sh
+
+0.9.7 21-Feb-2012
+-----------------
+- small bug fix in T-Sel encoding/decoding in TConnection.java -
+  thanks to Johannes Schmidt from University of Leipzig
+
+v0.9.6 20-Feb-2012
+------------------
+- when importing Eclipse projects: GRADLE_HOME was replaced by GRADLE_USER_HOME
+- removed duplicate entries from tar distribution file
+- Remote TSAPs can now be addressed using a T-Selector. The client can
+  set the T-Selector like this:
+  MmsScsmClientSAP clientSAP = new MmsScsmClientSAP();
+  clientSAP.acseSAP.tSAP.tSelRemote = new byte[] { 0, 1 };
+
+v0.9.5 06-Feb-2012
+------------------
+- first version

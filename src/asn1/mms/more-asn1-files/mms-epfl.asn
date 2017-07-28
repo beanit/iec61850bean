@@ -1,0 +1,3468 @@
+--Quelle: http://lamspeople.epfl.ch/kirrmann/mms/Documentation/mms_abstract_syntax.htm
+-- Pretty-printed by Asnp, the pretty-printer of France Telecom R&D
+-- MMS & GOOSE
+-- This file contains all ASN.1 encodings for MMS 9506-2003, plus the additions for IEC 61850 8.1
+-- (Annex G) and GOOSE (Annex A)
+-- As a modification (that does not affect decoding), type utc-time has
+-- been moved to the 9506 encodings according to Annex G
+-- This file has been checked with the OSS parser
+-- ABB Switzerland Corporate Research , Hubert Kirrmann 2005-07-21
+-- This file starts with the IEC61850 definitions.
+
+IEC61850 DEFINITIONS ::=
+BEGIN
+
+IMPORTS
+  Data, UtcTime
+    FROM ISO-9506-MMS-1 {iso standard 9506 part(2)
+      mms-abstract-syntax-version1(1)};
+
+IEC61850-8-1SpecificProtocol ::= CHOICE {
+  gseMngtPdu  [APPLICATION 0] IMPLICIT GSEMngtPdu,
+  goosePdu    [APPLICATION 1] IMPLICIT IECGoosePdu}
+
+GSEMngtPdu ::= SEQUENCE {
+  stateID      [0] IMPLICIT INTEGER,
+  security     [3]  OCTET STRING OPTIONAL, -- reserved for future definition
+  req-or-resp
+    CHOICE {requests   [1]  GSEMngtRequests,
+            responses  [2]  GSEMngtResponses}}
+
+GSEMngtRequests ::= CHOICE {
+  getGoReference         [1] IMPLICIT GetReferenceRequestPdu,
+  getGOOSEElementNumber  [2] IMPLICIT GetElementRequestPdu,
+  getGsReference         [3] IMPLICIT GetReferenceRequestPdu,
+  getGSSEDataOffset      [4] IMPLICIT GetElementRequestPdu}
+
+GSEMngtResponses ::= CHOICE {
+  gseMngtNotSupported    [0] IMPLICIT NULL,
+  getGoReference         [1] IMPLICIT GSEMngtResponsePdu,
+  getGOOSEElementNumber  [2] IMPLICIT GSEMngtResponsePdu,
+  getGsReference         [3] IMPLICIT GSEMngtResponsePdu,
+  getGSSEDataOffset      [4] IMPLICIT GSEMngtResponsePdu}
+
+GetReferenceRequestPdu ::= SEQUENCE {
+  ident   [0] IMPLICIT VisibleString, -- size shall support up to 65 octets
+  offset  [1] IMPLICIT SEQUENCE OF INTEGER}
+
+GetElementRequestPdu ::= SEQUENCE {
+  ident       [0] IMPLICIT VisibleString, -- size shall support up to 65    octets
+  references  [1] IMPLICIT SEQUENCE OF VisibleString}
+
+GSEMngtResponsePdu ::= SEQUENCE {
+  ident     [0] IMPLICIT VisibleString, -- echos the value of the request
+  confRev   [1] IMPLICIT INTEGER OPTIONAL,
+  response
+    CHOICE {responsePositive
+              [2] IMPLICIT SEQUENCE {datSet
+                                       [0] IMPLICIT VisibleString OPTIONAL,
+                                     result
+                                       [1] IMPLICIT SEQUENCE OF RequestResults},
+            responseNegative  [3] IMPLICIT GlbErrors}}
+
+RequestResults ::= CHOICE {
+  offset     [0] IMPLICIT INTEGER,
+  reference  [1] IMPLICIT IA5String,
+  error      [2] IMPLICIT ErrorReason}
+
+GlbErrors ::= INTEGER {
+  other(0), unknownControlBlock(1), responseTooLarge(2),
+  controlBlockConfigurationError(3)}
+
+ErrorReason ::= INTEGER {other(0), notFound(1)}
+
+IECGoosePdu ::= SEQUENCE {
+  gocbRef            [0] IMPLICIT VisibleString,
+  timeAllowedtoLive  [1] IMPLICIT INTEGER,
+  datSet             [2] IMPLICIT VisibleString,
+  goID               [3] IMPLICIT VisibleString OPTIONAL,
+  t                  [4] IMPLICIT UtcTime,
+  stNum              [5] IMPLICIT INTEGER,
+  sqNum              [6] IMPLICIT INTEGER,
+  test               [7] IMPLICIT BOOLEAN DEFAULT FALSE,
+  confRev            [8] IMPLICIT INTEGER,
+  ndsCom             [9] IMPLICIT BOOLEAN DEFAULT FALSE,
+  numDatSetEntries   [10] IMPLICIT INTEGER,
+  allData            [11] IMPLICIT SEQUENCE OF Data,
+  security           [12]  OCTET STRING OPTIONAL
+  -- reserved for digital signature--}
+
+-- UtcTime ::= OCTET STRING  format and size defined in  8.1.3.6. moved to 9506
+END
+
+
+
+-- ====================================================================
+MMS-Object-Module-1 {iso standard 9506 part(1) mms-object-model-version1(2)}
+DEFINITIONS ::=
+BEGIN
+
+-- This ASN.1 specification for IEC 9506-2003 has been checked for conformance with the 
+-- ASN.1 standard by the OSS ASN.1 Tools.
+-- It has been modified (2005-07-19) to include the IEC 61850 type utc-time and 
+-- extend the identifier size according to 61850 8.1 G.2 - G.3, and introduce two
+-- additional encodings for the Data type.  
+
+EXPORTS
+  AccessCondition, AdditionalCBBOptions, AdditionalSupportOptions, Address,
+    AlarmAckRule, Control-State, DomainState, EC-State, EC-Class, EE-Duration,
+    EE-Class, EventTime, Journal-Variable, LogicalStatus, Modifier,
+    normalPriority, normalSeverity, ParameterSupportOptions, PhysicalStatus,
+    Priority, ProgramInvocationState, Running-Mode, ServiceSupportOptions,
+    Severity, Transitions, TypeDescription, ULState, VMDState;
+
+IMPORTS
+  ApplicationReference, Authentication-value
+    FROM MMS-Environment-1 {iso standard 9506 part(2)
+      mms-environment-version1(4)}
+  AlternateAccess, ConfirmedServiceRequest, AttachToSemaphore,
+    AttachToEventCondition, Data, EE-State, Identifier, Integer8, Integer32,
+    MMSString, MMS255String, ObjectName, TimeOfDay, TypeSpecification,
+    Unsigned32, Unsigned8
+    FROM ISO-9506-MMS-1 {iso standard 9506 part(2)
+      mms-abstract-syntax-version1(1)};
+
+-- Part 1 - Object Model Definitions
+--
+-- Note - ASN.1 rules for interpreting the object formalism.
+--
+-- Each field has a field identifier possibly followed by a name.
+-- The field identifier begins with an '&' and is followed by a reference name,
+-- beginning with either a lower case or an upper case letter.
+--
+-- If the field identifier begins with '&' Upper case letter:
+--
+--   If there is no following name,
+--   the field identifies a type.
+--   If the following name is mixed case
+--   and begins with an upper case letter,
+--   or if the following name is upper case
+--   and the name of a Universal type,
+--   the field identifies a value set.
+--   If the following name is upper case
+--   and the name of an Object Class,
+--   the field identifies an Object Set.
+--
+-- If the field identifier begins with '&' lower case letter:
+--
+--   If the following name is upper case
+--   and the name of an Object Class,
+--   the field identifies an Object (instance).
+--   If the following name is mixed case
+--   and begins with an upper case letter,
+--   or if the following name is upper case
+--   and is the name of a Universal type,
+--   the field identifies a value.
+-- 
+VMD ::= CLASS {
+  &executiveFunction            ApplicationReference,
+  &vendorName                   MMSString,
+  &modelName                    MMSString,
+  &revision                     MMSString,
+  &AbstractSyntaxes             ABSTRACT-SYNTAX OPTIONAL,
+  &EATransactions               TRANSACTION OPTIONAL,
+  &Associations                 APPLICATION-ASSOCIATION,
+  &accessControl                Identifier,
+  &logicalStatus                LogicalStatus,
+  &Capabilities                 MMSString,
+  &physicalStatus               PhysicalStatus,
+  &local-detail                 BIT STRING(SIZE (1..128)),
+  &AccessControlLists           ACCESS-CONTROL-LIST OPTIONAL,
+  &Domains                      DOMAIN OPTIONAL,
+  &ProgramInvocations           PROGRAM-INVOCATION OPTIONAL,
+  &UnitControls                 UNIT-CONTROL OPTIONAL,
+  &UnnamedVariables             UNNAMED-VARIABLE OPTIONAL,
+  &NamedVariables               NAMED-VARIABLE OPTIONAL,
+  &NamedVariableLists           NAMED-VARIABLE-LIST OPTIONAL,
+  &NamedTypes                   NAMED-TYPE OPTIONAL,
+  &DataExchanges                DATA-EXCHANGE OPTIONAL,
+  &Semaphores                   SEMAPHORE OPTIONAL,
+  &OperatorStations             OPERATOR-STATION OPTIONAL,
+  &EventConditions              EVENT-CONDITION OPTIONAL,
+  &EventActions                 EVENT-ACTION OPTIONAL,
+  &EventEnrollments             EVENT-ENROLLMENT OPTIONAL,
+  &EventConditionLists          EVENT-CONDITION-LIST OPTIONAL,
+  &Journals                     JOURNAL OPTIONAL,
+  &operationState               VMDState,
+  &safety-Interlocks-Violated   BOOLEAN,
+  &any-Resource-Power-On        BOOLEAN,
+  &all-Resources-Calibrated     BOOLEAN,
+  &local-Control                BOOLEAN,
+  &selected-Program-Invocation  Identifier}
+
+LogicalStatus ::= [0] IMPLICIT INTEGER {
+  state-changes-allowed(0), no-state-changes-allowed(1),
+  limited-services-permitted(2), support-services-allowed(3)}(0..3)
+
+PhysicalStatus ::= [1] IMPLICIT INTEGER {
+  operational(0), partially-operational(1), inoperable(2),
+  needs-commissioning(3)}(0..3)
+
+VMDState ::= INTEGER {
+  idle(0), loaded(1), ready(2), executing(3), motion-paused(4),
+  manualInterventionRequired(5)}(0..5)
+
+TRANSACTION ::= CLASS {
+  &invokeID                  INTEGER UNIQUE,
+  &Pre-excutionModifiers     ModifierStep OPTIONAL,
+  &currentModifier           CHOICE {modifier  ModifierStep,
+                                         none      NULL},
+  &confirmedService-Request  ConfirmedServiceRequest,
+  &Post-executionModifiers   ModifierStep OPTIONAL,
+  &cancelable                BOOLEAN}
+
+ModifierStep ::= SEQUENCE {modifierID  INTEGER,
+                           modifier    Modifier}
+
+Modifier ::= CHOICE {
+  eventModifier      [0] IMPLICIT AttachToEventCondition,
+  semaphoreModifier  [1] IMPLICIT AttachToSemaphore}
+
+APPLICATION-ASSOCIATION ::= CLASS {
+  &aaIdentifier         INTEGER UNIQUE,
+  &client               ApplicationReference,
+  &abstractSyntax       ABSTRACT-SYNTAX,
+  &authenticationValue  Authentication-value OPTIONAL,
+  -- This field represents a 'user password'
+  &Transactions         TRANSACTION OPTIONAL,
+  &NamedVariables       NAMED-VARIABLE OPTIONAL,
+  &NamedVariableLists   NAMED-VARIABLE-LIST OPTIONAL,
+  &NamedTypes           NAMED-TYPE OPTIONAL,
+  &EventConditions      EVENT-CONDITION OPTIONAL,
+  &EventActions         EVENT-ACTION OPTIONAL,
+  &EventEnrollments     EVENT-ENROLLMENT OPTIONAL,
+  &EventConditionLists  EVENT-CONDITION-LIST OPTIONAL,
+  &Journals             JOURNAL OPTIONAL,
+  &services             ServiceSupportOptions,
+  &parameters           ParameterSupportOptions,
+  &nest                 INTEGER,
+  &Ulsms                ULSM OPTIONAL,
+  &extendedServices     AdditionalSupportOptions,
+  &extendedParameters   AdditionalCBBOptions}
+
+ServiceSupportOptions ::= BIT STRING {
+  status(0), getNameList(1), identify(2), rename(3), read(4), write(5),
+  getVariableAccessAttributes(6),
+  defineNamedVariable(7),
+  -- bit 8 is reserved for use of a service defined in annex E
+  defineScatteredAccess(8),
+  -- bit 9 is reserved for use of a service defined in annex E
+  getScatteredAccessAttributes(9), deleteVariableAccess(10),
+  defineNamedVariableList(11), getNamedVariableListAttributes(12),
+  deleteNamedVariableList(13), defineNamedType(14), getNamedTypeAttributes(15),
+  deleteNamedType(16), input(17), output(18), takeControl(19),
+  relinquishControl(20), defineSemaphore(21), deleteSemaphore(22),
+  reportSemaphoreStatus(23), reportPoolSemaphoreStatus(24),
+  reportSemaphoreEntryStatus(25), initiateDownloadSequence(26),
+  downloadSegment(27), terminateDownloadSequence(28),
+  initiateUploadSequence(29), uploadSegment(30), terminateUploadSequence(31),
+  requestDomainDownload(32), requestDomainUpload(33), loadDomainContent(34),
+  storeDomainContent(35), deleteDomain(36), getDomainAttributes(37),
+  createProgramInvocation(38), deleteProgramInvocation(39), start(40),
+  stop(41), resume(42), reset(43), kill(44),
+  getProgramInvocationAttributes(45), obtainFile(46), defineEventCondition(47),
+  deleteEventCondition(48), getEventConditionAttributes(49),
+  reportEventConditionStatus(50), alterEventConditionMonitoring(51),
+  triggerEvent(52), defineEventAction(53), deleteEventAction(54),
+  getEventActionAttributes(55), reportEventActionStatus(56),
+  defineEventEnrollment(57), deleteEventEnrollment(58),
+  alterEventEnrollment(59), reportEventEnrollmentStatus(60),
+  getEventEnrollmentAttributes(61), acknowledgeEventNotification(62),
+  getAlarmSummary(63), getAlarmEnrollmentSummary(64), readJournal(65),
+  writeJournal(66), initializeJournal(67), reportJournalStatus(68),
+  createJournal(69), deleteJournal(70),
+  getCapabilityList(71),
+  -- bit 72 is reserved for use of a service defined in annex D
+  fileOpen(72),
+  -- bit 73 is reserved for use of a service defined in annex D
+  fileRead(73),
+  -- bit 74 is reserved for use of a service defined in annex D
+  fileClose(74),
+  -- bit 75 is reserved for use of a service defined in annex D
+  fileRename(75),
+  -- bit 76 is reserved for use of a service defined in annex D
+  fileDelete(76),
+  -- bit 77 is reserved for use of a service defined in annex D
+  fileDirectory(77), unsolicitedStatus(78), informationReport(79),
+  eventNotification(80), attachToEventCondition(81), attachToSemaphore(82),
+  conclude(83), cancel(84),
+  getDataExchangeAttributes(85),
+  -- Shall not appear in minor version one
+  exchangeData(86),
+  -- Shall not appear in minor version one
+  defineAccessControlList(87),
+  -- Shall not appear in minor version one or two
+  getAccessControlListAttributes(88),
+  -- Shall not appear in minor version one or two
+  reportAccessControlledObjects(89),
+  -- Shall not appear in minor version one or two
+  deleteAccessControlList(90),
+  -- Shall not appear in minor version one or two
+  alterAccessControl(91),
+  -- Shall not appear in minor version one or two
+  reconfigureProgramInvocation(92)}(SIZE (93))
+
+ParameterSupportOptions ::= BIT STRING {
+  str1(0), str2(1), vnam(2), valt(3),
+  vadr(4),
+  -- bit 5 is reserved for the services defined in Annex E.
+  vsca(5), tpy(6), vlis(7),
+  -- bit 8 is reserved 
+  -- bit 9 is reserved
+  cei(10), aco(11), sem(12), csr(13), csnc(14), csplc(15), cspi(16), 
+  char(17)}(SIZE (18))
+
+AdditionalSupportOptions ::= BIT STRING {
+  vMDStop(0), vMDReset(1), select(2), alterProgramInvocationAttributes(3),
+  initiateUnitControlLoad(4), unitControlLoadSegment(5), unitControlUpload(6),
+  startUnitControl(7), stopUnitControl(8), createUnitControl(9),
+  addToUnitControl(10), removeFromUnitControl(11),
+  getUnitControlAttributes(12), loadUnitControlFromFile(13),
+  storeUnitControlToFile(14), deleteUnitControl(15),
+  defineEventConditionList(16), deleteEventConditionList(17),
+  addEventConditionListReference(18), removeEventConditionListReference(19),
+  getEventConditionListAttributes(20), reportEventConditionListStatus(21),
+  alterEventConditionListMonitoring(22)}(SIZE (23))
+
+AdditionalCBBOptions ::= BIT STRING {des(0), dei(1), recl(2)}(SIZE (3))
+
+ACCESS-CONTROL-LIST ::= CLASS {
+  &name                    Identifier,
+  &accessControl           Identifier,
+  &readAccessCondition     [0]  AccessCondition OPTIONAL,
+  &storeAccessCondition    [1]  AccessCondition OPTIONAL,
+  &writeAccessCondition    [2]  AccessCondition OPTIONAL,
+  &loadAccessCondition     [3]  AccessCondition OPTIONAL,
+  &executeAccessCondition  [4]  AccessCondition OPTIONAL,
+  &deleteAccessCondition   [5]  AccessCondition OPTIONAL,
+  &editAccessCondition     [6]  AccessCondition OPTIONAL,
+  --
+  -- The following fields are used to record lists of objects placed
+  -- under the control of this ACCESS-CONTROL-LIST object.
+  -- They will be referred to collectively as the Controlled Object Lists
+  --
+  &AccessControlLists      Identifier OPTIONAL,
+  &Domains                 Identifier OPTIONAL,
+  &ProgramInvocations      Identifier OPTIONAL,
+  &UnitControls            Identifier OPTIONAL,
+  &UnnamedVariables        Address OPTIONAL,
+  &NamedVariables          ObjectName OPTIONAL,
+  &NamedVariableLists      ObjectName OPTIONAL,
+  &NamedTypes              ObjectName OPTIONAL,
+  &DataExchanges           ObjectName OPTIONAL,
+  &Semaphores              Identifier OPTIONAL,
+  &OperatorStations        Identifier OPTIONAL,
+  &EventConditions         ObjectName OPTIONAL,
+  &EventActions            ObjectName OPTIONAL,
+  &EventEnrollments        ObjectName OPTIONAL,
+  &Journals                ObjectName OPTIONAL,
+  &EventConditionLists     ObjectName OPTIONAL}
+
+AccessCondition ::= CHOICE {
+  never      [0] IMPLICIT NULL,
+  semaphore  [1]  Identifier,
+  user       [2]  CHOICE {association  ApplicationReference,
+                          none         NULL},
+  password   [3]  Authentication-value,
+  joint      [4] IMPLICIT SEQUENCE OF AccessCondition,
+  alternate  [5] IMPLICIT SEQUENCE OF AccessCondition}
+
+DOMAIN ::= CLASS {
+  &name                 Identifier,
+  -- shall be unique among the names of all Domains within the VMD
+  &Capabilities         MMSString,
+  &state                DomainState,
+  &aAssociation         INTEGER OPTIONAL,
+  -- This field shall be present if and only if
+  -- the &state field has a value of
+  -- loading, complete, incomplete, d1, d2, d3 or d9
+  &accessControl        Identifier,
+  &sharable             BOOLEAN,
+  &ProgramInvocations   Identifier OPTIONAL,
+  &uploadsInProgress    INTEGER,
+  -- The following items reflect the Domain content
+  -- All the items listed have Domain-specific names.
+  &NamedVariables       NAMED-VARIABLE OPTIONAL,
+  &NamedVariableLists   NAMED-VARIABLE-LIST OPTIONAL,
+  &NamedTypes           NAMED-TYPE OPTIONAL,
+  &EventConditions      EVENT-CONDITION OPTIONAL,
+  &EventActions         EVENT-ACTION OPTIONAL,
+  &EventEnrollments     EVENT-ENROLLMENT OPTIONAL,
+  &EventConditionLists  EVENT-CONDITION-LIST OPTIONAL,
+  &Journals             JOURNAL OPTIONAL}
+
+DomainState ::= INTEGER {
+  non-existent(0), loading(1), ready(2), in-use(3), complete(4), incomplete(5),
+  d1(7), d2(8), d3(9), d4(10), d5(11), d6(12), d7(13), d8(14), d9(15)
+}(0..15)
+
+ULSM ::= CLASS {
+  &ulsmID     INTEGER UNIQUE,
+  -- shall be unique among all ULSM's within this application association
+  &domain     Identifier,
+  &ulsmState  ULState}
+
+ULState ::= INTEGER {
+  non-existent(0), uploading(1), uploaded(2), u1(3), u2(4), u3(5), u4(6)
+}(0..6)
+
+PROGRAM-INVOCATION ::= CLASS {
+  &name                            Identifier, -- shall be unique among all Program Invocations
+  &programInvocationState          ProgramInvocationState,
+  &Domains                         Identifier,
+  &accessControl                   Identifier,
+  &reusable                        BOOLEAN,
+  &monitor                         BOOLEAN,
+  -- The following three fields shall all be present if the value of
+  -- monitor is true.
+  -- If present, the &name field of each object instance
+  -- shall have a value equal to the
+  -- &name field of this instance of the PROGRAM-INVOCATION.
+  &eventCondition                  Identifier OPTIONAL,
+  &eventAction                     Identifier OPTIONAL,
+  &eventEnrollment                 Identifier OPTIONAL,
+  &executionArgument               MMSString,
+  &errorCode                       INTEGER,
+  &control                         Control-State,
+  -- The following field shall be present
+  -- if and only if the value of the &control field is controlled.
+  &controlling-Program-Invocation  Identifier,
+  -- The following two fields shall be present
+  -- if and only if the value of the &control field is controlling.
+  &Controlled-Program-Invocations  Identifier,
+  &program-Location                MMSString OPTIONAL,
+  &running-Mode                    Running-Mode,
+  -- The following field shall be present
+  -- if and only if the value of the &running-Mode field is cycle-limited
+  &remaining-Cycle-Count           INTEGER OPTIONAL,
+  -- The following field shall be present
+  -- if and only if the value of the &running-Mode field is step-limited
+  &remaining-Step-Count            INTEGER OPTIONAL}
+
+ProgramInvocationState ::= INTEGER {
+  non-existent(0), unrunnable(1), idle(2), running(3), stopped(4), starting(5),
+  stopping(6), resuming(7), resetting(8)}(0..8)
+
+Control-State ::= INTEGER {normal(0), controlling(1), controlled(2)}(0..2)
+
+Running-Mode ::= INTEGER {free-run(0), cycle-limited(1), step-limited(2)}(0..2)
+
+UNIT-CONTROL ::= CLASS {
+  &name                Identifier,
+  -- Shall be unique within the VMD
+  &accessControl       Identifier,
+  &Domains             Identifier,
+  &ProgramInvocations  Identifier}
+
+UNNAMED-VARIABLE ::= CLASS {
+  &address          Address,
+  &accessControl    Identifier,
+  &typeDescription  TypeDescription,
+  &value            Data,
+  &accessMethod     ENUMERATED {public}
+  -- The field '&accessMethod' shall have a value equal to public.--}
+
+Address ::= CHOICE {
+  numericAddress        [0] IMPLICIT Unsigned32,
+  symbolicAddress       [1]  MMSString,
+  unconstrainedAddress  [2] IMPLICIT OCTET STRING}
+
+NAMED-VARIABLE ::= CLASS {
+  &name             ObjectName, -- shall be unique within its range of specification (VMD, Domain, AA)
+  &accessControl    Identifier,
+  &typeDescription  TypeDescription,
+  &value            Data,
+  &accessMethod     ENUMERATED {public, anythingElse, ...
+                                    },
+  &address          Address OPTIONAL,
+  -- The presence of this field shall correspond to the
+  -- field &access Method having a value equal to public.
+  -- The absence of this field shall correspond to the
+  -- field &accessMethod having a value equal to anything except public.
+  -- The following field shall occur if and only if the sem CBB has been negotiated.
+  &meaning          ObjectName OPTIONAL}
+
+NAMED-VARIABLE-LIST ::= CLASS {
+  &name             ObjectName, -- shall be unique within its range of specification (VMD, Domain, AA)
+  &accessControl    Identifier,
+  &listOfVariables  VARIABLE-LIST-ITEM}
+
+VARIABLE-LIST-ITEM ::=
+  CLASS { -- one and only one of the following two lines shall appear 
+  &unnamedItem      Address OPTIONAL,
+  &namedItem        ObjectName OPTIONAL,
+  -- the following specification may be included
+  &alternateAccess  AlternateAccess OPTIONAL}
+
+NAMED-TYPE ::= CLASS {
+  &name             ObjectName,
+  -- shall be unique within its range of specification (VMD, Domain, AA)
+  &accessControl    Identifier,
+  &typeDescription  TypeDescription,
+  -- The following field shall occur if and only if the sem CBB has been negotiated:
+  &meaning          ObjectName OPTIONAL}
+
+-- type definition modified HK 
+TypeDescription ::= CHOICE {
+  array
+    [1] IMPLICIT SEQUENCE {packed            [0] IMPLICIT BOOLEAN DEFAULT FALSE,
+                           numberOfElements  [1] IMPLICIT Unsigned32,
+                           elementType       [2]  TypeSpecification},
+  structure
+    [2] IMPLICIT SEQUENCE {packed      [0] IMPLICIT BOOLEAN DEFAULT FALSE,
+                           components
+                             [1] IMPLICIT SEQUENCE OF
+                                            SEQUENCE {componentName
+                                                        [0] IMPLICIT Identifier
+                                                          OPTIONAL,
+                                                      componentType
+                                                        [1]  TypeSpecification}},
+  -- Simple Size Class
+  boolean           [3] IMPLICIT NULL, -- BOOLEAN
+  bit-string        [4] IMPLICIT Integer32, -- BIT-STRING
+  integer           [5] IMPLICIT Unsigned8, -- INTEGER
+  unsigned          [6] IMPLICIT Unsigned8, -- UNSIGNED
+  floating-point
+    [7] IMPLICIT SEQUENCE {format-width    Unsigned8, -- number of bits of--
+                           -- floating point value
+                           -- including sign, exponent,
+                           -- and fraction
+                           exponent-width  Unsigned8 -- size of exponent in bits--},
+  --      [8] is reserved 
+  octet-string      [9] IMPLICIT Integer32, -- OCTET-STRING
+  visible-string    [10] IMPLICIT Integer32, -- VISIBLE-STRING
+  generalized-time  [11] IMPLICIT NULL, -- GENERALIZED-TIME
+  binary-time       [12] IMPLICIT BOOLEAN, -- BINARY-TIME
+  bcd               [13] IMPLICIT Unsigned8, -- BCD
+  objId             [15] IMPLICIT NULL,
+  ...,
+  mMSString         [16]  Integer32, -- MMS String
+  utc-time          [17] IMPLICIT NULL -- from  IEC61850 8.1 G.2 --}
+
+DATA-EXCHANGE ::= CLASS {
+  &name               Identifier, -- shall be unique among all Data Exchange objects within the VMD
+  &inUse              BOOLEAN,
+  &accessControl      Identifier,
+  &request            SEQUENCE OF TypeDescription,
+  &response           SEQUENCE OF TypeDescription,
+  &linked             BOOLEAN,
+  -- The following attribute shall appear if an only if 
+  -- the value of &linked is true.
+  &programInvocation  Identifier}
+
+SEMAPHORE ::= CLASS {
+  &name                 ObjectName, -- shall be unique among all semaphores within the VMD
+  &accessControl        Identifier,
+  &class                ENUMERATED {token, pool},
+  -- If the value of &class is token, the following two fields shall appear
+  &numberOfTokens       INTEGER OPTIONAL,
+  &numberOfOwnedTokens  INTEGER OPTIONAL,
+  -- If the value of &class is pool, the following field shall appear
+  &NamedTokens          NAMED-TOKEN OPTIONAL,
+  &Owners               SEMAPHORE-ENTRY OPTIONAL,
+  &Requesters           SEMAPHORE-ENTRY OPTIONAL,
+  &eventCondition       ObjectName}
+
+NAMED-TOKEN ::= CLASS {
+  &name   Identifier,
+  &state  ENUMERATED {free, owned}}
+
+SEMAPHORE-ENTRY ::= CLASS {
+  &entryID            OCTET STRING, -- this value shall be unique to the semaphore object 
+  
+  -- that is the parent of this object
+  &class              ENUMERATED {simple, modifier},
+  &semaphore          Identifier,
+  &requester          ApplicationReference,
+  &aaIdentifier       INTEGER,
+  &invokeID           INTEGER,
+  -- The following field shall appear only if the semaphore is a pool semaphore
+  &named-token        Identifier OPTIONAL,
+  &priority           Priority,
+  &entryState         ENUMERATED {queued, owner, hung},
+  -- The following field shall appear only if the entryState has the value queued.
+  &remainingAcqDelay  CHOICE {time     Unsigned32,
+                                  forever  NULL} OPTIONAL,
+  -- The following field shall appear 
+  -- only if the entryState has the value owner or hung.
+  &remainingTimeOut   CHOICE {time     Unsigned32,
+                                  forever  NULL} OPTIONAL,
+  &abortOnTimeOut     BOOLEAN,
+  &relinquishIfLost   BOOLEAN}
+
+Priority ::= INTEGER(0..127)
+
+normalPriority Priority ::= 64
+
+OPERATOR-STATION ::= CLASS {
+  &name           Identifier,
+  -- shall be unique within its range of specification (VMD)
+  &accessControl  Identifier,
+  &stationType    ENUMERATED {entry, display, entry-display},
+  -- The following field shall appear if stationType is entry or entry-display
+  &inputBuffer    MMSString OPTIONAL,
+  -- The following field shall appear if stationType is display or entry-display
+  &outputBuffers  SEQUENCE OF MMSString OPTIONAL,
+  &state          ENUMERATED {idle, display-prompt-data, waiting-for-input,
+                                  input-buffer-filled, output-buffers-filled}}
+
+EVENT-CONDITION ::= CLASS {
+  &name                            ObjectName,
+  -- shall be unique within its range of specification (VMD, Domain, AA)
+  &accessControl                   Identifier,
+  &ecClass                         EC-Class,
+  &ecState                         EC-State,
+  &priority                        Priority,
+  &severity                        Severity,
+  &EventEnrollments                ObjectName OPTIONAL,
+  -- The following fields shall be present
+  -- if and only if the value of &ecClass is monitored.
+  &enabled                         BOOLEAN OPTIONAL,
+  &alarmSummaryReports             BOOLEAN OPTIONAL,
+  &monitoredVariable               CHOICE {named        [0]  ObjectName,
+                                               unnamed      [1]  Address,
+                                               unspecified  NULL} OPTIONAL,
+  &evaluationInterval              INTEGER OPTIONAL,
+  &timeToActive                    EventTime OPTIONAL,
+  &timeToIdle                      EventTime OPTIONAL,
+  &displayEnhancement              CHOICE {text    MMSString,
+                                               number  INTEGER,
+                                               none    NULL} OPTIONAL,
+  &group-Priority-Override         CHOICE {priority   Priority,
+                                               undefined  NULL} OPTIONAL,
+  &ReferencingEventConditionLists  Identifier OPTIONAL
+  -- EVENT-CONDITION-LIST.&name --}
+
+EC-Class ::= INTEGER {network-triggered(0), monitored(1)}(0..1)
+
+EC-State ::= INTEGER {disabled(0), idle(1), active(2)}(0..2)
+
+Severity ::= INTEGER(0..127)
+
+normalSeverity Severity ::= 64
+
+EventTime ::= CHOICE {
+  timeOfDay               [0] IMPLICIT TimeOfDay,
+  timeSequenceIdentifier  [1] IMPLICIT Unsigned32,
+  undefined               [2] IMPLICIT NULL}
+
+EVENT-ACTION ::= CLASS {
+  &name                     ObjectName,
+  -- shall be unique within its range of specification (VMD, Domain, AA)
+  &accessControl            Identifier,
+  &confirmedServiceRequest  ConfirmedServiceRequest,
+  &Modifiers                Modifier OPTIONAL,
+  &EventEnrollments         Identifier OPTIONAL}
+
+EVENT-ENROLLMENT ::= CLASS {
+  &name                ObjectName, -- shall be unique within its range of specification (VMD, Domain, AA)
+  &accessControl       Identifier,
+  &eeClass             EE-Class,
+  &eventCondition      Identifier,
+  &ecTransitions       Transitions,
+  &aAssociation        INTEGER,
+  -- The following two fields are present if and only if the
+  -- value of &eeClass is modifier.
+  &invokeID            INTEGER OPTIONAL,
+  &remainingDelay      CHOICE {time     INTEGER,
+                                   forever  NULL} OPTIONAL,
+  -- All the following fields are present if and only if the
+  -- value of &eeClass is notification.
+  &notificationLost    BOOLEAN OPTIONAL,
+  &eventAction         ObjectName OPTIONAL,
+  &duration            EE-Duration OPTIONAL,
+  &clientApplication   ApplicationReference OPTIONAL,
+  -- The following four fields are present if and only if the
+  -- value of &eeClass is notification and the value of &ecState
+  -- of the Event Condition object is monitored
+  &aaRule              AlarmAckRule OPTIONAL,
+  &timeActiveAck       EventTime OPTIONAL,
+  &timeIdleAck         EventTime OPTIONAL,
+  &ackState            ENUMERATED {acked, noAckA, noAckI} OPTIONAL,
+  &lastState           EC-State OPTIONAL,
+  &displayEnhancement  CHOICE {text    MMSString,
+                                   number  INTEGER,
+                                   none    NULL} OPTIONAL}
+
+EE-Class ::= INTEGER {modifier(0), notification(1)}(0..1)
+
+Transitions ::= BIT STRING {
+  idle-to-disabled(0), active-to-disabled(1), disabled-to-idle(2),
+  active-to-idle(3), disabled-to-active(4), idle-to-active(5),
+  any-to-deleted(6)}(SIZE (7))
+
+EE-Duration ::= INTEGER {current(0), permanent(1)}(0..1)
+
+AlarmAckRule ::= INTEGER {none(0), simple(1), ack-active(2), ack-all(3)}(0..3)
+
+EVENT-CONDITION-LIST ::= CLASS {
+  &name                            ObjectName,
+  -- shall be unique within its range of specification (VMD, Domain, AA)
+  &accessControl                   Identifier,
+  &EventConditions                 ObjectName,
+  &EventConditionLists             ObjectName OPTIONAL,
+  &ReferencingEventConditionLists  ObjectName OPTIONAL}
+
+JOURNAL ::= CLASS {
+  &name           ObjectName, -- shall be unique within its range of specification (VMD, Domain, AA)
+  &accessControl  Identifier,
+  &Entries        JOURNAL-ENTRY OPTIONAL}
+
+JOURNAL-ENTRY ::= CLASS {
+  &journal                ObjectName,
+  &entry                  OCTET STRING,
+  &clientApplication      ApplicationReference,
+  &timeStamp              TimeOfDay,
+  &orderOfReceipt         INTEGER UNIQUE,
+  &informationType        ENUMERATED {annotation, event-data, data},
+  -- The following attribute shall appear if and only if the
+  -- value of &informationType is annotation.
+  &textComment            MMS255String OPTIONAL,
+  --The following attribute shall appear if and only if the
+  -- value of &informationType is event-data.
+  &eventTransitionRecord  SEQUENCE {name          [0]  ObjectName,
+                                        currentState  [1] IMPLICIT EC-State} OPTIONAL,
+  -- The following attribute shall appear if and only if the
+  -- value of &informationType is data or event-data.
+  &journalVariables       SEQUENCE OF Journal-Variable OPTIONAL}
+
+Journal-Variable ::= SEQUENCE {
+  variableTag         MMS255String,
+  valueSpecification  Data}
+
+mMSNamedVariable OBJECT IDENTIFIER ::=
+  {iso standard 9506 part(1) symbols-version1(5) named-variable(1)}
+
+mMSAccessControlList OBJECT IDENTIFIER ::=
+  {iso standard 9506 part(1) symbols-version1(5) access-control-list(2)}
+
+mMSEventCondition OBJECT IDENTIFIER ::=
+  {iso standard 9506 part(1) symbols-version1(5) event-condition(3)}
+
+m-powerProblem NAMED-VARIABLE ::=
+  {&name             vmd-specific:"M_powerProblem",
+   &accessControl    "M_ReadOnly",
+   &typeDescription  boolean:NULL,
+   &accessMethod     anythingElse,
+   &value            boolean:FALSE}
+
+m-ELT NAMED-VARIABLE ::=
+  {&name             vmd-specific:"M_ELT",
+   &accessControl    "M_ReadOnly",
+   &typeDescription  integer:32,
+   &accessMethod     anythingElse,
+   &value            integer:0}
+
+m-DAYTIME NAMED-VARIABLE ::=
+  {&name             vmd-specific:"M_DAYTIME",
+   &accessControl    "M_NonDeletable",
+   &typeDescription  generalized-time:NULL,
+   &accessMethod     anythingElse,
+   &value            generalized-time:"299107311200"}
+
+m-Deletable ACCESS-CONTROL-LIST ::=
+  {&name           "M_Deletable",
+   &accessControl  "M_Never"}
+
+m-NonDeletable ACCESS-CONTROL-LIST ::=
+  {&name                   "M_NonDeletable",
+   &accessControl          "M_Never",
+   &deleteAccessCondition  never:NULL,
+   &NamedVariables         {vmd-specific:"M_DAYTIME"}}
+
+m-ReadOnly ACCESS-CONTROL-LIST ::=
+  {&name                   "M_ReadOnly",
+   &accessControl          "M_Never",
+   &writeAccessCondition   never:NULL,
+   &deleteAccessCondition  never:NULL,
+   &editAccessCondition    never:NULL,
+   &NamedVariables
+       {vmd-specific:"M_ELT" | vmd-specific:"M_DAYTIME"}}
+
+m-Never ACCESS-CONTROL-LIST ::=
+  {&name                   "M_Never",
+   &accessControl          "M_Never",
+   &deleteAccessCondition  never:NULL,
+   &editAccessCondition    never:NULL,
+   &AccessControlLists
+       {"M_Deletable" | "M_NonDeletable" | "M_Never" | "M_ReadOnly"},
+   &EventConditions        {vmd-specific:"M_Violation"}}
+
+m-Violation EVENT-CONDITION ::=
+  {&name           vmd-specific:"M_Violation",
+   &accessControl  "M_Never",
+   &ecClass        network-triggered,
+   &ecState        active,
+   &priority       normalPriority,
+   &severity       normalSeverity}
+
+END
+
+
+
+ISO-9506-MMS-1 {iso standard 9506 part(2) mms-abstract-syntax-version1(1)}
+DEFINITIONS ::=
+BEGIN
+
+EXPORTS
+  AlternateAccess, AttachToEventCondition, AttachToSemaphore,
+    ConfirmedServiceRequest, Data, EE-State, FileName, Identifier, Integer8,
+    Integer32, MMSString, MMS255String, UtcTime, ObjectName, TimeOfDay,
+    TypeSpecification, Unsigned32, Unsigned8, VariableSpecification;
+
+IMPORTS
+  ApplicationReference, Authentication-value
+    FROM MMS-Environment-1 {iso standard 9506 part(2)
+      mms-environment-version1(4)}
+  ObtainFile-Request, ObtainFile-Response, ObtainFile-Error, FileOpen-Request,
+    FileOpen-Response, FileRead-Request, FileRead-Response, FileClose-Request,
+    FileClose-Response, FileRename-Request, FileRename-Response,
+    FileRename-Error, FileDelete-Request, FileDelete-Response,
+    FileDirectory-Request, FileDirectory-Response,
+    DefineScatteredAccess-Request, DefineScatteredAccess-Response,
+    ScatteredAccessDescription, GetScatteredAccessAttributes-Request,
+    GetScatteredAccessAttributes-Response
+    FROM ISO-9506-MMS-1A {iso standard 9506 part(2) mms-annex-version1(3)}
+  AccessCondition, AdditionalCBBOptions, AdditionalSupportOptions, Address,
+    AlarmAckRule, Control-State, DomainState, EC-State, EC-Class, EE-Duration,
+    EE-Class, EventTime, Journal-Variable, LogicalStatus, Modifier,
+    normalPriority, normalSeverity, ParameterSupportOptions, PhysicalStatus,
+    Priority, ProgramInvocationState, Running-Mode, ServiceSupportOptions,
+    Severity, Transitions, TypeDescription, ULState, VMDState
+    FROM MMS-Object-Module-1 {iso standard 9506 part(1)
+      mms-object-model-version1(2)};
+
+MMSpdu ::= CHOICE {
+  confirmed-RequestPDU   [0] IMPLICIT Confirmed-RequestPDU,
+  confirmed-ResponsePDU  [1] IMPLICIT Confirmed-ResponsePDU,
+  confirmed-ErrorPDU     [2] IMPLICIT Confirmed-ErrorPDU,
+  unconfirmed-PDU        [3] IMPLICIT Unconfirmed-PDU,
+  rejectPDU              [4] IMPLICIT RejectPDU,
+  cancel-RequestPDU      [5] IMPLICIT Cancel-RequestPDU,
+  cancel-ResponsePDU     [6] IMPLICIT Cancel-ResponsePDU,
+  cancel-ErrorPDU        [7] IMPLICIT Cancel-ErrorPDU,
+  initiate-RequestPDU    [8] IMPLICIT Initiate-RequestPDU,
+  initiate-ResponsePDU   [9] IMPLICIT Initiate-ResponsePDU,
+  initiate-ErrorPDU      [10] IMPLICIT Initiate-ErrorPDU,
+  conclude-RequestPDU    [11] IMPLICIT Conclude-RequestPDU,
+  conclude-ResponsePDU   [12] IMPLICIT Conclude-ResponsePDU,
+  conclude-ErrorPDU      [13] IMPLICIT Conclude-ErrorPDU}
+
+Confirmed-RequestPDU ::= SEQUENCE {
+  invokeID         Unsigned32,
+  listOfModifiers  SEQUENCE OF Modifier OPTIONAL,
+  service          ConfirmedServiceRequest,
+  ...,
+  service-ext      [79]  Request-Detail OPTIONAL
+  -- shall not be transmitted if value is the value
+  -- of a tagged type derived from NULL--}
+
+ConfirmedServiceRequest ::= CHOICE {
+  status                          [0] IMPLICIT Status-Request,
+  getNameList                     [1] IMPLICIT GetNameList-Request,
+  identify                        [2] IMPLICIT Identify-Request,
+  rename                          [3] IMPLICIT Rename-Request,
+  read                            [4] IMPLICIT Read-Request,
+  write                           [5] IMPLICIT Write-Request,
+  getVariableAccessAttributes     [6]  GetVariableAccessAttributes-Request,
+  defineNamedVariable             [7] IMPLICIT DefineNamedVariable-Request,
+  --   [8] is reserved for a service defined in Annex E 
+  defineScatteredAcce             [8] IMPLICIT DefineScatteredAccess-Request,
+  --   [9] is reserved for a service defined in Annex E
+  getScatteredAccessAttributes    [9]  GetScatteredAccessAttributes-Request,
+  deleteVariableAccess            [10] IMPLICIT DeleteVariableAccess-Request,
+  defineNamedVariableList         [11] IMPLICIT DefineNamedVariableList-Request,
+  getNamedVariableListAttributes  [12]  GetNamedVariableListAttributes-Request,
+  deleteNamedVariableList         [13] IMPLICIT DeleteNamedVariableList-Request,
+  defineNamedType                 [14] IMPLICIT DefineNamedType-Request,
+  getNamedTypeAttributes          [15]  GetNamedTypeAttributes-Request,
+  deleteNamedType                 [16] IMPLICIT DeleteNamedType-Request,
+  input                           [17] IMPLICIT Input-Request,
+  output                          [18] IMPLICIT Output-Request,
+  takeControl                     [19] IMPLICIT TakeControl-Request,
+  relinquishControl               [20] IMPLICIT RelinquishControl-Request,
+  defineSemaphore                 [21] IMPLICIT DefineSemaphore-Request,
+  deleteSemaphore                 [22]  DeleteSemaphore-Request,
+  reportSemaphoreStatus           [23]  ReportSemaphoreStatus-Request,
+  reportPoolSemaphoreStatus
+    [24] IMPLICIT ReportPoolSemaphoreStatus-Request,
+  reportSemaphoreEntryStatus
+    [25] IMPLICIT ReportSemaphoreEntryStatus-Request,
+  initiateDownloadSequence
+    [26] IMPLICIT InitiateDownloadSequence-Request,
+  downloadSegment                 [27] IMPLICIT DownloadSegment-Request,
+  terminateDownloadSequence
+    [28] IMPLICIT TerminateDownloadSequence-Request,
+  initiateUploadSequence          [29] IMPLICIT InitiateUploadSequence-Request,
+  uploadSegment                   [30] IMPLICIT UploadSegment-Request,
+  terminateUploadSequence         [31] IMPLICIT TerminateUploadSequence-Request,
+  requestDomainDownload           [32] IMPLICIT RequestDomainDownload-Request,
+  requestDomainUpload             [33] IMPLICIT RequestDomainUpload-Request,
+  loadDomainContent               [34] IMPLICIT LoadDomainContent-Request,
+  storeDomainContent              [35] IMPLICIT StoreDomainContent-Request,
+  deleteDomain                    [36] IMPLICIT DeleteDomain-Request,
+  getDomainAttributes             [37] IMPLICIT GetDomainAttributes-Request,
+  createProgramInvocation         [38] IMPLICIT CreateProgramInvocation-Request,
+  deleteProgramInvocation         [39] IMPLICIT DeleteProgramInvocation-Request,
+  start                           [40] IMPLICIT Start-Request,
+  stop                            [41] IMPLICIT Stop-Request,
+  resume                          [42] IMPLICIT Resume-Request,
+  reset                           [43] IMPLICIT Reset-Request,
+  kill                            [44] IMPLICIT Kill-Request,
+  getProgramInvocationAttributes
+    [45] IMPLICIT GetProgramInvocationAttributes-Request,
+  obtainFile                      [46] IMPLICIT ObtainFile-Request,
+  defineEventCondition            [47] IMPLICIT DefineEventCondition-Request,
+  deleteEventCondition            [48]  DeleteEventCondition-Request,
+  getEventConditionAttributes     [49]  GetEventConditionAttributes-Request,
+  reportEventConditionStatus      [50]  ReportEventConditionStatus-Request,
+  alterEventConditionMonitoring
+    [51] IMPLICIT AlterEventConditionMonitoring-Request,
+  triggerEvent                    [52] IMPLICIT TriggerEvent-Request,
+  defineEventAction               [53] IMPLICIT DefineEventAction-Request,
+  deleteEventAction               [54]  DeleteEventAction-Request,
+  getEventActionAttributes        [55]  GetEventActionAttributes-Request,
+  reportEventActionStatus         [56]  ReportEventActionStatus-Request,
+  defineEventEnrollment           [57] IMPLICIT DefineEventEnrollment-Request,
+  deleteEventEnrollment           [58]  DeleteEventEnrollment-Request,
+  alterEventEnrollment            [59] IMPLICIT AlterEventEnrollment-Request,
+  reportEventEnrollmentStatus     [60]  ReportEventEnrollmentStatus-Request,
+  getEventEnrollmentAttributes
+    [61] IMPLICIT GetEventEnrollmentAttributes-Request,
+  acknowledgeEventNotification
+    [62] IMPLICIT AcknowledgeEventNotification-Request,
+  getAlarmSummary                 [63] IMPLICIT GetAlarmSummary-Request,
+  getAlarmEnrollmentSummary
+    [64] IMPLICIT GetAlarmEnrollmentSummary-Request,
+  readJournal                     [65] IMPLICIT ReadJournal-Request,
+  writeJournal                    [66] IMPLICIT WriteJournal-Request,
+  initializeJournal               [67] IMPLICIT InitializeJournal-Request,
+  reportJournalStatus             [68]  ReportJournalStatus-Request,
+  createJournal                   [69] IMPLICIT CreateJournal-Request,
+  deleteJournal                   [70] IMPLICIT DeleteJournal-Request,
+  getCapabilityList               [71] IMPLICIT GetCapabilityList-Request,
+  -- choices [72] through [77] are reserved for use by services
+  -- defined in annex D 
+  fileOpen                        [72] IMPLICIT FileOpen-Request,
+  fileRead                        [73] IMPLICIT FileRead-Request,
+  fileClose                       [74] IMPLICIT FileClose-Request,
+  fileRename                      [75] IMPLICIT FileRename-Request,
+  fileDelete                      [76] IMPLICIT FileDelete-Request,
+  fileDirectory                   [77] IMPLICIT FileDirectory-Request,
+  ...,
+  additionalService               [78]  AdditionalService-Request,
+  -- choice [79] is reserved
+  getDataExchangeAttributes       [80]  GetDataExchangeAttributes-Request,
+  -- Shall not appear in minor version 1
+  exchangeData                    [81] IMPLICIT ExchangeData-Request,
+  -- Shall not appear in minor version 1
+  defineAccessControlList         [82] IMPLICIT DefineAccessControlList-Request,
+  -- Shall not appear in minor version 1 or 2
+  getAccessControlListAttributes  [83]  GetAccessControlListAttributes-Request,
+  -- Shall not appear in minor version 1 or 2
+  reportAccessControlledObjects
+    [84] IMPLICIT ReportAccessControlledObjects-Request,
+  -- Shall not appear in minor version 1 or 2
+  deleteAccessControlList         [85] IMPLICIT DeleteAccessControlList-Request,
+  -- Shall not appear in minor version 1 or 2
+  changeAccessControl             [86] IMPLICIT ChangeAccessControl-Request,
+  -- Shall not appear in minor version 1 or 2
+  ...}
+
+AdditionalService-Request ::= CHOICE {
+  vMDStop             [0] IMPLICIT VMDStop-Request,
+  vMDReset            [1] IMPLICIT VMDReset-Request,
+  select              [2] IMPLICIT Select-Request,
+  alterPI             [3] IMPLICIT AlterProgramInvocationAttributes-Request,
+  initiateUCLoad      [4] IMPLICIT InitiateUnitControlLoad-Request,
+  uCLoad              [5] IMPLICIT UnitControlLoadSegment-Request,
+  uCUpload            [6] IMPLICIT UnitControlUpload-Request,
+  startUC             [7] IMPLICIT StartUnitControl-Request,
+  stopUC              [8] IMPLICIT StopUnitControl-Request,
+  createUC            [9] IMPLICIT CreateUnitControl-Request,
+  addToUC             [10] IMPLICIT AddToUnitControl-Request,
+  removeFromUC        [11] IMPLICIT RemoveFromUnitControl-Request,
+  getUCAttributes     [12] IMPLICIT GetUnitControlAttributes-Request,
+  loadUCFromFile      [13] IMPLICIT LoadUnitControlFromFile-Request,
+  storeUCToFile       [14] IMPLICIT StoreUnitControlToFile-Request,
+  deleteUC            [15] IMPLICIT DeleteUnitControl-Request,
+  defineECL           [16]  DefineEventConditionList-Request,
+  deleteECL           [17]  DeleteEventConditionList-Request,
+  addECLReference     [18] IMPLICIT AddEventConditionListReference-Request,
+  removeECLReference  [19] IMPLICIT RemoveEventConditionListReference-Request,
+  getECLAttributes    [20]  GetEventConditionListAttributes-Request,
+  reportECLStatus     [21] IMPLICIT ReportEventConditionListStatus-Request,
+  alterECLMonitoring  [22] IMPLICIT AlterEventConditionListMonitoring-Request}
+
+Request-Detail ::= CHOICE {
+  -- this choice shall be selected if the tag value of the
+  -- ConfirmedServiceRequest does not match any of the tags below
+  otherRequests                  NULL,
+  createProgramInvocation
+    [38] IMPLICIT CS-CreateProgramInvocation-Request,
+  start                          [40] IMPLICIT CS-Start-Request,
+  resume                         [42] IMPLICIT CS-Resume-Request,
+  defineEventCondition           [47] IMPLICIT CS-DefineEventCondition-Request,
+  alterEventConditionMonitoring
+    [51] IMPLICIT CS-AlterEventConditionMonitoring-Request,
+  defineEventEnrollment          [57] IMPLICIT CS-DefineEventEnrollment-Request,
+  alterEventEnrollment           [59] IMPLICIT CS-AlterEventEnrollment-Request}
+
+Unconfirmed-PDU ::= SEQUENCE {
+  service         UnconfirmedService,
+  ...,
+  service-ext     [79]  Unconfirmed-Detail OPTIONAL
+  -- shall not be transmitted if value is the value
+  -- of a tagged type derived from NULL--}
+
+UnconfirmedService ::= CHOICE {
+  informationReport  [0] IMPLICIT InformationReport,
+  unsolicitedStatus  [1] IMPLICIT UnsolicitedStatus,
+  eventNotification  [2] IMPLICIT EventNotification}
+
+Unconfirmed-Detail ::= CHOICE {
+  -- this choice shall be selected if the tag value of the
+  -- UnconfirmedService does not match any of the tags below
+  otherRequests      NULL,
+  eventNotification  [2] IMPLICIT CS-EventNotification}
+
+Confirmed-ResponsePDU ::= SEQUENCE {
+  invokeID        Unsigned32,
+  service         ConfirmedServiceResponse,
+  ...,
+  service-ext     [79]  Response-Detail OPTIONAL
+  -- shall not be transmitted if value is the value
+  -- of a tagged type derived from NULL--}
+
+ConfirmedServiceResponse ::= CHOICE {
+  status                          [0] IMPLICIT Status-Response,
+  getNameList                     [1] IMPLICIT GetNameList-Response,
+  identify                        [2] IMPLICIT Identify-Response,
+  rename                          [3] IMPLICIT Rename-Response,
+  read                            [4] IMPLICIT Read-Response,
+  getVariableAccessAttributes
+    [6] IMPLICIT GetVariableAccessAttributes-Response,
+  defineNamedVariable             [7] IMPLICIT DefineNamedVariable-Response,
+  --   choice [8] is reserved for a service defined in Annex E 
+  defineScatteredAccess           [8] IMPLICIT DefineScatteredAccess-Response,
+  --   choice [9] is reserved for a service defined in Annex E
+  getScatteredAccessAttributes
+    [9] IMPLICIT GetScatteredAccessAttributes-Response,
+  deleteVariableAccess            [10] IMPLICIT DeleteVariableAccess-Response,
+  defineNamedVariableList
+    [11] IMPLICIT DefineNamedVariableList-Response,
+  getNamedVariableListAttributes
+    [12] IMPLICIT GetNamedVariableListAttributes-Response,
+  deleteNamedVariableList
+    [13] IMPLICIT DeleteNamedVariableList-Response,
+  defineNamedType                 [14] IMPLICIT DefineNamedType-Response,
+  getNamedTypeAttributes          [15] IMPLICIT GetNamedTypeAttributes-Response,
+  deleteNamedType                 [16] IMPLICIT DeleteNamedType-Response,
+  input                           [17] IMPLICIT Input-Response,
+  output                          [18] IMPLICIT Output-Response,
+  takeControl                     [19]  TakeControl-Response,
+  relinquishControl               [20] IMPLICIT RelinquishControl-Response,
+  defineSemaphore                 [21] IMPLICIT DefineSemaphore-Response,
+  deleteSemaphore                 [22] IMPLICIT DeleteSemaphore-Response,
+  reportSemaphoreStatus           [23] IMPLICIT ReportSemaphoreStatus-Response,
+  reportPoolSemaphoreStatus
+    [24] IMPLICIT ReportPoolSemaphoreStatus-Response,
+  reportSemaphoreEntryStatus
+    [25] IMPLICIT ReportSemaphoreEntryStatus-Response,
+  initiateDownloadSequence
+    [26] IMPLICIT InitiateDownloadSequence-Response,
+  downloadSegment                 [27] IMPLICIT DownloadSegment-Response,
+  terminateDownloadSequence
+    [28] IMPLICIT TerminateDownloadSequence-Response,
+  initiateUploadSequence          [29] IMPLICIT InitiateUploadSequence-Response,
+  uploadSegment                   [30] IMPLICIT UploadSegment-Response,
+  terminateUploadSequence
+    [31] IMPLICIT TerminateUploadSequence-Response,
+  requestDomainDownload           [32] IMPLICIT RequestDomainDownload-Response,
+  requestDomainUpload             [33] IMPLICIT RequestDomainUpload-Response,
+  loadDomainContent               [34] IMPLICIT LoadDomainContent-Response,
+  storeDomainContent              [35] IMPLICIT StoreDomainContent-Response,
+  deleteDomain                    [36] IMPLICIT DeleteDomain-Response,
+  getDomainAttributes             [37] IMPLICIT GetDomainAttributes-Response,
+  createProgramInvocation
+    [38] IMPLICIT CreateProgramInvocation-Response,
+  deleteProgramInvocation
+    [39] IMPLICIT DeleteProgramInvocation-Response,
+  start                           [40] IMPLICIT Start-Response,
+  stop                            [41] IMPLICIT Stop-Response,
+  resume                          [42] IMPLICIT Resume-Response,
+  reset                           [43] IMPLICIT Reset-Response,
+  kill                            [44] IMPLICIT Kill-Response,
+  getProgramInvocationAttributes
+    [45] IMPLICIT GetProgramInvocationAttributes-Response,
+  obtainFile                      [46] IMPLICIT ObtainFile-Response,
+  defineEventCondition            [47] IMPLICIT DefineEventCondition-Response,
+  deleteEventCondition            [48] IMPLICIT DeleteEventCondition-Response,
+  getEventConditionAttributes
+    [49] IMPLICIT GetEventConditionAttributes-Response,
+  reportEventConditionStatus
+    [50] IMPLICIT ReportEventConditionStatus-Response,
+  alterEventConditionMonitoring
+    [51] IMPLICIT AlterEventConditionMonitoring-Response,
+  triggerEvent                    [52] IMPLICIT TriggerEvent-Response,
+  defineEventAction               [53] IMPLICIT DefineEventAction-Response,
+  deleteEventAction               [54] IMPLICIT DeleteEventAction-Response,
+  getEventActionAttributes
+    [55] IMPLICIT GetEventActionAttributes-Response,
+  reportEventActionStatus
+    [56] IMPLICIT ReportEventActionStatus-Response,
+  defineEventEnrollment           [57] IMPLICIT DefineEventEnrollment-Response,
+  deleteEventEnrollment           [58] IMPLICIT DeleteEventEnrollment-Response,
+  alterEventEnrollment            [59] IMPLICIT AlterEventEnrollment-Response,
+  reportEventEnrollmentStatus
+    [60] IMPLICIT ReportEventEnrollmentStatus-Response,
+  getEventEnrollmentAttributes
+    [61] IMPLICIT GetEventEnrollmentAttributes-Response,
+  acknowledgeEventNotification
+    [62] IMPLICIT AcknowledgeEventNotification-Response,
+  getAlarmSummary                 [63] IMPLICIT GetAlarmSummary-Response,
+  getAlarmEnrollmentSummary
+    [64] IMPLICIT GetAlarmEnrollmentSummary-Response,
+  readJournal                     [65] IMPLICIT ReadJournal-Response,
+  writeJournal                    [66] IMPLICIT WriteJournal-Response,
+  initializeJournal               [67] IMPLICIT InitializeJournal-Response,
+  reportJournalStatus             [68] IMPLICIT ReportJournalStatus-Response,
+  createJournal                   [69] IMPLICIT CreateJournal-Response,
+  deleteJournal                   [70] IMPLICIT DeleteJournal-Response,
+  getCapabilityList               [71] IMPLICIT GetCapabilityList-Response,
+  -- choices [72] through [77] are reserved for use by services
+  -- defined in annex D
+  fileOpen                        [72] IMPLICIT FileOpen-Response,
+  fileRead                        [73] IMPLICIT FileRead-Response,
+  fileClose                       [74] IMPLICIT FileClose-Response,
+  fileRename                      [75] IMPLICIT FileRename-Response,
+  fileDelete                      [76] IMPLICIT FileDelete-Response,
+  fileDirectory                   [77] IMPLICIT FileDirectory-Response,
+  ...,
+  additionalService               [78]  AdditionalService-Response,
+  -- choice [79] is reserved,
+  getDataExchangeAttributes       [80]  GetDataExchangeAttributes-Response,
+  -- Shall not appear in minor version 1,
+  exchangeData                    [81] IMPLICIT ExchangeData-Response,
+  -- Shall not appear in minor version 1,
+  defineAccessControlList
+    [82] IMPLICIT DefineAccessControlList-Response,
+  -- Shall not appear in minor version 1 or 2,
+  getAccessControlListAttributes
+    [83] IMPLICIT GetAccessControlListAttributes-Response,
+  -- Shall not appear in minor version 1 or 2,
+  reportAccessControlledObjects
+    [84] IMPLICIT ReportAccessControlledObjects-Response,
+  -- Shall not appear in minor version 1 or 2,
+  deleteAccessControlList
+    [85] IMPLICIT DeleteAccessControlList-Response,
+  -- Shall not appear in minor version 1 or 2,
+  changeAccessControl             [86] IMPLICIT ChangeAccessControl-Response-- Shall not appear in minor version 1 or 2
+  ,
+  ...}
+
+AdditionalService-Response ::= CHOICE {
+  vMDStop             [0] IMPLICIT VMDStop-Response,
+  vMDReset            [1] IMPLICIT VMDReset-Response,
+  select              [2] IMPLICIT Select-Response,
+  alterPI             [3] IMPLICIT AlterProgramInvocationAttributes-Response,
+  initiateUCLoad      [4] IMPLICIT InitiateUnitControlLoad-Response,
+  uCLoad              [5] IMPLICIT UnitControlLoadSegment-Response,
+  uCUpload            [6] IMPLICIT UnitControlUpload-Response,
+  startUC             [7] IMPLICIT StartUnitControl-Response,
+  stopUC              [8] IMPLICIT StopUnitControl-Response,
+  createUC            [9] IMPLICIT CreateUnitControl-Response,
+  addToUC             [10] IMPLICIT AddToUnitControl-Response,
+  removeFromUC        [11] IMPLICIT RemoveFromUnitControl-Response,
+  getUCAttributes     [12] IMPLICIT GetUnitControlAttributes-Response,
+  loadUCFromFile      [13] IMPLICIT LoadUnitControlFromFile-Response,
+  storeUCToFile       [14] IMPLICIT StoreUnitControlToFile-Response,
+  deleteUC            [15] IMPLICIT DeleteUnitControl-Response,
+  defineECL           [16] IMPLICIT DefineEventConditionList-Response,
+  deleteECL           [17] IMPLICIT DeleteEventConditionList-Response,
+  addECLReference     [18] IMPLICIT AddEventConditionListReference-Response,
+  removeECLReference  [19] IMPLICIT RemoveEventConditionListReference-Response,
+  getECLAttributes    [20] IMPLICIT GetEventConditionListAttributes-Response,
+  reportECLStatus     [21] IMPLICIT ReportEventConditionListStatus-Response,
+  alterECLMonitoring  [22] IMPLICIT AlterEventConditionListMonitoring-Response}
+
+Response-Detail ::= CHOICE {
+  -- this choice shall be selected if the tag value of the
+  -- ConfirmedServiceResponse does not match any of the tags below
+  otherRequests                   NULL,
+  status                          [0]  CS-Status-Response,
+  getProgramInvocationAttributes
+    [45] IMPLICIT CS-GetProgramInvocationAttributes-Response,
+  getEventConditionAttributes
+    [49] IMPLICIT CS-GetEventConditionAttributes-Response}
+
+Confirmed-ErrorPDU ::= SEQUENCE {
+  invokeID          [0] IMPLICIT Unsigned32,
+  modifierPosition  [1] IMPLICIT Unsigned32 OPTIONAL,
+  serviceError      [2] IMPLICIT ServiceError}
+
+ServiceError ::= SEQUENCE {
+  errorClass
+    [0]  CHOICE {vmd-state
+                   [0] IMPLICIT INTEGER {other(0), vmd-state-conflict(1),
+                                         vmd-operational-problem(2),
+                                         domain-transfer-problem(3),
+                                         state-machine-id-invalid(4)}(0..4),
+                 application-reference
+                   [1] IMPLICIT INTEGER {other(0), application-unreachable(1),
+                                         connection-lost(2),
+                                         application-reference-invalid(3),
+                                         context-unsupported(4)}(0..4),
+                 definition
+                   [2] IMPLICIT INTEGER {other(0), object-undefined(1),
+                                         invalid-address(2),
+                                         type-unsupported(3),
+                                         type-inconsistent(4),
+                                         object-exists(5),
+                                         object-attribute-inconsistent(6)}
+                                                                    (0..6),
+                 resource
+                   [3] IMPLICIT INTEGER {other(0), memory-unavailable(1),
+                                         processor-resource-unavailable(2),
+                                         mass-storage-unavailable(3),
+                                         capability-unavailable(4),
+                                         capability-unknown(5)}(0..5),
+                 service
+                   [4] IMPLICIT INTEGER {other(0),
+                                         primitives-out-of-sequence(1),
+                                         object-state-conflict(2),
+                                         -- Value 3 reserved for further definition
+                                         continuation-invalid(4),
+                                         object-constraint-conflict(5)}(0..5),
+                 service-preempt
+                   [5] IMPLICIT INTEGER {other(0), timeout(1), deadlock(2),
+                                         cancel(3)}(0..3),
+                 time-resolution
+                   [6] IMPLICIT INTEGER {other(0),
+                                         unsupportable-time-resolution(1)}
+                                                                    (0..1),
+                 access
+                   [7] IMPLICIT INTEGER {other(0),
+                                         object-access-unsupported(1),
+                                         object-non-existent(2),
+                                         object-access-denied(3),
+                                         object-invalidated(4)}(0..4),
+                 initiate
+                   [8] IMPLICIT INTEGER {other(0),
+                                         -- Values 1 and 2 are reserved for further definition
+                                         max-services-outstanding-calling-insufficient(3),
+                                         max-services-outstanding-called-insufficient(4),
+                                         service-CBB-insufficient(5),
+                                         parameter-CBB-insufficient(6),
+                                         nesting-level-insufficient(7)}(0..7),
+                 conclude
+                   [9] IMPLICIT INTEGER {other(0),
+                                         further-communication-required(1)}
+                                                                    (0..1),
+                 cancel
+                   [10] IMPLICIT INTEGER {other(0), invoke-id-unknown(1),
+                                          cancel-not-possible(2)}(0..2),
+                 file
+                   [11] IMPLICIT INTEGER {other(0), filename-ambiguous(1),
+                                          file-busy(2),
+                                          filename-syntax-error(3),
+                                          content-type-invalid(4),
+                                          position-invalid(5),
+                                          file-access-denied(6),
+                                          file-non-existent(7),
+                                          duplicate-filename(8),
+                                          insufficient-space-in-filestore(9)}
+                                                                    (0..9),
+                 others                 [12] IMPLICIT INTEGER},
+  additionalCode         [1] IMPLICIT INTEGER OPTIONAL,
+  additionalDescription  [2] IMPLICIT VisibleString OPTIONAL,
+  serviceSpecificInfo
+    [3]  CHOICE {obtainFile                   [0] IMPLICIT ObtainFile-Error,
+                 start                        [1] IMPLICIT Start-Error,
+                 stop                         [2] IMPLICIT Stop-Error,
+                 resume                       [3] IMPLICIT Resume-Error,
+                 reset                        [4] IMPLICIT Reset-Error,
+                 deleteVariableAccess
+                   [5] IMPLICIT DeleteVariableAccess-Error,
+                 deleteNamedVariableList
+                   [6] IMPLICIT DeleteNamedVariableList-Error,
+                 deleteNamedType
+                   [7] IMPLICIT DeleteNamedType-Error,
+                 defineEventEnrollment-Error  [8]  DefineEventEnrollment-Error,
+                 -- [9] Reserved for use by annex D
+                 fileRename                   [9] IMPLICIT FileRename-Error,
+                 additionalService            [10]  AdditionalService-Error,
+                 changeAccessControl
+                   [11] IMPLICIT ChangeAccessControl-Error} OPTIONAL}
+
+AdditionalService-Error ::= CHOICE {
+  defineEcl           [0]  DefineEventConditionList-Error,
+  addECLReference     [1]  AddEventConditionListReference-Error,
+  removeECLReference  [2]  RemoveEventConditionListReference-Error,
+  initiateUC          [3]  InitiateUnitControl-Error,
+  startUC             [4] IMPLICIT StartUnitControl-Error,
+  stopUC              [5] IMPLICIT StopUnitControl-Error,
+  deleteUC            [6]  DeleteUnitControl-Error,
+  loadUCFromFile      [7]  LoadUnitControlFromFile-Error}
+
+TimeOfDay ::= OCTET STRING(SIZE (4 | 6))
+
+--  maxIdentifier INTEGER ::= 32
+maxIdentifier INTEGER ::=
+  64 -- modified by IEC61850 8.1 G3
+
+Identifier ::= UTF8String(SIZE (1..maxIdentifier))
+
+Integer8 ::= INTEGER(-128..127) -- range -128 <= i <= 127
+                    
+
+Integer16 ::= INTEGER(-32768..32767) -- range -32,768 <= i <= 32,767
+                     
+
+Integer32 ::=
+  INTEGER(-2147483648..2147483647) -- range -2**31 <= i <= 2**31 - 1
+         
+
+Unsigned8 ::= INTEGER(0..127) -- range 0 <= i <= 127
+                     
+
+Unsigned16 ::= INTEGER(0..32767) -- range 0 <= i <= 32767
+                      
+
+Unsigned32 ::= INTEGER(0..2147483647) -- range 0 <= i <= 2**31 - 1 
+                      
+
+ObjectName ::= CHOICE {
+  vmd-specific     [0] IMPLICIT Identifier,
+  domain-specific
+    [1] IMPLICIT SEQUENCE {domainID  Identifier,
+                           itemID    Identifier},
+  aa-specific      [2] IMPLICIT Identifier}
+
+ObjectClass ::= CHOICE {
+  basicObjectClass
+    [0] IMPLICIT INTEGER {namedVariable(0),
+                          -- value 1 is reserved for definition in Annex E
+                          scatteredAccess(1), namedVariableList(2),
+                          namedType(3), semaphore(4), eventCondition(5),
+                          eventAction(6), eventEnrollment(7), journal(8),
+                          domain(9), programInvocation(10),
+                          operatorStation(11),
+                          dataExchange(12),
+                          -- Shall not appear in minor version 1
+                          accessControlList(13)
+                          -- Shall not appear in minor version 1 or 2--}(0..13),
+  ...,
+  csObjectClass
+    [1] IMPLICIT INTEGER {eventConditionList(0), unitControl(1)}(0..1)}
+
+MMSString ::= UTF8String
+
+MMS255String ::= UTF8String(SIZE (1..255))
+
+UtcTime ::= OCTET STRING(SIZE (8))
+
+FileName ::= SEQUENCE OF GraphicString
+
+Initiate-RequestPDU ::= SEQUENCE {
+  localDetailCalling                 [0] IMPLICIT Integer32 OPTIONAL,
+  proposedMaxServOutstandingCalling  [1] IMPLICIT Integer16,
+  proposedMaxServOutstandingCalled   [2] IMPLICIT Integer16,
+  proposedDataStructureNestingLevel  [3] IMPLICIT Integer8 OPTIONAL,
+  initRequestDetail
+    [4] IMPLICIT SEQUENCE {proposedVersionNumber
+                             [0] IMPLICIT Integer16,
+                           proposedParameterCBB
+                             [1] IMPLICIT ParameterSupportOptions,
+                           servicesSupportedCalling
+                             [2] IMPLICIT ServiceSupportOptions,
+                           ...,
+                           additionalSupportedCalling
+                             [3] IMPLICIT AdditionalSupportOptions,
+                           additionalCbbSupportedCalling
+                             [4] IMPLICIT AdditionalCBBOptions,
+                           privilegeClassIdentityCalling
+                             [5] IMPLICIT VisibleString}}
+
+Initiate-ResponsePDU ::= SEQUENCE {
+  localDetailCalled                    [0] IMPLICIT Integer32 OPTIONAL,
+  negotiatedMaxServOutstandingCalling  [1] IMPLICIT Integer16,
+  negotiatedMaxServOutstandingCalled   [2] IMPLICIT Integer16,
+  negotiatedDataStructureNestingLevel  [3] IMPLICIT Integer8 OPTIONAL,
+  initResponseDetail
+    [4] IMPLICIT SEQUENCE {negotiatedVersionNumber
+                             [0] IMPLICIT Integer16,
+                           negotiatedParameterCBB
+                             [1] IMPLICIT ParameterSupportOptions,
+                           servicesSupportedCalled
+                             [2] IMPLICIT ServiceSupportOptions,
+                           ...,
+                           additionalSupportedCalled
+                             [3] IMPLICIT AdditionalSupportOptions,
+                           additionalCbbSupportedCalled
+                             [4] IMPLICIT AdditionalCBBOptions,
+                           privilegeClassIdentityCalled
+                             [5] IMPLICIT VisibleString}}
+
+Initiate-ErrorPDU ::= ServiceError
+
+Conclude-RequestPDU ::= NULL
+
+Conclude-ResponsePDU ::= NULL
+
+Conclude-ErrorPDU ::= ServiceError
+
+Cancel-RequestPDU ::= Unsigned32 -- originalInvokeID
+
+Cancel-ResponsePDU ::= Unsigned32 -- originalInvokeID
+
+Cancel-ErrorPDU ::= SEQUENCE {
+  originalInvokeID  [0] IMPLICIT Unsigned32,
+  serviceError      [1] IMPLICIT ServiceError}
+
+RejectPDU ::= SEQUENCE {
+  originalInvokeID  [0] IMPLICIT Unsigned32 OPTIONAL,
+  rejectReason
+    CHOICE {confirmed-requestPDU
+              [1] IMPLICIT INTEGER {other(0), unrecognized-service(1),
+                                    unrecognized-modifier(2),
+                                    invalid-invokeID(3), invalid-argument(4),
+                                    invalid-modifier(5),
+                                    max-serv-outstanding-exceeded(6),
+                                    -- Value 7 reserved for further definition
+                                    max-recursion-exceeded(8),
+                                    value-out-of-range(9)}(0..9),
+            confirmed-responsePDU
+              [2] IMPLICIT INTEGER {other(0), unrecognized-service(1),
+                                    invalid-invokeID(2),
+                                    invalid-result(3),
+                                    -- Value 4 reserved for further definition
+                                    max-recursion-exceeded(5),
+                                    value-out-of-range(6)}(0..6),
+            confirmed-errorPDU
+              [3] IMPLICIT INTEGER {other(0), unrecognized-service(1),
+                                    invalid-invokeID(2),
+                                    invalid-serviceError(3),
+                                    value-out-of-range(4)}(0..4),
+            unconfirmedPDU
+              [4] IMPLICIT INTEGER {other(0), unrecognized-service(1),
+                                    invalid-argument(2),
+                                    max-recursion-exceeded(3),
+                                    value-out-of-range(4)}(0..4),
+            pdu-error
+              [5] IMPLICIT INTEGER {unknown-pdu-type(0), invalid-pdu(1),
+                                    illegal-acse-mapping(2)},
+            cancel-requestPDU
+              [6] IMPLICIT INTEGER {other(0), invalid-invokeID(1)}(0..1),
+            cancel-responsePDU
+              [7] IMPLICIT INTEGER {other(0), invalid-invokeID(1)}(0..1),
+            cancel-errorPDU
+              [8] IMPLICIT INTEGER {other(0), invalid-invokeID(1),
+                                    invalid-serviceError(2),
+                                    value-out-of-range(3)}(0..3),
+            conclude-requestPDU
+              [9] IMPLICIT INTEGER {other(0), invalid-argument(1)}(0..1),
+            conclude-responsePDU
+              [10] IMPLICIT INTEGER {other(0), invalid-result(1)}(0..1),
+            conclude-errorPDU
+              [11] IMPLICIT INTEGER {other(0), invalid-serviceError(1),
+                                     value-out-of-range(2)}(0..2)}}
+
+DefineAccessControlList-Request ::= SEQUENCE {
+  accessControlListName      [0] IMPLICIT Identifier,
+  accessControlListElements
+    [1] IMPLICIT SEQUENCE {readAccessCondition
+                             [0]  AccessCondition OPTIONAL,
+                           storeAccessCondition
+                             [1]  AccessCondition OPTIONAL,
+                           writeAccessCondition
+                             [2]  AccessCondition OPTIONAL,
+                           loadAccessCondition
+                             [3]  AccessCondition OPTIONAL,
+                           executeAccessCondition
+                             [4]  AccessCondition OPTIONAL,
+                           deleteAccessCondition
+                             [5]  AccessCondition OPTIONAL,
+                           editAccessCondition
+                             [6]  AccessCondition OPTIONAL}}
+
+DefineAccessControlList-Response ::= NULL
+
+GetAccessControlListAttributes-Request ::= CHOICE {
+  accessControlListName  [0] IMPLICIT Identifier,
+  vMD                    [1] IMPLICIT NULL,
+  namedObject
+    [2] IMPLICIT SEQUENCE {objectClass  [0]  ObjectClass,
+                           objectName   [1]  ObjectName}}
+
+GetAccessControlListAttributes-Response ::= SEQUENCE {
+  name                       [0]  Identifier,
+  accessControlListElements
+    [1] IMPLICIT SEQUENCE {readAccessCondition
+                             [0]  AccessCondition OPTIONAL,
+                           storeAccessCondition
+                             [1]  AccessCondition OPTIONAL,
+                           writeAccessCondition
+                             [2]  AccessCondition OPTIONAL,
+                           loadAccessCondition
+                             [3]  AccessCondition OPTIONAL,
+                           executeAccessCondition
+                             [4]  AccessCondition OPTIONAL,
+                           deleteAccessCondition
+                             [5]  AccessCondition OPTIONAL,
+                           editAccessCondition
+                             [6]  AccessCondition OPTIONAL},
+  vMDuse                     [2] IMPLICIT BOOLEAN,
+  references
+    [3] IMPLICIT SEQUENCE OF
+                   SEQUENCE {objectClass  [0]  ObjectClass,
+                             objectCount  [1] IMPLICIT INTEGER},
+  accessControlList          [4] IMPLICIT Identifier OPTIONAL
+  -- shall be included if and only if
+  -- aco has been negotiated--}
+
+ReportAccessControlledObjects-Request ::= SEQUENCE {
+  accessControlList  [0] IMPLICIT Identifier,
+  objectClass        [1]  ObjectClass,
+  continueAfter      [2]  ObjectName OPTIONAL}
+
+ReportAccessControlledObjects-Response ::= SEQUENCE {
+  listOfNames  [0] IMPLICIT SEQUENCE OF ObjectName,
+  moreFollows  [1] IMPLICIT BOOLEAN DEFAULT FALSE}
+
+DeleteAccessControlList-Request ::= Identifier
+
+-- Name of Access Control List Object
+DeleteAccessControlList-Response ::= NULL
+
+ChangeAccessControl-Request ::= SEQUENCE {
+  scopeOfChange
+    CHOICE {vMDOnly        [0] IMPLICIT NULL,
+            listOfObjects
+              [1] IMPLICIT SEQUENCE {objectClass  [0]  ObjectClass,
+                                     objectScope
+                                       [1]  CHOICE {specific
+                                                      [0] IMPLICIT SEQUENCE OF
+                                                                    ObjectName,
+                                                    -- Names of the objects (of class objectClass)
+                                                    -- whose access is to be changed
+                                                    aa-specific
+                                                      [1] IMPLICIT NULL,
+                                                    domain
+                                                      [2] IMPLICIT Identifier,
+                                                    -- Name of the Domain whose elements
+                                                    -- are to be changed
+                                                    vmd
+                                                      [3] IMPLICIT NULL}}},
+  accessControlListName  [2] IMPLICIT Identifier
+  -- name of the AccessControlList Object that contains
+  -- the conditions for access control--}
+
+ChangeAccessControl-Response ::= SEQUENCE {
+  numberMatched  [0] IMPLICIT Unsigned32,
+  numberChanged  [1] IMPLICIT Unsigned32}
+
+ChangeAccessControl-Error ::= Unsigned32
+
+StatusResponse ::= SEQUENCE {
+  vmdLogicalStatus
+    [0] IMPLICIT INTEGER {state-changes-allowed(0),
+                          no-state-changes-allowed(1),
+                          limited-services-permitted(2),
+                          support-services-allowed(3)}(0..3),
+  vmdPhysicalStatus
+    [1] IMPLICIT INTEGER {operational(0), partially-operational(1),
+                          inoperable(2), needs-commissioning(3)}(0..3),
+  localDetail        [2] IMPLICIT BIT STRING(SIZE (0..128)) OPTIONAL}
+
+CS-Status-Response ::= CHOICE {
+  fullResponse
+    SEQUENCE {operationState             [0] IMPLICIT OperationState,
+              extendedStatus             [1] IMPLICIT ExtendedStatus,
+              extendedStatusMask
+                [2] IMPLICIT ExtendedStatus DEFAULT '1111'B,
+              selectedProgramInvocation
+                CHOICE {programInvocation  [3] IMPLICIT Identifier,
+                        noneSelected       [4] IMPLICIT NULL}},
+  noExtraResponse  NULL}
+
+OperationState ::= INTEGER {
+  idle(0), loaded(1), ready(2), executing(3), motion-paused(4),
+  manualInterventionRequired(5)}(0..5)
+
+ExtendedStatus ::= BIT STRING {
+  safetyInterlocksViolated(0), anyPhysicalResourcePowerOn(1),
+  allPhysicalResourcesCalibrated(2), localControl(3)}(SIZE (4))
+
+Status-Request ::= BOOLEAN -- Extended Derivation
+
+Status-Response ::= StatusResponse
+
+UnsolicitedStatus ::= StatusResponse
+
+GetNameList-Request ::= SEQUENCE {
+  objectClass    [0]  ObjectClass,
+  objectScope
+    [1]  CHOICE {vmdSpecific     [0] IMPLICIT NULL,
+                 domainSpecific  [1] IMPLICIT Identifier,
+                 aaSpecific      [2] IMPLICIT NULL},
+  continueAfter  [2] IMPLICIT Identifier OPTIONAL}
+
+GetNameList-Response ::= SEQUENCE {
+  listOfIdentifier  [0] IMPLICIT SEQUENCE OF Identifier,
+  moreFollows       [1] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+Identify-Request ::= NULL
+
+Identify-Response ::= SEQUENCE {
+  vendorName              [0] IMPLICIT MMSString,
+  modelName               [1] IMPLICIT MMSString,
+  revision                [2] IMPLICIT MMSString,
+  listOfAbstractSyntaxes  [3] IMPLICIT SEQUENCE OF OBJECT IDENTIFIER OPTIONAL}
+
+Rename-Request ::= SEQUENCE {
+  objectClass    [0]  ObjectClass,
+  currentName    [1]  ObjectName,
+  newIdentifier  [2] IMPLICIT Identifier}
+
+Rename-Response ::= NULL
+
+GetCapabilityList-Request ::= SEQUENCE {continueAfter  MMSString OPTIONAL}
+
+GetCapabilityList-Response ::= SEQUENCE {
+  listOfCapabilities  [0] IMPLICIT SEQUENCE OF MMSString,
+  moreFollows         [1] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+VMDStop-Request ::= NULL
+
+VMDStop-Response ::= NULL
+
+VMDReset-Request ::= BOOLEAN -- Extended Derivation
+
+VMDReset-Response ::= StatusResponse
+
+InitiateDownloadSequence-Request ::= SEQUENCE {
+  domainName          [0] IMPLICIT Identifier,
+  listOfCapabilities  [1] IMPLICIT SEQUENCE OF MMSString,
+  sharable            [2] IMPLICIT BOOLEAN}
+
+InitiateDownloadSequence-Response ::= NULL
+
+DownloadSegment-Request ::= Identifier -- Domain Name
+
+DownloadSegment-Response ::= SEQUENCE {
+  loadData     LoadData,
+  moreFollows  [1] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+LoadData ::= CHOICE {
+  non-coded  [0] IMPLICIT OCTET STRING,
+  coded      EXTERNAL,
+  embedded   EMBEDDED PDV}
+
+TerminateDownloadSequence-Request ::= SEQUENCE {
+  domainName  [0] IMPLICIT Identifier,
+  discard     [1] IMPLICIT ServiceError OPTIONAL}
+
+TerminateDownloadSequence-Response ::= NULL
+
+InitiateUploadSequence-Request ::= Identifier -- Domain Name
+
+InitiateUploadSequence-Response ::= SEQUENCE {
+  ulsmID              [0] IMPLICIT Integer32,
+  listOfCapabilities  [1] IMPLICIT SEQUENCE OF MMSString}
+
+UploadSegment-Request ::= Integer32 -- ULSM ID
+
+UploadSegment-Response ::= SEQUENCE {
+  loadData     LoadData,
+  moreFollows  [1] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+TerminateUploadSequence-Request ::= Integer32 -- ULSM ID
+
+TerminateUploadSequence-Response ::= NULL
+
+RequestDomainDownload-Request ::= SEQUENCE {
+  domainName          [0] IMPLICIT Identifier,
+  listOfCapabilities  [1] IMPLICIT SEQUENCE OF MMSString OPTIONAL,
+  sharable            [2] IMPLICIT BOOLEAN,
+  fileName            [4] IMPLICIT FileName}
+
+RequestDomainDownload-Response ::= NULL
+
+RequestDomainUpload-Request ::= SEQUENCE {
+  domainName  [0] IMPLICIT Identifier,
+  fileName    [1] IMPLICIT FileName}
+
+RequestDomainUpload-Response ::= NULL
+
+LoadDomainContent-Request ::= SEQUENCE {
+  domainName          [0] IMPLICIT Identifier,
+  listOfCapabilities  [1] IMPLICIT SEQUENCE OF MMSString OPTIONAL,
+  sharable            [2] IMPLICIT BOOLEAN,
+  fileName            [4] IMPLICIT FileName,
+  thirdParty          [5] IMPLICIT ApplicationReference OPTIONAL}
+
+LoadDomainContent-Response ::= NULL
+
+StoreDomainContent-Request ::= SEQUENCE {
+  domainName  [0] IMPLICIT Identifier,
+  fileName    [1] IMPLICIT FileName,
+  thirdParty  [2] IMPLICIT ApplicationReference OPTIONAL}
+
+StoreDomainContent-Response ::= NULL
+
+DeleteDomain-Request ::= Identifier -- Domain Name
+
+DeleteDomain-Response ::= NULL
+
+GetDomainAttributes-Request ::= Identifier -- Domain Name
+
+GetDomainAttributes-Response ::= SEQUENCE {
+  listOfCapabilities        [0] IMPLICIT SEQUENCE OF MMSString,
+  state                     [1] IMPLICIT DomainState,
+  mmsDeletable              [2] IMPLICIT BOOLEAN,
+  sharable                  [3] IMPLICIT BOOLEAN,
+  listOfProgramInvocations  [4] IMPLICIT SEQUENCE OF Identifier,
+  -- Program Invocation Names
+  uploadInProgress          [5] IMPLICIT Integer8,
+  accessControlList         [6] IMPLICIT Identifier OPTIONAL
+  -- Shall not appear in minor version one or two--}
+
+CreateProgramInvocation-Request ::= SEQUENCE {
+  programInvocationName  [0] IMPLICIT Identifier,
+  listOfDomainNames      [1] IMPLICIT SEQUENCE OF Identifier,
+  reusable               [2] IMPLICIT BOOLEAN DEFAULT TRUE,
+  monitorType            [3] IMPLICIT BOOLEAN OPTIONAL
+  -- TRUE indicates PERMANENT monitoring,
+  -- FALSE indicates CURRENT monitoring--}
+
+CreateProgramInvocation-Response ::= NULL
+
+CS-CreateProgramInvocation-Request ::= INTEGER {
+  normal(0), controlling(1), controlled(2)}(0..2)
+
+DeleteProgramInvocation-Request ::= Identifier -- Program Invocation Name
+
+DeleteProgramInvocation-Response ::= NULL
+
+Start-Request ::= SEQUENCE {
+  programInvocationName  [0] IMPLICIT Identifier,
+  executionArgument
+    CHOICE {simpleString    [1] IMPLICIT MMSString,
+            encodedString   EXTERNAL,
+            embeddedString  EMBEDDED PDV} OPTIONAL}
+
+Start-Response ::= NULL
+
+Start-Error ::= ProgramInvocationState
+
+CS-Start-Request ::= [0]  CHOICE {
+  normal       NULL,
+  controlling
+    SEQUENCE {startLocation  [0] IMPLICIT VisibleString OPTIONAL,
+              startCount     [1]  StartCount DEFAULT cycleCount:1}}
+
+StartCount ::= CHOICE {
+  noLimit     [0] IMPLICIT NULL,
+  cycleCount  [1] IMPLICIT INTEGER,
+  stepCount   [2] IMPLICIT INTEGER}
+
+Stop-Request ::= SEQUENCE {programInvocationName  [0] IMPLICIT Identifier}
+
+Stop-Response ::= NULL
+
+Stop-Error ::= ProgramInvocationState
+
+Resume-Request ::= SEQUENCE {
+  programInvocationName  [0] IMPLICIT Identifier,
+  executionArgument
+    CHOICE {simpleString     [1] IMPLICIT MMSString,
+            encodedString    EXTERNAL,
+            enmbeddedString  EMBEDDED PDV} OPTIONAL}
+
+Resume-Response ::= NULL
+
+Resume-Error ::= ProgramInvocationState
+
+CS-Resume-Request ::= [0]  CHOICE {
+  normal       NULL,
+  controlling
+    SEQUENCE {modeType
+                CHOICE {continueMode  [0] IMPLICIT NULL,
+                        changeMode    [1]  StartCount}}}
+
+Reset-Request ::= SEQUENCE {programInvocationName  [0] IMPLICIT Identifier}
+
+Reset-Response ::= NULL
+
+Reset-Error ::= ProgramInvocationState
+
+Kill-Request ::= SEQUENCE {programInvocationName  [0] IMPLICIT Identifier}
+
+Kill-Response ::= NULL
+
+GetProgramInvocationAttributes-Request ::=
+  Identifier -- Program Invocation Name
+
+GetProgramInvocationAttributes-Response ::= SEQUENCE {
+  state              [0] IMPLICIT ProgramInvocationState,
+  listOfDomainNames  [1] IMPLICIT SEQUENCE OF Identifier,
+  mmsDeletable       [2] IMPLICIT BOOLEAN,
+  reusable           [3] IMPLICIT BOOLEAN,
+  monitor            [4] IMPLICIT BOOLEAN,
+  executionArgument
+    CHOICE {simpleString     [5] IMPLICIT MMSString,
+            encodedString    EXTERNAL,
+            enmbeddedString  EMBEDDED PDV},
+  accessControlList  [6] IMPLICIT Identifier OPTIONAL
+  -- Shall not appear in minor version one or two--}
+
+CS-GetProgramInvocationAttributes-Response ::= SEQUENCE {
+  errorCode  [0] IMPLICIT INTEGER,
+  control
+    [1]  CHOICE {controlling
+                   [0] IMPLICIT SEQUENCE {controlledPI
+                                            [0] IMPLICIT SEQUENCE OF Identifier,
+                                          programLocation
+                                            [1] IMPLICIT VisibleString OPTIONAL,
+                                          runningMode
+                                            [2]  CHOICE {freeRunning
+                                                           [0] IMPLICIT NULL,
+                                                         cycleLimited
+                                                           [1] IMPLICIT INTEGER,
+                                                         stepLimited
+                                                           [2] IMPLICIT INTEGER}},
+                 controlled
+                   [1]  CHOICE {controllingPI  [0] IMPLICIT Identifier,
+                                none           [1] IMPLICIT NULL},
+                 normal       [2] IMPLICIT NULL}}
+
+Select-Request ::= SEQUENCE {
+  controlling  [0] IMPLICIT Identifier OPTIONAL,
+  controlled   [1] IMPLICIT SEQUENCE OF Identifier OPTIONAL
+  -- this field shall appear if and only if the controlling field is included--}
+
+Select-Response ::= NULL
+
+AlterProgramInvocationAttributes-Request ::= SEQUENCE {
+  programInvocation  [0] IMPLICIT Identifier,
+  startCount         [1]  StartCount DEFAULT cycleCount:1}
+
+AlterProgramInvocationAttributes-Response ::= NULL
+
+ReconfigureProgramInvocation-Request ::= SEQUENCE {
+  oldProgramInvocationName  [0] IMPLICIT Identifier,
+  newProgramInvocationName  [1] IMPLICIT Identifier OPTIONAL,
+  domainsToAdd              [2] IMPLICIT SEQUENCE OF Identifier,
+  domainsToRemove           [3] IMPLICIT SEQUENCE OF Identifier}
+
+ReconfigureProgramInvocation-Response ::= NULL
+
+ControlElement ::= CHOICE {
+  beginDomainDef
+    [0]  SEQUENCE {domainName    [1] IMPLICIT Identifier,
+                   capabilities  [2] IMPLICIT SEQUENCE OF MMSString,
+                   sharable      [3] IMPLICIT BOOLEAN,
+                   loadData      [4]  LoadData OPTIONAL},
+  continueDomainDef
+    [1]  SEQUENCE {domainName  [1] IMPLICIT Identifier,
+                   loadData    [3]  LoadData},
+  endDomainDef       [2] IMPLICIT Identifier,
+  piDefinition
+    [3] IMPLICIT SEQUENCE {piName         [0] IMPLICIT Identifier,
+                           listOfDomains  [1] IMPLICIT SEQUENCE OF Identifier,
+                           reusable       [2] IMPLICIT BOOLEAN DEFAULT TRUE,
+                           monitorType    [3] IMPLICIT BOOLEAN OPTIONAL,
+                           pIState
+                             [4] IMPLICIT ProgramInvocationState OPTIONAL}}
+
+InitiateUnitControlLoad-Request ::= Identifier -- Unit Control Name
+
+InitiateUnitControlLoad-Response ::= NULL
+
+InitiateUnitControl-Error ::= CHOICE {
+  domain             [0] IMPLICIT Identifier,
+  programInvocation  [1] IMPLICIT Identifier}
+
+UnitControlLoadSegment-Request ::= Identifier -- Unit Control Name
+
+UnitControlLoadSegment-Response ::= SEQUENCE {
+  controlElements  [0] IMPLICIT SEQUENCE OF ControlElement,
+  moreFollows      [1] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+UnitControlUpload-Request ::= SEQUENCE {
+  unitControlName  [0] IMPLICIT Identifier, -- Unit Control Name
+  continueAfter
+    CHOICE {domain             [1] IMPLICIT Identifier,
+            ulsmID             [2] IMPLICIT INTEGER,
+            programInvocation  [3] IMPLICIT Identifier} OPTIONAL}
+
+UnitControlUpload-Response ::= SEQUENCE {
+  controlElements  [0] IMPLICIT SEQUENCE OF ControlElement,
+  nextElement
+    CHOICE {domain             [1] IMPLICIT Identifier,
+            ulsmID             [2] IMPLICIT INTEGER,
+            programInvocation  [3] IMPLICIT Identifier} OPTIONAL}
+
+StartUnitControl-Request ::= SEQUENCE {
+  unitControlName    [0] IMPLICIT Identifier, -- Unit Control Name
+  executionArgument
+    CHOICE {simpleString     [1] IMPLICIT MMSString,
+            encodedString    EXTERNAL,
+            enmbeddedString  EMBEDDED PDV} OPTIONAL}
+
+StartUnitControl-Response ::= NULL
+
+StartUnitControl-Error ::= SEQUENCE {
+  programInvocationName   [0] IMPLICIT Identifier,
+  programInvocationState  [1] IMPLICIT ProgramInvocationState}
+
+StopUnitControl-Request ::= Identifier -- Unit Control Name
+
+StopUnitControl-Response ::= NULL
+
+StopUnitControl-Error ::= SEQUENCE {
+  programInvocationName   [0] IMPLICIT Identifier,
+  programInvocationState  [1] IMPLICIT ProgramInvocationState}
+
+CreateUnitControl-Request ::= SEQUENCE {
+  unitControl         [0] IMPLICIT Identifier, -- Unit Control Name
+  domains             [1] IMPLICIT SEQUENCE OF Identifier,
+  programInvocations  [2] IMPLICIT SEQUENCE OF Identifier}
+
+CreateUnitControl-Response ::= NULL
+
+AddToUnitControl-Request ::= SEQUENCE {
+  unitControl         [0] IMPLICIT Identifier, -- Unit Control Name
+  domains             [1] IMPLICIT SEQUENCE OF Identifier,
+  programInvocations  [2] IMPLICIT SEQUENCE OF Identifier}
+
+AddToUnitControl-Response ::= NULL
+
+RemoveFromUnitControl-Request ::= SEQUENCE {
+  unitControl         [0] IMPLICIT Identifier, -- Unit Control Name
+  domains             [1] IMPLICIT SEQUENCE OF Identifier,
+  programInvocations  [2] IMPLICIT SEQUENCE OF Identifier}
+
+RemoveFromUnitControl-Response ::= NULL
+
+GetUnitControlAttributes-Request ::= Identifier -- Unit Control Name
+
+GetUnitControlAttributes-Response ::= SEQUENCE {
+  domains             [0] IMPLICIT SEQUENCE OF Identifier,
+  programInvocations  [1] IMPLICIT SEQUENCE OF Identifier}
+
+LoadUnitControlFromFile-Request ::= SEQUENCE {
+  unitControlName  [0] IMPLICIT Identifier,
+  fileName         [1] IMPLICIT FileName,
+  thirdParty       [2] IMPLICIT ApplicationReference OPTIONAL}
+
+LoadUnitControlFromFile-Response ::= NULL
+
+LoadUnitControlFromFile-Error ::= CHOICE {
+  none               [0] IMPLICIT NULL,
+  domain             [1] IMPLICIT Identifier,
+  programInvocation  [2] IMPLICIT Identifier}
+
+StoreUnitControlToFile-Request ::= SEQUENCE {
+  unitControlName  [0] IMPLICIT Identifier,
+  fileName         [1] IMPLICIT FileName,
+  thirdParty       [2] IMPLICIT ApplicationReference OPTIONAL}
+
+StoreUnitControlToFile-Response ::= NULL
+
+DeleteUnitControl-Request ::= Identifier -- Unit Control Name
+
+DeleteUnitControl-Response ::= NULL
+
+DeleteUnitControl-Error ::= CHOICE {
+  domain             [0] IMPLICIT Identifier,
+  programInvocation  [1] IMPLICIT Identifier}
+
+TypeSpecification ::= CHOICE {
+  typeName         [0]  ObjectName,
+  typeDescription  TypeDescription}
+
+AlternateAccess ::=
+  SEQUENCE OF
+    CHOICE {unnamed  AlternateAccessSelection,
+            named
+              [5] IMPLICIT SEQUENCE {componentName  [0] IMPLICIT Identifier,
+                                     access         AlternateAccessSelection}}
+
+AlternateAccessSelection ::= CHOICE {
+  selectAlternateAccess
+    [0] IMPLICIT SEQUENCE {accessSelection
+                             CHOICE {component    [0] IMPLICIT Identifier,
+                                     index        [1] IMPLICIT Unsigned32,
+                                     indexRange
+                                       [2] IMPLICIT SEQUENCE {lowIndex
+                                                                [0] IMPLICIT Unsigned32,
+                                                              numberOfElements
+                                                                [1] IMPLICIT Unsigned32},
+                                     allElements  [3] IMPLICIT NULL},
+                           alternateAccess  AlternateAccess},
+  selectAccess
+    CHOICE {component    [1] IMPLICIT Identifier,
+            index        [2] IMPLICIT Unsigned32,
+            indexRange
+              [3] IMPLICIT SEQUENCE {lowIndex          [0] IMPLICIT Unsigned32,
+                                     numberOfElements  [1] IMPLICIT Unsigned32},
+            allElements  [4] IMPLICIT NULL}}
+
+AccessResult ::= CHOICE {failure  [0] IMPLICIT DataAccessError,
+                         success  Data}
+
+Data ::= CHOICE {
+  -- context tag    [0] is reserved for AccessResult
+  array             [1] IMPLICIT SEQUENCE OF Data,
+  structure         [2] IMPLICIT SEQUENCE OF Data,
+  boolean           [3] IMPLICIT BOOLEAN,
+  bit-string        [4] IMPLICIT BIT STRING,
+  integer           [5] IMPLICIT INTEGER,
+  unsigned          [6] IMPLICIT INTEGER, -- shall not be negative
+  floating-point    [7] IMPLICIT FloatingPoint,
+  --                [8]                              is reserved
+  octet-string      [9] IMPLICIT OCTET STRING,
+  visible-string    [10] IMPLICIT VisibleString,
+  generalized-time  [11] IMPLICIT GeneralizedTime,
+  binary-time       [12] IMPLICIT TimeOfDay,
+  bcd               [13] IMPLICIT INTEGER, -- shall not be negative
+  booleanArray      [14] IMPLICIT BIT STRING,
+  objId             [15] IMPLICIT OBJECT IDENTIFIER,
+  ...,
+  mMSString         [16] IMPLICIT MMSString,
+  utc-time          [17] IMPLICIT UtcTime -- added by IEC61850 8.1 G3--}
+
+FloatingPoint ::= OCTET STRING
+
+DataAccessError ::= INTEGER {
+  object-invalidated(0), hardware-fault(1), temporarily-unavailable(2),
+  object-access-denied(3), object-undefined(4), invalid-address(5),
+  type-unsupported(6), type-inconsistent(7), object-attribute-inconsistent(8),
+  object-access-unsupported(9), object-non-existent(10),
+  object-value-invalid(11)}(0..11)
+
+VariableAccessSpecification ::= CHOICE {
+  listOfVariable
+    [0] IMPLICIT SEQUENCE OF
+                   SEQUENCE {variableSpecification  VariableSpecification,
+                             alternateAccess
+                               [5] IMPLICIT AlternateAccess OPTIONAL},
+  variableListName  [1]  ObjectName}
+
+VariableSpecification ::= CHOICE {
+  name                        [0]  ObjectName,
+  address                     [1]  Address,
+  variableDescription
+    [2] IMPLICIT SEQUENCE {address            Address,
+                           typeSpecification  TypeSpecification},
+  -- the following element is only present to support the services
+  -- defined in annex E
+  scatteredAccessDescription  [3] IMPLICIT ScatteredAccessDescription,
+  invalidated                 [4] IMPLICIT NULL}
+
+Read-Request ::= SEQUENCE {
+  specificationWithResult      [0] IMPLICIT BOOLEAN DEFAULT FALSE,
+  variableAccessSpecification  [1]  VariableAccessSpecification}
+
+Read-Response ::= SEQUENCE {
+  variableAccessSpecification  [0]  VariableAccessSpecification OPTIONAL,
+  listOfAccessResult           [1] IMPLICIT SEQUENCE OF AccessResult}
+
+Write-Request ::= SEQUENCE {
+  variableAccessSpecification  VariableAccessSpecification,
+  listOfData                   [0] IMPLICIT SEQUENCE OF Data}
+
+Write-Response ::=
+  SEQUENCE OF
+    CHOICE {failure  [0] IMPLICIT DataAccessError,
+            success  [1] IMPLICIT NULL}
+
+InformationReport ::= SEQUENCE {
+  variableAccessSpecification  VariableAccessSpecification,
+  listOfAccessResult           [0] IMPLICIT SEQUENCE OF AccessResult}
+
+GetVariableAccessAttributes-Request ::= CHOICE {
+  name     [0]  ObjectName,
+  address  [1]  Address}
+
+GetVariableAccessAttributes-Response ::= SEQUENCE {
+  mmsDeletable       [0] IMPLICIT BOOLEAN,
+  address            [1]  Address OPTIONAL,
+  typeDescription    [2]  TypeDescription,
+  accessControlList  [3] IMPLICIT Identifier OPTIONAL,
+  -- Shall not appear in minor version one or two
+  meaning            [4] IMPLICIT VisibleString OPTIONAL}
+
+DefineNamedVariable-Request ::= SEQUENCE {
+  variableName       [0]  ObjectName,
+  address            [1]  Address,
+  typeSpecification  [2]  TypeSpecification OPTIONAL}
+
+DefineNamedVariable-Response ::= NULL
+
+DeleteVariableAccess-Request ::= SEQUENCE {
+  scopeOfDelete
+    [0] IMPLICIT INTEGER {specific(0), aa-specific(1), domain(2), vmd(3)}(0..3)
+      DEFAULT specific,
+  listOfName     [1] IMPLICIT SEQUENCE OF ObjectName OPTIONAL,
+  domainName     [2] IMPLICIT Identifier OPTIONAL}
+
+DeleteVariableAccess-Response ::= SEQUENCE {
+  numberMatched  [0] IMPLICIT Unsigned32,
+  numberDeleted  [1] IMPLICIT Unsigned32}
+
+DeleteVariableAccess-Error ::= Unsigned32 -- numberDeleted 
+
+DefineNamedVariableList-Request ::= SEQUENCE {
+  variableListName  ObjectName,
+  listOfVariable
+    [0] IMPLICIT SEQUENCE OF
+                   SEQUENCE {variableSpecification  VariableSpecification,
+                             alternateAccess
+                               [5] IMPLICIT AlternateAccess OPTIONAL}}
+
+DefineNamedVariableList-Response ::= NULL
+
+GetNamedVariableListAttributes-Request ::= ObjectName -- VariableListName
+
+GetNamedVariableListAttributes-Response ::= SEQUENCE {
+  mmsDeletable       [0] IMPLICIT BOOLEAN,
+  listOfVariable
+    [1] IMPLICIT SEQUENCE OF
+                   SEQUENCE {variableSpecification  VariableSpecification,
+                             alternateAccess
+                               [5] IMPLICIT AlternateAccess OPTIONAL},
+  accessControlList  [2] IMPLICIT Identifier OPTIONAL
+  -- Shall not appear in minor version one or two--}
+
+DeleteNamedVariableList-Request ::= SEQUENCE {
+  scopeOfDelete
+    [0] IMPLICIT INTEGER {specific(0), aa-specific(1), domain(2), vmd(3)}(0..3)
+      DEFAULT specific,
+  listOfVariableListName  [1] IMPLICIT SEQUENCE OF ObjectName OPTIONAL,
+  domainName              [2] IMPLICIT Identifier OPTIONAL}
+
+DeleteNamedVariableList-Response ::= SEQUENCE {
+  numberMatched  [0] IMPLICIT Unsigned32,
+  numberDeleted  [1] IMPLICIT Unsigned32}
+
+DeleteNamedVariableList-Error ::= Unsigned32 -- numberDeleted 
+
+DefineNamedType-Request ::= SEQUENCE {
+  typeName           ObjectName,
+  typeSpecification  TypeSpecification}
+
+DefineNamedType-Response ::= NULL
+
+GetNamedTypeAttributes-Request ::= ObjectName --TypeName
+
+GetNamedTypeAttributes-Response ::= SEQUENCE {
+  mmsDeletable       [0] IMPLICIT BOOLEAN,
+  typeSpecification  TypeSpecification,
+  accessControlList  [1] IMPLICIT Identifier OPTIONAL,
+  -- Shall not appear in minor version one or two
+  meaning            [4] IMPLICIT VisibleString OPTIONAL}
+
+DeleteNamedType-Request ::= SEQUENCE {
+  scopeOfDelete
+    [0] IMPLICIT INTEGER {specific(0), aa-specific(1), domain(2), vmd(3)}(0..3)
+      DEFAULT specific,
+  listOfTypeName  [1] IMPLICIT SEQUENCE OF ObjectName OPTIONAL,
+  domainName      [2] IMPLICIT Identifier OPTIONAL}
+
+DeleteNamedType-Response ::= SEQUENCE {
+  numberMatched  [0] IMPLICIT Unsigned32,
+  numberDeleted  [1] IMPLICIT Unsigned32}
+
+DeleteNamedType-Error ::= Unsigned32 -- numberDeleted 
+
+ExchangeData-Request ::= SEQUENCE {
+  dataExchangeName   [0]  ObjectName,
+  listOfRequestData  [1] IMPLICIT SEQUENCE OF Data}
+
+ExchangeData-Response ::= SEQUENCE {
+  listOfResponseData  [0] IMPLICIT SEQUENCE OF Data}
+
+GetDataExchangeAttributes-Request ::= ObjectName
+
+GetDataExchangeAttributes-Response ::= SEQUENCE {
+  inUse                           [0] IMPLICIT BOOLEAN,
+  listOfRequestTypeDescriptions   [1] IMPLICIT SEQUENCE OF TypeDescription,
+  listOfResponseTypeDescriptions  [2] IMPLICIT SEQUENCE OF TypeDescription,
+  programInvocation               [3] IMPLICIT Identifier OPTIONAL,
+  accessControlList               [4] IMPLICIT Identifier OPTIONAL
+  -- Shall not appear in minor version one or two--}
+
+TakeControl-Request ::= SEQUENCE {
+  semaphoreName               [0]  ObjectName,
+  namedToken                  [1] IMPLICIT Identifier OPTIONAL,
+  priority                    [2] IMPLICIT Priority DEFAULT normalPriority,
+  acceptableDelay             [3] IMPLICIT Unsigned32 OPTIONAL,
+  controlTimeOut              [4] IMPLICIT Unsigned32 OPTIONAL,
+  abortOnTimeOut              [5] IMPLICIT BOOLEAN OPTIONAL,
+  relinquishIfConnectionLost  [6] IMPLICIT BOOLEAN DEFAULT TRUE,
+  applicationToPreempt        [7] IMPLICIT ApplicationReference OPTIONAL}
+
+TakeControl-Response ::= CHOICE {
+  noResult    [0] IMPLICIT NULL,
+  namedToken  [1] IMPLICIT Identifier}
+
+RelinquishControl-Request ::= SEQUENCE {
+  semaphoreName  [0]  ObjectName,
+  namedToken     [1] IMPLICIT Identifier OPTIONAL}
+
+RelinquishControl-Response ::= NULL
+
+DefineSemaphore-Request ::= SEQUENCE {
+  semaphoreName   [0]  ObjectName,
+  numberOfTokens  [1] IMPLICIT Unsigned16}
+
+DefineSemaphore-Response ::= NULL
+
+DeleteSemaphore-Request ::= ObjectName -- Semaphore Name
+
+DeleteSemaphore-Response ::= NULL
+
+ReportSemaphoreStatus-Request ::= ObjectName -- Semaphore Name
+
+ReportSemaphoreStatus-Response ::= SEQUENCE {
+  mmsDeletable         [0] IMPLICIT BOOLEAN,
+  class                [1] IMPLICIT INTEGER {token(0), pool(1)}(0..1),
+  numberOfTokens       [2] IMPLICIT Unsigned16,
+  numberOfOwnedTokens  [3] IMPLICIT Unsigned16,
+  numberOfHungTokens   [4] IMPLICIT Unsigned16,
+  accessControlList    [5] IMPLICIT Identifier OPTIONAL
+  -- Shall not appear in minor version one or two--}
+
+ReportPoolSemaphoreStatus-Request ::= SEQUENCE {
+  semaphoreName     [0]  ObjectName,
+  nameToStartAfter  [1] IMPLICIT Identifier OPTIONAL}
+
+ReportPoolSemaphoreStatus-Response ::= SEQUENCE {
+  listOfNamedTokens
+    [0] IMPLICIT SEQUENCE OF
+                   CHOICE {freeNamedToken   [0] IMPLICIT Identifier,
+                           ownedNamedToken  [1] IMPLICIT Identifier,
+                           hungNamedToken   [2] IMPLICIT Identifier},
+  moreFollows        [1] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+ReportSemaphoreEntryStatus-Request ::= SEQUENCE {
+  semaphoreName        [0]  ObjectName,
+  state
+    [1] IMPLICIT INTEGER {queued(0), owner(1), hung(2)}(0..2),
+  entryIDToStartAfter  [2] IMPLICIT OCTET STRING OPTIONAL}
+
+ReportSemaphoreEntryStatus-Response ::= SEQUENCE {
+  listOfSemaphoreEntry  [0] IMPLICIT SEQUENCE OF SemaphoreEntry,
+  moreFollows           [1] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+SemaphoreEntry ::= SEQUENCE {
+  entryID                     [0] IMPLICIT OCTET STRING,
+  entryClass
+    [1] IMPLICIT INTEGER {simple(0), modifier(1)}(0..1),
+  applicationReference        [2]  ApplicationReference,
+  namedToken                  [3] IMPLICIT Identifier OPTIONAL,
+  priority                    [4] IMPLICIT Priority DEFAULT normalPriority,
+  remainingTimeOut            [5] IMPLICIT Unsigned32 OPTIONAL,
+  abortOnTimeOut              [6] IMPLICIT BOOLEAN OPTIONAL,
+  relinquishIfConnectionLost  [7] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+AttachToSemaphore ::= SEQUENCE {
+  semaphoreName               [0]  ObjectName,
+  namedToken                  [1] IMPLICIT Identifier OPTIONAL,
+  priority                    [2] IMPLICIT Priority DEFAULT normalPriority,
+  acceptableDelay             [3] IMPLICIT Unsigned32 OPTIONAL,
+  controlTimeOut              [4] IMPLICIT Unsigned32 OPTIONAL,
+  abortOnTimeOut              [5] IMPLICIT BOOLEAN OPTIONAL,
+  relinquishIfConnectionLost  [6] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+Input-Request ::= SEQUENCE {
+  operatorStationName  [0] IMPLICIT Identifier,
+  echo                 [1] IMPLICIT BOOLEAN DEFAULT TRUE,
+  listOfPromptData     [2] IMPLICIT SEQUENCE OF MMSString OPTIONAL,
+  inputTimeOut         [3] IMPLICIT Unsigned32 OPTIONAL}
+
+Input-Response ::= MMSString -- Input String 
+
+Output-Request ::= SEQUENCE {
+  operatorStationName  [0] IMPLICIT Identifier,
+  listOfOutputData     [1] IMPLICIT SEQUENCE OF MMSString}
+
+Output-Response ::= NULL
+
+TriggerEvent-Request ::= SEQUENCE {
+  eventConditionName  [0]  ObjectName,
+  priority            [1] IMPLICIT Priority OPTIONAL}
+
+TriggerEvent-Response ::= NULL
+
+EventNotification ::= SEQUENCE {
+  eventEnrollmentName      [0]  ObjectName,
+  eventConditionName       [1]  ObjectName,
+  severity                 [2] IMPLICIT Severity,
+  currentState             [3] IMPLICIT EC-State OPTIONAL,
+  transitionTime           [4]  EventTime,
+  notificationLost         [6] IMPLICIT BOOLEAN DEFAULT FALSE,
+  alarmAcknowledgmentRule  [7] IMPLICIT AlarmAckRule OPTIONAL,
+  actionResult
+    [8] IMPLICIT SEQUENCE {eventActionName   ObjectName,
+                           successOrFailure
+                             CHOICE {success
+                                       [0] IMPLICIT SEQUENCE {confirmedServiceResponse
+                                                              
+                                                                ConfirmedServiceResponse,
+                                                              cs-Response-Detail
+                                                              
+                                                                [79]  Response-Detail
+                                                                  OPTIONAL
+                                                              -- shall not be transmitted if value is the
+                                                              -- value of a tagged type derived from NULL--},
+                                     failure
+                                       [1] IMPLICIT SEQUENCE {modifierPosition
+                                                                [0] IMPLICIT Unsigned32
+                                                                  OPTIONAL,
+                                                              serviceError
+                                                                [1] IMPLICIT ServiceError}}}
+      OPTIONAL}
+
+CS-EventNotification ::= [0]  CHOICE {
+  string         [0] IMPLICIT VisibleString,
+  index          [1] IMPLICIT INTEGER,
+  noEnhancement  NULL}
+
+AcknowledgeEventNotification-Request ::= SEQUENCE {
+  eventEnrollmentName           [0]  ObjectName,
+  acknowledgedState             [2] IMPLICIT EC-State,
+  timeOfAcknowledgedTransition  [3]  EventTime}
+
+AcknowledgeEventNotification-Response ::= NULL
+
+GetAlarmSummary-Request ::= SEQUENCE {
+  enrollmentsOnly        [0] IMPLICIT BOOLEAN DEFAULT TRUE,
+  activeAlarmsOnly       [1] IMPLICIT BOOLEAN DEFAULT TRUE,
+  acknowledgementFilter
+    [2] IMPLICIT INTEGER {not-acked(0), acked(1), all(2)}(0..2)
+      DEFAULT not-acked,
+  severityFilter
+    [3] IMPLICIT SEQUENCE {mostSevere   [0] IMPLICIT Unsigned8,
+                           leastSevere  [1] IMPLICIT Unsigned8}
+      DEFAULT {mostSevere 0, leastSevere 127},
+  continueAfter          [5]  ObjectName OPTIONAL}
+
+GetAlarmSummary-Response ::= SEQUENCE {
+  listOfAlarmSummary  [0] IMPLICIT SEQUENCE OF AlarmSummary,
+  moreFollows         [1] IMPLICIT BOOLEAN DEFAULT FALSE}
+
+AlarmSummary ::= SEQUENCE {
+  eventConditionName            [0]  ObjectName,
+  severity                      [1] IMPLICIT Unsigned8,
+  currentState                  [2] IMPLICIT EC-State,
+  unacknowledgedState
+    [3] IMPLICIT INTEGER {none(0), active(1), idle(2), both(3)}(0..3),
+  displayEnhancement            [4]  EN-Additional-Detail OPTIONAL,
+  -- shall not be transmitted if the value is NULL
+  timeOfLastTransitionToActive  [5]  EventTime OPTIONAL,
+  timeOfLastTransitionToIdle    [6]  EventTime OPTIONAL}
+
+EN-Additional-Detail ::= [0]  CHOICE {
+  string         [0] IMPLICIT VisibleString,
+  index          [1] IMPLICIT INTEGER,
+  noEnhancement  NULL}
+
+GetAlarmEnrollmentSummary-Request ::= SEQUENCE {
+  enrollmentsOnly        [0] IMPLICIT BOOLEAN DEFAULT TRUE,
+  activeAlarmsOnly       [1] IMPLICIT BOOLEAN DEFAULT TRUE,
+  acknowledgementFilter
+    [2] IMPLICIT INTEGER {not-acked(0), acked(1), all(2)}(0..2)
+      DEFAULT not-acked,
+  severityFilter
+    [3] IMPLICIT SEQUENCE {mostSevere   [0] IMPLICIT Unsigned8,
+                           leastSevere  [1] IMPLICIT Unsigned8}
+      DEFAULT {mostSevere 0, leastSevere 127},
+  continueAfter          [5]  ObjectName OPTIONAL}
+
+GetAlarmEnrollmentSummary-Response ::= SEQUENCE {
+  listOfAlarmEnrollmentSummary  [0] IMPLICIT SEQUENCE OF AlarmEnrollmentSummary,
+  moreFollows                   [1] IMPLICIT BOOLEAN DEFAULT FALSE}
+
+AlarmEnrollmentSummary ::= SEQUENCE {
+  eventEnrollmentName           [0]  ObjectName,
+  clientApplication             [2]  ApplicationReference OPTIONAL,
+  severity                      [3] IMPLICIT Unsigned8,
+  currentState                  [4] IMPLICIT EC-State,
+  displayEnhancement            [5]  EN-Additional-Detail OPTIONAL,
+  -- shall not be transmitted if the value is NULL
+  notificationLost              [6] IMPLICIT BOOLEAN DEFAULT FALSE,
+  alarmAcknowledgmentRule       [7] IMPLICIT AlarmAckRule,
+  enrollmentState               [8] IMPLICIT EE-State OPTIONAL,
+  timeOfLastTransitionToActive  [9]  EventTime OPTIONAL,
+  timeActiveAcknowledged        [10]  EventTime OPTIONAL,
+  timeOfLastTransitionToIdle    [11]  EventTime OPTIONAL,
+  timeIdleAcknowledged          [12]  EventTime OPTIONAL}
+
+AttachToEventCondition ::= SEQUENCE {
+  eventEnrollmentName  [0]  ObjectName,
+  eventConditionName   [1]  ObjectName,
+  causingTransitions   [2] IMPLICIT Transitions,
+  acceptableDelay      [3] IMPLICIT Unsigned32 OPTIONAL}
+
+DefineEventCondition-Request ::= SEQUENCE {
+  eventConditionName   [0]  ObjectName,
+  class                [1] IMPLICIT EC-Class,
+  priority             [2] IMPLICIT Priority DEFAULT normalPriority,
+  severity             [3] IMPLICIT Unsigned8 DEFAULT normalSeverity,
+  alarmSummaryReports  [4] IMPLICIT BOOLEAN OPTIONAL,
+  monitoredVariable    [6]  VariableSpecification OPTIONAL,
+  evaluationInterval   [7] IMPLICIT Unsigned32 OPTIONAL}
+
+DefineEventCondition-Response ::= NULL
+
+CS-DefineEventCondition-Request ::= [0]  CHOICE {
+  string         [0] IMPLICIT VisibleString,
+  index          [1] IMPLICIT INTEGER,
+  noEnhancement  NULL}
+
+DeleteEventCondition-Request ::= CHOICE {
+  specific     [0] IMPLICIT SEQUENCE OF ObjectName,
+  aa-specific  [1] IMPLICIT NULL,
+  domain       [2] IMPLICIT Identifier,
+  vmd          [3] IMPLICIT NULL}
+
+DeleteEventCondition-Response ::= Unsigned32 --Candidates Not Deleted 
+
+GetEventConditionAttributes-Request ::= ObjectName --Event Condition Name
+
+GetEventConditionAttributes-Response ::= SEQUENCE {
+  mmsDeletable         [0] IMPLICIT BOOLEAN DEFAULT FALSE,
+  class                [1] IMPLICIT EC-Class,
+  priority             [2] IMPLICIT Priority DEFAULT normalPriority,
+  severity             [3] IMPLICIT Unsigned8 DEFAULT normalSeverity,
+  alarmSummaryReports  [4] IMPLICIT BOOLEAN DEFAULT FALSE,
+  monitoredVariable
+    [6]  CHOICE {variableReference  [0]  VariableSpecification,
+                 undefined          [1] IMPLICIT NULL} OPTIONAL,
+  evaluationInterval   [7] IMPLICIT Unsigned32 OPTIONAL,
+  accessControlList    [8] IMPLICIT Identifier OPTIONAL
+  -- Shall not appear in minor version one or two--}
+
+CS-GetEventConditionAttributes-Response ::= SEQUENCE {
+  groupPriorityOverride
+    [0]  CHOICE {priority   [0] IMPLICIT Priority,
+                 undefined  [1] IMPLICIT NULL} OPTIONAL,
+  listOfReferencingECL   [1] IMPLICIT SEQUENCE OF ObjectName OPTIONAL,
+  displayEnhancement
+    [2]  CHOICE {string         [0] IMPLICIT VisibleString,
+                 index          [1] IMPLICIT INTEGER,
+                 noEnhancement  [2] IMPLICIT NULL}}
+
+ReportEventConditionStatus-Request ::= ObjectName --Event Condition Name
+
+ReportEventConditionStatus-Response ::= SEQUENCE {
+  currentState                  [0] IMPLICIT EC-State,
+  numberOfEventEnrollments      [1] IMPLICIT Unsigned32,
+  enabled                       [2] IMPLICIT BOOLEAN OPTIONAL,
+  timeOfLastTransitionToActive  [3]  EventTime OPTIONAL,
+  timeOfLastTransitionToIdle    [4]  EventTime OPTIONAL}
+
+AlterEventConditionMonitoring-Request ::= SEQUENCE {
+  eventConditionName   [0]  ObjectName,
+  enabled              [1] IMPLICIT BOOLEAN OPTIONAL,
+  priority             [2] IMPLICIT Priority OPTIONAL,
+  alarmSummaryReports  [3] IMPLICIT BOOLEAN OPTIONAL,
+  evaluationInterval   [4] IMPLICIT Unsigned32 OPTIONAL
+  -- At least one of enabled, priority, alarmSummaryReports, or
+  -- evaluationInterval shall be present.--}
+
+AlterEventConditionMonitoring-Response ::= NULL
+
+CS-AlterEventConditionMonitoring-Request ::= SEQUENCE {
+  changeDisplay
+    CHOICE {string         [0] IMPLICIT VisibleString,
+            index          [1] IMPLICIT INTEGER,
+            noEnhancement  [2]  NULL} OPTIONAL}
+
+DefineEventAction-Request ::= SEQUENCE {
+  eventActionName          [0]  ObjectName,
+  listOfModifier           [1] IMPLICIT SEQUENCE OF Modifier OPTIONAL,
+  confirmedServiceRequest  [2]  ConfirmedServiceRequest,
+  cs-extension             [79]  Request-Detail OPTIONAL
+  -- shall not be transmitted if value is the value
+  -- of a tagged type derived from NULL--}
+
+DefineEventAction-Response ::= NULL
+
+DeleteEventAction-Request ::= CHOICE {
+  specific     [0] IMPLICIT SEQUENCE OF ObjectName,
+  aa-specific  [1] IMPLICIT NULL,
+  domain       [3] IMPLICIT Identifier,
+  vmd          [4] IMPLICIT NULL}
+
+DeleteEventAction-Response ::= Unsigned32 --Candidates Not Deleted 
+
+GetEventActionAttributes-Request ::= ObjectName --EventActionName
+
+GetEventActionAttributes-Response ::= SEQUENCE {
+  mmsDeletable             [0] IMPLICIT BOOLEAN DEFAULT FALSE,
+  listOfModifier           [1] IMPLICIT SEQUENCE OF Modifier,
+  confirmedServiceRequest  [2]  ConfirmedServiceRequest,
+  cs-extension             [79]  Request-Detail OPTIONAL,
+  -- shall not be transmitted if value is the value
+  -- of a tagged type derived from NULL
+  accessControlList        [3] IMPLICIT Identifier OPTIONAL
+  -- Shall not appear in minor version one or two--}
+
+ReportEventActionStatus-Request ::= ObjectName -- Event Action Name
+
+ReportEventActionStatus-Response ::= Unsigned32 -- Number of Event Enrollments 
+
+DefineEventEnrollment-Request ::= SEQUENCE {
+  eventEnrollmentName        [0]  ObjectName,
+  eventConditionName         [1]  ObjectName,
+  eventConditionTransitions  [2] IMPLICIT Transitions,
+  alarmAcknowledgmentRule    [3] IMPLICIT AlarmAckRule,
+  eventActionName            [4]  ObjectName OPTIONAL,
+  clientApplication          [5]  ApplicationReference OPTIONAL}
+
+DefineEventEnrollment-Response ::= NULL
+
+DefineEventEnrollment-Error ::= ObjectName
+
+CS-DefineEventEnrollment-Request ::= [0]  CHOICE {
+  string         [0] IMPLICIT VisibleString,
+  index          [1] IMPLICIT INTEGER,
+  noEnhancement  NULL}
+
+DeleteEventEnrollment-Request ::= CHOICE {
+  specific  [0] IMPLICIT SEQUENCE OF ObjectName,
+  ec        [1]  ObjectName,
+  ea        [2]  ObjectName}
+
+DeleteEventEnrollment-Response ::= Unsigned32 --Candidates Not Deleted 
+
+GetEventEnrollmentAttributes-Request ::= SEQUENCE {
+  scopeOfRequest
+    [0] IMPLICIT INTEGER {specific(0), client(1), ec(2), ea(3)}(0..3)
+      DEFAULT client,
+  eventEnrollmentNames  [1] IMPLICIT SEQUENCE OF ObjectName OPTIONAL,
+  clientApplication     [2]  ApplicationReference OPTIONAL,
+  eventConditionName    [3]  ObjectName OPTIONAL,
+  eventActionName       [4]  ObjectName OPTIONAL,
+  continueAfter         [5]  ObjectName OPTIONAL}
+
+GetEventEnrollmentAttributes-Response ::= SEQUENCE {
+  listOfEEAttributes  [0] IMPLICIT SEQUENCE OF EEAttributes,
+  moreFollows         [1] IMPLICIT BOOLEAN DEFAULT FALSE}
+
+EEAttributes ::= SEQUENCE {
+  eventEnrollmentName       [0]  ObjectName,
+  eventConditionName
+    [1]  CHOICE {eventCondition  [0]  ObjectName,
+                 undefined       [1] IMPLICIT NULL},
+  eventActionName
+    [2]  CHOICE {eventAction  [0]  ObjectName,
+                 undefined    [1] IMPLICIT NULL} OPTIONAL,
+  clientApplication         [3]  ApplicationReference OPTIONAL,
+  mmsDeletable              [4] IMPLICIT BOOLEAN DEFAULT FALSE,
+  enrollmentClass           [5] IMPLICIT EE-Class,
+  duration                  [6] IMPLICIT EE-Duration DEFAULT current,
+  invokeID                  [7] IMPLICIT Unsigned32 OPTIONAL,
+  remainingAcceptableDelay  [8] IMPLICIT Unsigned32 OPTIONAL,
+  displayEnhancement
+    [9]  CHOICE {string         [0] IMPLICIT VisibleString,
+                 index          [1] IMPLICIT INTEGER,
+                 noEnhancement  NULL}
+  -- shall not be transmitted if the value is NULL--}
+
+ReportEventEnrollmentStatus-Request ::= ObjectName --Event Enrollment Name 
+
+ReportEventEnrollmentStatus-Response ::= SEQUENCE {
+  eventConditionTransitions  [0] IMPLICIT Transitions,
+  notificationLost           [1] IMPLICIT BOOLEAN DEFAULT FALSE,
+  duration                   [2] IMPLICIT EE-Duration,
+  alarmAcknowledgmentRule    [3] IMPLICIT AlarmAckRule OPTIONAL,
+  currentState               [4] IMPLICIT EE-State}
+
+AlterEventEnrollment-Request ::= SEQUENCE {
+  eventEnrollmentName        [0]  ObjectName,
+  eventConditionTransitions  [1] IMPLICIT Transitions OPTIONAL,
+  alarmAcknowledgmentRule    [2] IMPLICIT AlarmAckRule OPTIONAL}
+
+AlterEventEnrollment-Response ::= SEQUENCE {
+  currentState
+    [0]  CHOICE {state      [0] IMPLICIT EE-State,
+                 undefined  [1] IMPLICIT NULL},
+  transitionTime  [1]  EventTime}
+
+CS-AlterEventEnrollment-Request ::= SEQUENCE {
+  changeDisplay
+    CHOICE {string         [0] IMPLICIT VisibleString,
+            index          [1] IMPLICIT INTEGER,
+            noEnhancement  [2]  NULL} OPTIONAL}
+
+EE-State ::= INTEGER {
+  disabled(0), idle(1), active(2), activeNoAckA(3), idleNoAckI(4),
+  idleNoAckA(5), idleAcked(6), activeAcked(7), undefined(8)}
+
+DefineEventConditionList-Request ::= SEQUENCE {
+  eventConditionListName        [0]  ObjectName,
+  listOfEventConditionName      [1] IMPLICIT SEQUENCE OF ObjectName,
+  listOfEventConditionListName  [2] IMPLICIT SEQUENCE OF ObjectName OPTIONAL
+  -- shall appear if an only if recl has been negotiated.--}
+
+DefineEventConditionList-Response ::= NULL
+
+DefineEventConditionList-Error ::= ObjectName
+
+DeleteEventConditionList-Request ::= ObjectName -- EventConditionListName
+
+DeleteEventConditionList-Response ::= NULL
+
+AddEventConditionListReference-Request ::= SEQUENCE {
+  eventConditionListName        [0]  ObjectName,
+  listOfEventConditionName      [1] IMPLICIT SEQUENCE OF ObjectName,
+  listOfEventConditionListName  [2] IMPLICIT SEQUENCE OF ObjectName OPTIONAL
+  -- shall appear if an only if recl has been negotiated.--}
+
+AddEventConditionListReference-Response ::= NULL
+
+AddEventConditionListReference-Error ::= ObjectName
+
+RemoveEventConditionListReference-Request ::= SEQUENCE {
+  eventConditionListName        [0]  ObjectName,
+  listOfEventConditionName      [1] IMPLICIT SEQUENCE OF ObjectName,
+  listOfEventConditionListName  [2] IMPLICIT SEQUENCE OF ObjectName
+  -- shall appear if an only if recl has been negotiated. --}
+
+RemoveEventConditionListReference-Response ::= NULL
+
+RemoveEventConditionListReference-Error ::= CHOICE {
+  eventCondition      [0]  ObjectName,
+  eventConditionList  [1]  ObjectName}
+
+GetEventConditionListAttributes-Request ::=
+  ObjectName -- eventConditionListName
+
+GetEventConditionListAttributes-Response ::= SEQUENCE {
+  listOfEventConditionName      [1] IMPLICIT SEQUENCE OF ObjectName,
+  listOfEventConditionListName  [2] IMPLICIT SEQUENCE OF ObjectName OPTIONAL
+  -- shall appear if an only if recl has been negotiated.--}
+
+ReportEventConditionListStatus-Request ::= SEQUENCE {
+  eventConditionListName  [0]  ObjectName, -- Event Condition List Name
+  continueAfter           [1] IMPLICIT Identifier OPTIONAL}
+
+ReportEventConditionListStatus-Response ::= SEQUENCE {
+  listOfEventConditionStatus  [1] IMPLICIT SEQUENCE OF EventConditionStatus,
+  moreFollows                 [2] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+EventConditionStatus ::= SEQUENCE {
+  eventConditionName            [0]  ObjectName,
+  currentState                  [1] IMPLICIT EC-State,
+  numberOfEventEnrollments      [2] IMPLICIT Unsigned32,
+  enabled                       [3] IMPLICIT BOOLEAN OPTIONAL,
+  timeOfLastTransitionToActive  [4]  EventTime OPTIONAL,
+  timeOfLastTransitionToIdle    [5]  EventTime OPTIONAL}
+
+AlterEventConditionListMonitoring-Request ::= SEQUENCE {
+  eventConditionListName  [0]  ObjectName,
+  enabled                 [1] IMPLICIT BOOLEAN,
+  priorityChange
+    [2]  CHOICE {priorityValue  [0] IMPLICIT INTEGER,
+                 priorityReset  [1] IMPLICIT NULL} OPTIONAL}
+
+AlterEventConditionListMonitoring-Response ::= NULL
+
+ReadJournal-Request ::= SEQUENCE {
+  journalName              [0]  ObjectName,
+  rangeStartSpecification
+    [1]  CHOICE {startingTime   [0] IMPLICIT TimeOfDay,
+                 startingEntry  [1] IMPLICIT OCTET STRING} OPTIONAL,
+  rangeStopSpecification
+    [2]  CHOICE {endingTime       [0] IMPLICIT TimeOfDay,
+                 numberOfEntries  [1] IMPLICIT Integer32} OPTIONAL,
+  listOfVariables          [4] IMPLICIT SEQUENCE OF VisibleString OPTIONAL,
+  entryToStartAfter
+    [5] IMPLICIT SEQUENCE {timeSpecification   [0] IMPLICIT TimeOfDay,
+                           entrySpecification  [1] IMPLICIT OCTET STRING}
+      OPTIONAL}
+
+ReadJournal-Response ::= SEQUENCE {
+  listOfJournalEntry  [0] IMPLICIT SEQUENCE OF JournalEntry,
+  moreFollows         [1] IMPLICIT BOOLEAN DEFAULT FALSE}
+
+JournalEntry ::= SEQUENCE {
+  entryIdentifier         [0] IMPLICIT OCTET STRING,
+  originatingApplication  [1]  ApplicationReference,
+  entryContent            [2] IMPLICIT EntryContent}
+
+WriteJournal-Request ::= SEQUENCE {
+  journalName         [0]  ObjectName,
+  listOfJournalEntry  [1] IMPLICIT SEQUENCE OF EntryContent}
+
+WriteJournal-Response ::= NULL
+
+InitializeJournal-Request ::= SEQUENCE {
+  journalName         [0]  ObjectName,
+  limitSpecification
+    [1] IMPLICIT SEQUENCE {limitingTime   [0] IMPLICIT TimeOfDay,
+                           limitingEntry  [1] IMPLICIT OCTET STRING OPTIONAL}
+      OPTIONAL}
+
+InitializeJournal-Response ::= Unsigned32 -- Entries Deleted 
+
+ReportJournalStatus-Request ::= ObjectName --Journal Name
+
+ReportJournalStatus-Response ::= SEQUENCE {
+  currentEntries     [0] IMPLICIT Unsigned32,
+  mmsDeletable       [1] IMPLICIT BOOLEAN,
+  accessControlList  [2] IMPLICIT Identifier OPTIONAL
+  -- Shall not appear in minor version one or two--}
+
+CreateJournal-Request ::= SEQUENCE {journalName  [0]  ObjectName}
+
+CreateJournal-Response ::= NULL
+
+DeleteJournal-Request ::= SEQUENCE {journalName  [0]  ObjectName}
+
+DeleteJournal-Response ::= NULL
+
+EntryContent ::= SEQUENCE {
+  occurrenceTime  [0] IMPLICIT TimeOfDay,
+  entryForm
+    CHOICE {data
+              [2] IMPLICIT SEQUENCE {event
+                                       [0] IMPLICIT SEQUENCE {eventConditionName
+                                                                [0]  ObjectName,
+                                                              currentState
+                                                              
+                                                                [1] IMPLICIT EC-State}
+                                         OPTIONAL,
+                                     listOfVariables
+                                       [1] IMPLICIT SEQUENCE OF
+                                                      Journal-Variable OPTIONAL},
+            annotation  [3]  MMSString}}
+
+END
+
+
+
+MMS-Environment-1 {iso standard 9506 part(2) mms-environment-version1(4)}
+DEFINITIONS ::=
+BEGIN
+
+EXPORTS ApplicationReference, Authentication-value;
+
+IMPORTS
+  AP-title, AP-invocation-identifier, AE-qualifier, AE-invocation-identifier,
+    Authentication-value
+    FROM ACSE-1 {joint-iso-itu-t association-control(2) modules(0) apdus(0)
+      version1(1)};
+
+ApplicationReference ::= SEQUENCE {
+  ap-title          [0]  ACSE-1.AP-title OPTIONAL,
+  ap-invocation-id  [1]  ACSE-1.AP-invocation-identifier OPTIONAL,
+  ae-qualifier      [2]  ACSE-1.AE-qualifier OPTIONAL,
+  ae-invocation-id  [3]  ACSE-1.AE-invocation-identifier OPTIONAL}
+
+END
+
+
+
+MMS-SCI-Module-1 {iso standard 9506 part(2) mms-file-record-version1(2)}
+DEFINITIONS ::=
+BEGIN
+
+IMPORTS
+  ApplicationReference
+    FROM MMS-Environment-1 {iso standard 9506 part(2)
+      mms-environment-version1(4)}
+  AccessCondition, AdditionalCBBOptions, AdditionalSupportOptions, Address,
+    AlarmAckRule, Control-State, DomainState, EC-Class, EC-State, EE-Duration,
+    EE-Class, LogicalStatus, Modifier, ParameterSupportOptions, PhysicalStatus,
+    Priority, ProgramInvocationState, ServiceSupportOptions, Severity,
+    Transitions, TypeDescription
+    FROM MMS-Object-Module-1 {iso standard 9506 part(1)
+      mms-object-model-version1(2)}
+  AlternateAccess, ConfirmedServiceRequest, AttachToEventCondition,
+    AttachToSemaphore, Data, EE-State, Identifier, Integer8, Integer32,
+    MMSString, MMS255String, ObjectName, TimeOfDay, TypeSpecification,
+    Unsigned32, Unsigned8
+    FROM ISO-9506-MMS-1 {iso standard 9506 part(2)
+      mms-abstract-syntax-version1(1)};
+
+SCI-Information ::= SEQUENCE {
+  partOne  [0] IMPLICIT VMD-File,
+  partTwo  [1] IMPLICIT Service-and-Parameter-CBBs}
+
+VMD-File ::= SEQUENCE {
+  executiveFunction               [0] IMPLICIT ApplicationReference,
+  vendorName                      [1]  MMSString,
+  modelName                       [2]  MMSString,
+  revision                        [3]  MMSString,
+  abstractSyntaxes                [4] IMPLICIT OBJECT IDENTIFIER,
+  -- no TRANSACTIONs,
+  -- no APPLICATION-ASSOCIATIONs, 
+  accessControl                   [5] IMPLICIT Access-Control-List-instance,
+  logicalStatus                   [6] IMPLICIT LogicalStatus,
+  capabilities                    [7] IMPLICIT SEQUENCE OF MMSString,
+  physicalStatus                  [8] IMPLICIT PhysicalStatus,
+  local-detail                    [9] IMPLICIT BIT STRING,
+  accessControlLists
+    [10] IMPLICIT SEQUENCE OF Access-Control-List-instance,
+  domains                         [11] IMPLICIT SEQUENCE OF Domain-instance,
+  programInvocations
+    [12] IMPLICIT SEQUENCE OF Program-Invocation-instance,
+  unitControls
+    [13] IMPLICIT SEQUENCE OF Unit-Control-instance,
+  unnamedVariables
+    [14] IMPLICIT SEQUENCE OF Unnamed-Variable-instance,
+  namedVariables
+    [15] IMPLICIT SEQUENCE OF Named-Variable-instance,
+  namedVariableLists
+    [16] IMPLICIT SEQUENCE OF Named-Variable-List-instance,
+  namedTypes                      [17] IMPLICIT SEQUENCE OF Named-Type-instance,
+  dataExchanges
+    [18] IMPLICIT SEQUENCE OF Data-Exchange-instance,
+  semaphores                      [19] IMPLICIT SEQUENCE OF Semaphore-instance,
+  operatorStations
+    [20] IMPLICIT SEQUENCE OF Operator-Station-instance,
+  eventConditions
+    [21] IMPLICIT SEQUENCE OF Event-Condition-instance,
+  eventActions
+    [22] IMPLICIT SEQUENCE OF Event-Action-instance,
+  eventEnrollments
+    [23] IMPLICIT SEQUENCE OF Event-Enrollment-instance,
+  eventConditionLists
+    [24] IMPLICIT SEQUENCE OF Event-Condition-List-instance,
+  journals                        [25] IMPLICIT SEQUENCE OF Journal-instance,
+  ...,
+  selected-Program-Invocation
+    CHOICE {selectedProgram  [26] IMPLICIT Program-Invocation-instance,
+            noneSelected     [27] IMPLICIT NULL}}
+
+Access-Control-List-instance ::= SEQUENCE {
+  name        [0] IMPLICIT Identifier,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     readAccessCondition
+                                       [4]  AccessCondition OPTIONAL,
+                                     storeAccessCondition
+                                       [5]  AccessCondition OPTIONAL,
+                                     writeAccessCondition
+                                       [6]  AccessCondition OPTIONAL,
+                                     loadAccessCondition
+                                       [7]  AccessCondition OPTIONAL,
+                                     executeAccessCondition
+                                       [8]  AccessCondition OPTIONAL,
+                                     deleteAccessCondition
+                                       [9]  AccessCondition OPTIONAL,
+                                     editAccessCondition
+                                       [10]  AccessCondition OPTIONAL,
+                                     --
+                                     -- The following fields are used to record lists of objects placed
+                                     -- under the control of this ACCESS-CONTROL-LIST object.
+                                     -- They will be referred to collectively as the Controlled Object Lists
+                                     --
+                                     accessControlLists
+                                       [11] IMPLICIT SEQUENCE OF
+                                                       Access-Control-List-instance,
+                                     domains
+                                       [12] IMPLICIT SEQUENCE OF
+                                                       Domain-instance,
+                                     programInvocations
+                                       [13] IMPLICIT SEQUENCE OF
+                                                       Program-Invocation-instance,
+                                     unitControls
+                                       [14] IMPLICIT SEQUENCE OF
+                                                       Unit-Control-instance,
+                                     unnamedVariables
+                                       [15] IMPLICIT SEQUENCE OF
+                                                       Unnamed-Variable-instance,
+                                     namedVariables
+                                       [16] IMPLICIT SEQUENCE OF
+                                                       Named-Variable-instance,
+                                     namedVariableLists
+                                       [17] IMPLICIT SEQUENCE OF
+                                                       Named-Variable-List-instance,
+                                     namedTypes
+                                       [18] IMPLICIT SEQUENCE OF
+                                                       Named-Type-instance,
+                                     dataExchanges
+                                       [19] IMPLICIT SEQUENCE OF
+                                                       Data-Exchange-instance,
+                                     semaphores
+                                       [20] IMPLICIT SEQUENCE OF
+                                                       Semaphore-instance,
+                                     operatorStations
+                                       [21] IMPLICIT SEQUENCE OF
+                                                       Operator-Station-instance,
+                                     eventConditions
+                                       [22] IMPLICIT SEQUENCE OF
+                                                       Event-Condition-instance,
+                                     eventActions
+                                       [23] IMPLICIT SEQUENCE OF
+                                                       Event-Action-instance,
+                                     eventEnrollments
+                                       [24] IMPLICIT SEQUENCE OF
+                                                       Event-Enrollment-instance,
+                                     journals
+                                       [25] IMPLICIT SEQUENCE OF
+                                                       Journal-instance,
+                                     ...,
+                                     eventConditionLists
+                                       [26] IMPLICIT SEQUENCE OF
+                                                       Event-Condition-List-instance}}}
+
+Domain-instance ::= SEQUENCE {
+  name        [0] IMPLICIT Identifier,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {capabilities
+                                       [3] IMPLICIT SEQUENCE OF MMSString,
+                                     state
+                                       [4] IMPLICIT DomainState,
+                                     -- The aAssociation is not included
+                                     accessControl
+                                       [5] IMPLICIT Access-Control-List-instance,
+                                     sharable             [6] IMPLICIT BOOLEAN,
+                                     programInvocations
+                                       [7] IMPLICIT SEQUENCE OF
+                                                      Program-Invocation-instance,
+                                     -- uploadsInProgress    is not included,
+                                     namedVariables
+                                       [8] IMPLICIT SEQUENCE OF
+                                                      Named-Variable-instance,
+                                     namedVariableLists
+                                       [9] IMPLICIT SEQUENCE OF
+                                                      Named-Variable-List-instance,
+                                     namedTypes
+                                       [10] IMPLICIT SEQUENCE OF
+                                                       Named-Type-instance,
+                                     eventConditions
+                                       [11] IMPLICIT SEQUENCE OF
+                                                       Event-Condition-instance,
+                                     eventActions
+                                       [12] IMPLICIT SEQUENCE OF
+                                                       Event-Action-instance,
+                                     eventEnrollments
+                                       [13] IMPLICIT SEQUENCE OF
+                                                       Event-Enrollment-instance,
+                                     eventConditionLists
+                                       [14] IMPLICIT SEQUENCE OF
+                                                       Event-Condition-List-instance}}}
+
+Program-Invocation-instance ::= SEQUENCE {
+  name        [0] IMPLICIT Identifier,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {programInvocationState
+                                       [3] IMPLICIT ProgramInvocationState,
+                                     domains
+                                       [4] IMPLICIT SEQUENCE OF Domain-instance,
+                                     accessControl
+                                       [5] IMPLICIT SEQUENCE OF
+                                                      Access-Control-List-instance,
+                                     reusable
+                                       [6] IMPLICIT BOOLEAN,
+                                     monitor
+                                       [7] IMPLICIT BOOLEAN,
+                                     -- The following three fields shall all be present if the value of
+                                     -- monitor is true.
+                                     -- If present, the &name field of each object instance
+                                     -- shall have a value equal to the
+                                     -- &name field of this instance of the PROGRAM-INVOCATION.
+                                     eventCondition
+                                       [8] IMPLICIT SEQUENCE OF
+                                                      Event-Condition-instance
+                                         OPTIONAL,
+                                     eventAction
+                                       [9] IMPLICIT SEQUENCE OF
+                                                      Event-Action-instance
+                                         OPTIONAL,
+                                     eventEnrollment
+                                       [10] IMPLICIT SEQUENCE OF
+                                                       Event-Enrollment-instance
+                                         OPTIONAL,
+                                     executionArgument
+                                       [11]  MMSString,
+                                     ...,
+                                     control
+                                       [12] IMPLICIT Control-State,
+                                     controlling-Program-Invocation
+                                       [13] IMPLICIT Program-Invocation-instance,
+                                     -- The following field shall be present
+                                     -- if and only if the value of the &control field is controlling.
+                                     controlled-Program-Invocations
+                                       [14] IMPLICIT SEQUENCE OF
+                                                       Program-Invocation-instance
+                                         OPTIONAL}}}
+
+Unit-Control-instance ::= SEQUENCE {
+  name        [0] IMPLICIT Identifier,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     domains
+                                       [4] IMPLICIT SEQUENCE OF Domain-instance,
+                                     programInvocations
+                                       [5] IMPLICIT SEQUENCE OF
+                                                      Program-Invocation-instance}}}
+
+Unnamed-Variable-instance ::= SEQUENCE {
+  address          [0]  Address,
+  accessControl    [1] IMPLICIT Access-Control-List-instance,
+  typeDescription  [2]  TypeDescription}
+
+Named-Variable-instance ::= SEQUENCE {
+  name        [0]  ObjectName,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     typeDescription  [4]  TypeDescription,
+                                     address          [5]  Address OPTIONAL,
+                                     meaning
+                                       [6] IMPLICIT VisibleString OPTIONAL}}}
+
+Named-Variable-List-instance ::= SEQUENCE {
+  name        [0]  ObjectName,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     listOfVariables
+                                       [4] IMPLICIT SEQUENCE OF
+                                                      Variable-List-Item-instance}}}
+
+Variable-List-Item-instance ::= SEQUENCE {
+  -- one and only one of the following two lines shall appear 
+  unnamedItem      [0] IMPLICIT Unnamed-Variable-instance OPTIONAL,
+  namedItem        [1] IMPLICIT Named-Variable-instance OPTIONAL,
+  -- the following specification may be included
+  alternateAccess  [2] IMPLICIT AlternateAccess OPTIONAL}
+
+Named-Type-instance ::= SEQUENCE {
+  name        [0]  ObjectName,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     typeDescription  [4]  TypeDescription,
+                                     meaning
+                                       [5] IMPLICIT VisibleString OPTIONAL}}}
+
+Data-Exchange-instance ::= SEQUENCE {
+  name        [0] IMPLICIT Identifier,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     request
+                                       [4] IMPLICIT SEQUENCE OF TypeDescription,
+                                     response
+                                       [5] IMPLICIT SEQUENCE OF TypeDescription,
+                                     linked             [6] IMPLICIT BOOLEAN,
+                                     -- The following attribute shall appear if an only if the value of &linked is true.
+                                     programInvocation
+                                       [7] IMPLICIT Program-Invocation-instance
+                                         OPTIONAL}}}
+
+Semaphore-instance ::= SEQUENCE {
+  name        [0] IMPLICIT Identifier,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     class
+                                       [4] IMPLICIT ENUMERATED {token, pool},
+                                     -- If the value of &class is token, the following field shall appear
+                                     numberOfTokens
+                                       [5] IMPLICIT INTEGER OPTIONAL,
+                                     -- If the value of &class is pool, the following field shall appear
+                                     namedTokens
+                                       [6] IMPLICIT SEQUENCE OF VisibleString
+                                         OPTIONAL,
+                                     eventCondition
+                                       [7] IMPLICIT Event-Condition-instance}}}
+
+Operator-Station-instance ::= SEQUENCE {
+  name        [0] IMPLICIT Identifier,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     stationType
+                                       [4] IMPLICIT ENUMERATED {entry, 
+                                                                display,
+                                                                entry-display}}}}
+
+Event-Condition-instance ::= SEQUENCE {
+  name        [0]  ObjectName,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     ecClass
+                                       [4] IMPLICIT EC-Class,
+                                     ecState
+                                       [5] IMPLICIT EC-State,
+                                     priority
+                                       [6] IMPLICIT Priority,
+                                     severity
+                                       [7] IMPLICIT Severity,
+                                     eventEnrollments
+                                       [8] IMPLICIT SEQUENCE OF
+                                                      Event-Enrollment-instance,
+                                     -- The following fields shall be present
+                                     -- if and only if the value of &ecClass is monitored.
+                                     enabled
+                                       [9] IMPLICIT BOOLEAN OPTIONAL,
+                                     alarmSummaryReports
+                                       [10] IMPLICIT BOOLEAN OPTIONAL,
+                                     monitoredVariable
+                                       CHOICE {named
+                                                 [11] IMPLICIT Named-Variable-instance,
+                                               unnamed
+                                                 [12] IMPLICIT Unnamed-Variable-instance,
+                                               unspecified  [13] IMPLICIT NULL}
+                                         OPTIONAL,
+                                     evaluationInterval
+                                       [14] IMPLICIT INTEGER OPTIONAL,
+                                     ...,
+                                     displayEnhancement
+                                       CHOICE {text    [15]  MMSString,
+                                               number  [16] IMPLICIT INTEGER,
+                                               none    [17] IMPLICIT NULL},
+                                     group-Priority-Override
+                                       CHOICE {priority
+                                                 [18] IMPLICIT Priority,
+                                               undefined  [19] IMPLICIT NULL}
+                                         OPTIONAL,
+                                     referencingEventConditionLists
+                                       [20] IMPLICIT SEQUENCE OF
+                                                       Event-Condition-List-instance}}}
+
+Event-Action-instance ::= SEQUENCE {
+  name        [0]  ObjectName,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     confirmedServiceRequest
+                                       [4]  ConfirmedServiceRequest,
+                                     modifiers
+                                       [5] IMPLICIT SEQUENCE OF Modifier,
+                                     eventEnrollments
+                                       [6] IMPLICIT SEQUENCE OF
+                                                      Event-Enrollment-instance}}}
+
+Event-Enrollment-instance ::= SEQUENCE {
+  name        [0]  ObjectName,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     eeClass
+                                       [4] IMPLICIT EE-Class,
+                                     eventCondition
+                                       [5] IMPLICIT Event-Condition-instance,
+                                     ecTransitions
+                                       [6] IMPLICIT Transitions,
+                                     -- The following parameter is present if and only if the
+                                     -- value of &eeClass is modifier.
+                                     remainingDelay
+                                       CHOICE {time     [7] IMPLICIT INTEGER,
+                                               forever  [8] IMPLICIT NULL}
+                                         OPTIONAL,
+                                     -- The remaining parameters are present if and only if the
+                                     -- value of &eeClass is notification.
+                                     eventAction
+                                       [9] IMPLICIT Event-Action-instance
+                                         OPTIONAL,
+                                     duration
+                                       [10] IMPLICIT EE-Duration OPTIONAL,
+                                     clientApplication
+                                       [11] IMPLICIT ApplicationReference
+                                         OPTIONAL,
+                                     aaRule
+                                       [12] IMPLICIT AlarmAckRule OPTIONAL,
+                                     ...,
+                                     displayEnhancement
+                                       CHOICE {text    [13]  MMSString,
+                                               number  [14] IMPLICIT INTEGER,
+                                               none    [15] IMPLICIT NULL}}}}
+
+Event-Condition-List-instance ::= SEQUENCE {
+  name        [0]  ObjectName,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     eventConditions
+                                       [4] IMPLICIT SEQUENCE OF
+                                                      Event-Condition-instance,
+                                     eventConditionLists
+                                       [5] IMPLICIT SEQUENCE OF
+                                                      Event-Condition-List-instance,
+                                     referencingEventConditionLists
+                                       [6] IMPLICIT SEQUENCE OF
+                                                      Event-Condition-List-instance}}}
+
+Journal-instance ::= SEQUENCE {
+  name        [0]  ObjectName,
+  definition
+    CHOICE {reference  [1] IMPLICIT OBJECT IDENTIFIER,
+            details
+              [2] IMPLICIT SEQUENCE {accessControl
+                                       [3] IMPLICIT Access-Control-List-instance,
+                                     entries
+                                       [4] IMPLICIT SEQUENCE OF
+                                                      Journal-Entry-instance}}}
+
+Journal-Entry-instance ::= SEQUENCE {
+  journal                [0] IMPLICIT Journal-instance,
+  entry                  [1] IMPLICIT OCTET STRING,
+  clientApplication      [2] IMPLICIT ApplicationReference,
+  timeStamp              [3] IMPLICIT TimeOfDay,
+  orderOfReceipt         [4] IMPLICIT INTEGER,
+  informationType        [5] IMPLICIT ENUMERATED {annotation, event-data, data},
+  -- The following attribute shall appear if and only if the
+  -- value of &informationType is annotation.
+  textComment            [6]  MMS255String OPTIONAL,
+  --The following attribute shall appear if and only if the
+  -- value of &informationType is event-data.
+  eventTransitionRecord
+    [7] IMPLICIT SEQUENCE {name          [8]  ObjectName,
+                           currentState  [9] IMPLICIT EC-State} OPTIONAL,
+  -- The following attribute shall appear if and only if the
+  -- value of &informationType is data or event-data.
+  journalVariables
+    [10] IMPLICIT SEQUENCE OF
+                    SEQUENCE {variableTag         [11]  MMS255String,
+                              valueSpecification  [12]  Data} OPTIONAL}
+
+Service-and-Parameter-CBBs ::= SEQUENCE {
+  services-Client          [0] IMPLICIT ServiceSupportOptions,
+  services-Server          [1] IMPLICIT ServiceSupportOptions,
+  parameters               [2] IMPLICIT ParameterSupportOptions,
+  nest                     [3] IMPLICIT INTEGER,
+  extendedServices-Client  [4] IMPLICIT AdditionalSupportOptions,
+  extendedServices-Server  [5] IMPLICIT AdditionalSupportOptions,
+  extendedParameters       [6] IMPLICIT AdditionalCBBOptions,
+  generalManagement        [7] IMPLICIT GeneralManagementParameters,
+  vMDSupport               [8] IMPLICIT VMDSupportParameters,
+  domainManagement         [9] IMPLICIT DomainManagementParameters,
+  programInvocation        [10] IMPLICIT ProgramInvocationManagementParameters,
+  variableAccess           [11] IMPLICIT VariableAccessParameters,
+  dataParameters           [12] IMPLICIT DataParameters,
+  semaphoreManagement      [13] IMPLICIT SemaphoreManagementParameters,
+  operatorCommunication    [14] IMPLICIT OperatorCommunicationParameters,
+  errors                   [15] IMPLICIT ErrorParameters,
+  fileManagement           [16] IMPLICIT FileManagementParameters}
+
+GeneralManagementParameters ::= SEQUENCE {
+  localDetail        [0]  MMSString,
+  supportForTime
+    [1] IMPLICIT SEQUENCE {timeOfDay     [2] IMPLICIT BOOLEAN,
+                           timeSequence  [3] IMPLICIT BOOLEAN},
+  granularityOfTime  [4] IMPLICIT INTEGER}
+
+VMDSupportParameters ::= SEQUENCE {
+  localDetail         [0]  MMSString,
+  extendedDerivation  [1]  MMSString
+  -- method used to perform extended derivation--}
+
+DomainManagementParameters ::= SEQUENCE {
+  loadDataOctet   [0]  MMSString,
+  -- description of the format of Load Data if the octet string form is used
+  loadDataSyntax  [1] IMPLICIT SEQUENCE OF OBJECT IDENTIFIER,
+  -- identifier of the Abstract Syntaxes used
+  maxUploads      [2] IMPLICIT INTEGER}
+
+ProgramInvocationManagementParameters ::= SEQUENCE {
+  executionArgMaxSize     [0] IMPLICIT INTEGER,
+  executionArgParseRules  [1]  MMSString,
+  executionArgSyntaxes    [2] IMPLICIT SEQUENCE OF OBJECT IDENTIFIER,
+  programLoction          [3]  MMSString,
+  -- syntax of the program Location notation
+  stepMode                [4] IMPLICIT BOOLEAN
+  -- if true, step Mode is supported--}
+
+VariableAccessParameters ::= SEQUENCE {
+  uninterruptibleAccess  [0]  MMSString,
+  -- conditions under which it is guaranteed
+  singleMode             [1] IMPLICIT BOOLEAN,
+  unnamedMode            [2] IMPLICIT BOOLEAN}
+
+DataParameters ::= SEQUENCE {
+  bit-string      [0] IMPLICIT INTEGER OPTIONAL,
+  integer         [1] IMPLICIT INTEGER OPTIONAL,
+  unsigned        [2] IMPLICIT INTEGER OPTIONAL,
+  floating-point
+    [3] IMPLICIT SEQUENCE {total     [4] IMPLICIT INTEGER,
+                           exponent  [5] IMPLICIT INTEGER} OPTIONAL,
+  octet-string    [10] IMPLICIT INTEGER OPTIONAL,
+  visible-string  [11] IMPLICIT INTEGER OPTIONAL,
+  binary-time     [12] IMPLICIT BOOLEAN OPTIONAL,
+  bcd             [13] IMPLICIT INTEGER OPTIONAL,
+  mmsString       [14] IMPLICIT INTEGER OPTIONAL}
+
+SemaphoreManagementParameters ::= SEQUENCE {
+  algorithm  [0] IMPLICIT MMSString
+  -- method of processing the &priority field--}
+
+OperatorCommunicationParameters ::= SEQUENCE {
+  input-time-out  [0] IMPLICIT INTEGER}
+
+ErrorParameters ::= SEQUENCE {
+  additionalCode    [0]  MMSString,
+  additionalDetial
+    [1] IMPLICIT SEQUENCE {size    [2] IMPLICIT INTEGER,
+                           syntax  [3]  MMSString}}
+
+FileManagementParameters ::= SEQUENCE {fileName  [0]  MMSString}
+
+END
+
+
+
+ISO-9506-MMS-1A {iso standard 9506 part(2) mms-annex-version1(3)} DEFINITIONS
+::=
+BEGIN
+
+EXPORTS
+  ObtainFile-Request, ObtainFile-Response, ObtainFile-Error, FileOpen-Request,
+    FileOpen-Response, FileRead-Request, FileRead-Response, FileClose-Request,
+    FileClose-Response, FileRename-Request, FileRename-Response,
+    FileRename-Error, FileDelete-Request, FileDelete-Response,
+    FileDirectory-Request, FileDirectory-Response, ScatteredAccessDescription,
+    DefineScatteredAccess-Request, DefineScatteredAccess-Response,
+    GetScatteredAccessAttributes-Request, GetScatteredAccessAttributes-Response;
+
+IMPORTS
+  FileName, ObjectName, AlternateAccess, VariableSpecification, Identifier,
+    Integer32, Unsigned32
+    FROM ISO-9506-MMS-1 {iso standard 9506 part(2)
+      mms-abstract-syntax-version1(1)}
+  ApplicationReference
+    FROM MMS-Environment-1 {iso standard 9506 part(2)
+      mms-environment-version1(4)};
+
+ObtainFile-Request ::= SEQUENCE {
+  sourceFileServer  [0] IMPLICIT ApplicationReference OPTIONAL,
+  sourceFile        [1] IMPLICIT FileName,
+  destinationFile   [2] IMPLICIT FileName}
+
+ObtainFile-Response ::= NULL
+
+ObtainFile-Error ::= INTEGER {source-file(0), destination-file(1)}(0..1)
+
+FileOpen-Request ::= SEQUENCE {
+  fileName         [0] IMPLICIT FileName,
+  initialPosition  [1] IMPLICIT Unsigned32}
+
+FileOpen-Response ::= SEQUENCE {
+  frsmID          [0] IMPLICIT Integer32,
+  fileAttributes  [1] IMPLICIT FileAttributes}
+
+FileRead-Request ::= Integer32 -- FRSM ID
+
+FileRead-Response ::= SEQUENCE {
+  fileData     [0] IMPLICIT OCTET STRING,
+  moreFollows  [1] IMPLICIT BOOLEAN DEFAULT TRUE}
+
+FileClose-Request ::= Integer32 -- FRSM ID
+
+FileClose-Response ::= NULL
+
+FileRename-Request ::= SEQUENCE {
+  currentFileName  [0] IMPLICIT FileName,
+  newFileName      [1] IMPLICIT FileName}
+
+FileRename-Response ::= NULL
+
+FileRename-Error ::= INTEGER {source-file(0), destination-file(1)}(0..1)
+
+FileDelete-Request ::= FileName
+
+FileDelete-Response ::= NULL
+
+FileDirectory-Request ::= SEQUENCE {
+  fileSpecification  [0] IMPLICIT FileName OPTIONAL,
+  continueAfter      [1] IMPLICIT FileName OPTIONAL}
+
+FileDirectory-Response ::= SEQUENCE {
+  listOfDirectoryEntry  [0]  SEQUENCE OF DirectoryEntry,
+  moreFollows           [1] IMPLICIT BOOLEAN DEFAULT FALSE}
+
+DirectoryEntry ::= SEQUENCE {
+  fileName        [0] IMPLICIT FileName,
+  fileAttributes  [1] IMPLICIT FileAttributes}
+
+FileAttributes ::= SEQUENCE {
+  sizeOfFile    [0] IMPLICIT Unsigned32, -- in octets
+  lastModified  [1] IMPLICIT GeneralizedTime OPTIONAL}
+
+ScatteredAccessDescription ::=
+  SEQUENCE OF
+    SEQUENCE {componentName          [0] IMPLICIT Identifier OPTIONAL,
+              variableSpecification  [1]  VariableSpecification,
+              alternateAccess        [2] IMPLICIT AlternateAccess OPTIONAL}
+
+DefineScatteredAccess-Request ::= SEQUENCE {
+  scatteredAccessName         [0]  ObjectName,
+  scatteredAccessDescription  [1] IMPLICIT ScatteredAccessDescription}
+
+DefineScatteredAccess-Response ::= NULL
+
+GetScatteredAccessAttributes-Request ::= ObjectName -- ScatteredAccessName
+
+GetScatteredAccessAttributes-Response ::= SEQUENCE {
+  mmsDeletable                [0] IMPLICIT BOOLEAN,
+  scatteredAccessDescription  [1] IMPLICIT ScatteredAccessDescription,
+  accessControlList           [2] IMPLICIT Identifier OPTIONAL
+  -- Shall not appear in minor version one or two--}
+
+END
+
+
+
+-- this part are the ACSE definitions (outside of MMS)
+ACSE-1 {joint-iso-itu-t association-control(2) modules(0) apdus(0) version1(1)}
+DEFINITIONS ::=
+BEGIN
+
+EXPORTS
+  AP-title, AP-invocation-identifier, AE-qualifier, AE-invocation-identifier,
+    Authentication-value;
+
+AP-title ::= NULL
+
+AP-invocation-identifier ::= NULL
+
+AE-qualifier ::= NULL
+
+AE-invocation-identifier ::= NULL
+
+Authentication-value ::= NULL
+
+END

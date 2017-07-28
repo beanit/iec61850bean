@@ -1,0 +1,297 @@
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "net.saliman:gradle-cobertura-plugin:2.2.8"
+    classpath group: "org.asciidoctor", name: "asciidoctorj-pdf", version: "1.5.0-alpha.11"
+    classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:3.0.0"
+  }
+}
+
+plugins {
+  id "org.sonarqube" version "1.0"
+  id "org.asciidoctor.convert" version "1.5.3"
+}
+
+apply plugin: "org.asciidoctor.convert"
+apply from: "configuration.gradle"
+
+asciidoctor {
+  backends = ["pdf", "html5"]
+  attributes    "stylesheet": "openmuc-asciidoc.css",
+  "toc2": "left",
+  "sampleSrc": file("src/sample/java"),
+  "source-highlighter" : "coderay",
+  "pdf-stylesdir": "./",
+  "pdf-style": "pdf"
+
+  resources {
+    from("$sourceDir") {
+      include "images/**"
+    }
+  }
+}
+
+configure(allprojects) {
+  version = cfgVersion
+}
+
+configure(javaProjects) {
+
+  apply plugin: "java"
+  apply plugin: "eclipse"
+  apply plugin: "osgi"
+  apply plugin: "maven"
+  apply plugin: "signing"
+  apply plugin: "net.saliman.cobertura"
+  apply plugin: "biz.aQute.bnd.builder"
+
+  uploadArchives.enabled = false
+  
+  group = cfgGroup
+
+  if (!project.properties.containsKey("cfgJavaVersion")) {
+    project.ext {
+      cfgJavaVersion = "1.7"
+    }
+  }
+
+  sourceCompatibility = cfgJavaVersion
+  targetCompatibility = cfgJavaVersion
+
+  repositories {
+    mavenCentral()
+    mavenLocal()
+  }
+
+  sourceSets {
+    sample
+    itest {
+      compileClasspath += sourceSets.main.runtimeClasspath
+    }
+  }
+
+  dependencies {
+    testCompile group: "junit", name: "junit", version: "4.12"
+    itestCompile group: "junit", name: "junit", version: "4.12"
+  }
+
+  jar {
+    manifest {
+      version = project.version.replace("-",".");
+    }
+  }
+
+  cobertura {
+  
+    dependencies {
+      testCompile "org.slf4j:slf4j-simple:1.6.1"
+    }
+    coverageFormats = ["html", "xml"]
+    coverageIgnoreTrivial = true
+    coverageIgnores = ["org.slf4j.Logger.*"]
+    coverageReportDir = new File("$buildDir/reports/cobertura")
+    coverageTestTasks {
+      project.tasks.withType(Test).matching {it.name == "test"}
+    }
+   
+  }
+
+  sonarqube {
+    properties {
+      property "sonar.exclusions", "src/main/java-gen/**/*,**/app/**/*"
+      property "sonar.java.coveragePlugin", "cobertura"
+      property "sonar.cobertura.reportPath", "build/reports/cobertura/coverage.xml"
+    }
+  }
+  
+  task jarAll(type: Copy) {
+    dependsOn(configurations.default.getAllArtifacts().getBuildDependencies())
+
+    //only the jar file created:
+    from configurations.default.getAllArtifacts().getFiles()
+
+    if (cfgCopyDependencies) {
+      if (cfgCopyToRoot) {
+        into rootDir.getPath() + "/build/libs-all"
+      }
+      else {
+        into "build/libs-all"
+      }
+      //includes all the dependencies:
+      from configurations.default
+    }
+    else {
+      if (cfgCopyToRoot) {
+        into rootDir.getPath() + "/build/libs-all"
+      }
+      else {
+        into "build/libs-all"
+      }
+    }
+  }
+  
+  build.dependsOn {asciidoctor}
+  build.dependsOn {jarAll}
+
+  eclipse.pathVariables([GRADLE_USER_HOME:file(gradle.gradleUserHomeDir)])
+  tasks.eclipse.dependsOn(cleanEclipse)
+
+
+  task sourcesJar(type: Jar, dependsOn: classes) {
+    classifier = "sources"
+    from sourceSets.main.allSource
+  }
+
+  task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = "javadoc"
+    from javadoc.destinationDir
+  }
+
+  artifacts {
+    archives sourcesJar
+    archives javadocJar
+  }
+
+  javadoc {
+    exclude "**/internal/**"
+    exclude "**/java-gen/**"
+    exclude "**/app/**"
+  }
+
+}
+
+
+configure(repositoryProjects) {
+
+  uploadArchives.enabled = true
+
+  if (cfgSignPom) {
+    signing {
+      if ( project.hasProperty("signing.keyId") ) {
+        sign configurations.archives
+      }
+    }
+  }
+  
+  uploadArchives {
+    repositories {
+      mavenDeployer {
+
+        if (cfgSignPom) {
+          beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+        }
+
+        repository(url: cfgRepository) {
+          authentication(userName: cfgRepositoryUser, password: cfgRepositoryPass)
+          if (cfgRepository != null && System.getProperty("https.proxyHost") != null && ((System.getProperty("https.nonProxyHosts") == null) || !cfgRepository.contains(System.getProperty("https.nonProxyHosts")))) {
+            proxy(host: System.getProperty("https.proxyHost"), port:  Integer.parseInt(System.getProperty("https.proxyPort")), type: "https")
+          }
+        }
+        snapshotRepository(url: cfgSnapshotRepository) {
+          authentication(userName: cfgRepositoryUser, password: cfgRepositoryPass)
+          if (cfgSnapshotRepository != null && System.getProperty("https.proxyHost") != null && ((System.getProperty("https.nonProxyHosts") == null) || !cfgSnapshotRepository.contains(System.getProperty("https.nonProxyHosts")))) {
+            proxy(host: System.getProperty("https.proxyHost"), port:  Integer.parseInt(System.getProperty("https.proxyPort")), type: "https")
+          }
+        }
+
+        pom.project {
+          
+          //additional pom information can be found in subproject build.gradle files
+
+          packaging "jar"
+          url "http://www.openmuc.org/"
+
+          scm {
+            url "none"
+            connection "none"
+          }
+
+          developers {
+            developer {
+              id "openmuc"
+              name "OpenMUC Team"
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+task javadocAll(type: Javadoc) {
+
+  source docProjects.collect {
+    project -> project.sourceSets.main.allJava
+  }
+
+  exclude "**/internal/**"
+  exclude "**/java-gen/**"
+  exclude "**/app/**"
+
+  destinationDir = new File(buildDir, "docs/javadoc-all")
+
+  classpath = files(distributionProjects.collect { project ->
+    project.sourceSets.main.compileClasspath })
+
+  classpath += files(distributionProjects.collect { project ->
+    project.sourceSets.main.output })
+}
+
+
+task writeSettings {
+  doLast {
+    Writer out = new OutputStreamWriter(new FileOutputStream("build/settings.gradle"));
+    out.write("include ");
+    boolean first = true;
+    for (Project myproject: distributionProjects) {
+      if (!myproject.getProjectDir().equals(getProjectDir())) {
+        if (first == true) {
+          first = false;
+        }
+        else {
+          out.write ", ";
+        }
+        out.write '"' + myproject.name + '"'
+      }
+    }
+    out .write "\n\n";
+
+    for (Project myproject: distributionProjects) {
+      if (!myproject.getProjectDir().equals(getProjectDir())) {
+        println myproject.name
+        out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int)(getProjectDir().toString().size() + 1)) + '")\n';
+      }
+    }
+
+    out.close();
+  }
+}
+
+task buildDistProjects {
+  dependsOn(distributionProjects.build)
+}
+
+tasks.withType(Tar) {
+
+  dependsOn(writeSettings)
+  dependsOn(distributionProjects.build)
+  dependsOn(javadocAll)
+  dependsOn(asciidoctor)
+
+  compression = Compression.GZIP
+  
+  destinationDir = file("build/distributions/")
+}
+
+task (tar, type: Tar) {
+  archiveName = project.name + "-" + project.version + ".tgz"
+}
+
+task (tarFull, type: Tar) {
+  dependsOn(tar)
+  archiveName = project.name + "-" + project.version + "_full.tgz"
+}
