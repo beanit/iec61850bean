@@ -638,10 +638,6 @@ public final class AcseAssociation {
         ssduList.add(berOStream.buffer);
         ssduOffsets.add(berOStream.index + 1);
         ssduLengths.add(berOStream.buffer.length - (berOStream.index + 1));
-
-        ssduList.add(payload.array());
-        ssduOffsets.add(payload.arrayOffset() + payload.position());
-        ssduLengths.add(payload.limit() - payload.position());
     }
 
     private void encodeSessionLayer(List<byte[]> ssduList, List<Integer> ssduOffsets, List<Integer> ssduLengths)
@@ -678,7 +674,7 @@ public final class AcseAssociation {
      * @throws TimeoutException
      *             if a timeout occurs
      */
-    public void receive(ByteBuffer pduBuffer) throws DecodingException, IOException, TimeoutException {
+    public byte[] receive(ByteBuffer pduBuffer) throws DecodingException, IOException, TimeoutException {
         if (connected == false) {
             throw new IllegalStateException("ACSE Association not connected");
         }
@@ -686,10 +682,10 @@ public final class AcseAssociation {
 
         decodeSessionLayer(pduBuffer);
 
-        decodePresentationLayer(pduBuffer);
+        return decodePresentationLayer(pduBuffer);
     }
 
-    private void decodePresentationLayer(ByteBuffer pduBuffer) throws DecodingException {
+    private byte[] decodePresentationLayer(ByteBuffer pduBuffer) throws DecodingException {
         // decode PPDU header
         UserData user_data = new UserData();
 
@@ -698,6 +694,12 @@ public final class AcseAssociation {
         } catch (IOException e) {
             throw new DecodingException("error decoding PPDU header", e);
         }
+
+        return user_data.getFullyEncodedData()
+                .getPDVList()
+                .get(0)
+                .getPresentationDataValues()
+                .getSingleASN1Type().value;
     }
 
     private void decodeSessionLayer(ByteBuffer pduBuffer) throws EOFException, DecodingException {

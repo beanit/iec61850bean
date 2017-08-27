@@ -16,6 +16,7 @@
  */
 package org.openmuc.openiec61850;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -129,8 +130,9 @@ public final class ClientAssociation {
                 while (true) {
 
                     pduBuffer.clear();
+                    byte[] buffer;
                     try {
-                        acseAssociation.receive(pduBuffer);
+                        buffer = acseAssociation.receive(pduBuffer);
                     } catch (TimeoutException e) {
                         // Illegal state: A timeout exception was thrown.
                         throw new IllegalStateException();
@@ -141,7 +143,7 @@ public final class ClientAssociation {
 
                     MMSpdu decodedResponsePdu = new MMSpdu();
                     try {
-                        decodedResponsePdu.decode(new ByteBufferInputStream(pduBuffer), null);
+                        decodedResponsePdu.decode(new ByteArrayInputStream(buffer), null);
                     } catch (IOException e) {
                         // Error decoding the received MMS PDU
                         continue;

@@ -16,6 +16,7 @@
  */
 package org.openmuc.openiec61850;
 
+import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
@@ -397,9 +398,10 @@ final class ServerAssociation {
 
         while (true) {
             MMSpdu mmsRequestPdu = null;
+            byte[] buffer;
             pduBuffer.clear();
             try {
-                acseAssociation.receive(pduBuffer);
+                buffer = acseAssociation.receive(pduBuffer);
             } catch (EOFException e) {
                 logger.debug("Connection was closed by client.");
                 return null;
@@ -422,7 +424,7 @@ final class ServerAssociation {
             mmsRequestPdu = new MMSpdu();
 
             try {
-                mmsRequestPdu.decode(new ByteBufferInputStream(pduBuffer), null);
+                mmsRequestPdu.decode(new ByteArrayInputStream(buffer), null);
             } catch (IOException e) {
                 logger.warn("IOException decoding received MMS request PDU.", e);
                 continue;
