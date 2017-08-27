@@ -1,3 +1,9 @@
+v1.4.1 27-Aug-2017
+------------------
+
+- fixed bug encoding and decoding presentation layer introduced in
+  v1.4.0
+
 v1.4.0 30-May-2017
 ------------------
 
