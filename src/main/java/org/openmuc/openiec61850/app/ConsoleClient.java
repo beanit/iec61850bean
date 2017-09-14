@@ -46,7 +46,8 @@ public class ConsoleClient {
             .setMandatory()
             .buildStringParameter("host");
     private static final IntCliParameter portParam = new CliParameterBuilder("-p")
-            .setDescription("The port to connect to.").buildIntParameter("port", 102);
+            .setDescription("The port to connect to.")
+            .buildIntParameter("port", 102);
 
     private static volatile ClientAssociation association;
     private static ServerModel serverModel;
