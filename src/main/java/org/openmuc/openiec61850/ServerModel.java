@@ -91,7 +91,7 @@ public final class ServerModel extends ModelNode {
     }
 
     void addDataSet(DataSet dataSet) {
-        dataSets.put(dataSet.getReferenceStr(), dataSet);
+        dataSets.put(dataSet.getReferenceStr().replace('$', '.'), dataSet);
         for (ModelNode ld : children.values()) {
             for (ModelNode ln : ld.getChildren()) {
                 for (Urcb urcb : ((LogicalNode) ln).getUrcbs()) {

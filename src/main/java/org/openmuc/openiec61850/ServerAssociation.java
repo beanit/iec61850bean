@@ -696,7 +696,8 @@ final class ServerAssociation {
                                             + getVariableAccessAttributesRequest.getName()
                                                     .getDomainSpecific()
                                                     .getDomainID()
-                                            + " and ItemID " + getVariableAccessAttributesRequest.getName()
+                                            + " and ItemID "
+                                            + getVariableAccessAttributesRequest.getName()
                                                     .getDomainSpecific()
                                                     .getItemID()
                                             + " was found.");
@@ -1304,7 +1305,7 @@ final class ServerAssociation {
                 }
                 else if (nodeName.equals("DatSet")) {
                     if ((urcb.reserved == null || urcb.reserved == this) && !urcb.enabled) {
-                        String dataSetRef = ((BdaVisibleString) fcModelNodeCopy).getStringValue();
+                        String dataSetRef = ((BdaVisibleString) fcModelNodeCopy).getStringValue().replace('$', '.');
                         if (dataSetRef.isEmpty()) {
                             urcb.dataSet = null;
                             ((BasicDataAttribute) modelNode).setValueFrom((BasicDataAttribute) fcModelNodeCopy);
@@ -1313,6 +1314,9 @@ final class ServerAssociation {
                         }
                         else {
                             DataSet dataSet = serverModel.getDataSet(dataSetRef);
+                            if (dataSet == null) {
+                                dataSet = nonPersistentDataSets.get(dataSetRef);
+                            }
                             if (dataSet != null) {
                                 urcb.dataSet = dataSet;
                                 ((BasicDataAttribute) modelNode).setValueFrom((BasicDataAttribute) fcModelNodeCopy);
