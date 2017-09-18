@@ -267,10 +267,12 @@ A report control block contains the following fields:
    the RCB reference. The RptID will be sent with every report so that
    the client can identify the RCB responsible for the report.
 
-** *DatSet* - The reference of the data set associated with this RCB. It
-   must be located in the same logical node as the RCB. Members of
-   this data set will be reported whenever the configured events
-   occure.
+** *DatSet* - The reference of the data set associated with this
+   RCB. It must be located in the same logical node as the
+   RCB. Members of this data set will be reported whenever the
+   configured events occure. The reference set here must contain a
+   dollar sign instead of a dot to separate the logical node from the
+   data set name, e.g.: 'LDevice1/LNode$DataSetName'
 
 ** *OptFlds* - A bitstring where each bit indicates whether an
    optional field is included in the reports caused by this RCB. The
