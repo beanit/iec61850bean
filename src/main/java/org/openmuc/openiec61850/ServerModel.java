@@ -215,15 +215,21 @@ public final class ServerModel extends ModelNode {
         for (ModelNode logicalDevice : children.values()) {
             sb.append(logicalDevice.toString());
         }
-        sb.append("\nURCBs:");
+        sb.append("\n\n\n---------------------\nURCBs:");
         for (Urcb urcb : getUrcbs()) {
             sb.append("\n\n").append(urcb);
         }
 
-        sb.append("\n\nBRCBs:");
+        sb.append("\n\n\n---------------------\nBRCBs:");
         for (Brcb brcb : getBrcbs()) {
             sb.append("\n\n").append(brcb);
         }
+
+        sb.append("\n\n\n---------------------\nData sets:");
+        for (DataSet dataSet : getDataSets()) {
+            sb.append("\n\n").append(dataSet);
+        }
+
         return sb.toString();
     }
 

@@ -142,7 +142,13 @@ public final class DataSet implements Iterable<FcModelNode> {
 
     @Override
     public String toString() {
-        return dataSetReference;
+        StringBuilder sb = new StringBuilder();
+        sb.append(getReferenceStr());
+        for (FcModelNode member : members) {
+            sb.append("\n");
+            sb.append(member.toString());
+        }
+        return sb.toString();
     }
 
 }
