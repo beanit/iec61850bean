@@ -34,10 +34,8 @@ import org.openmuc.openiec61850.internal.cli.StringCliParameter;
  */
 public class ConsoleClient {
 
-    private static final String RETRIEVE_MODEL_KEY = "m";
-    private static final String RETRIEVE_MODEL_KEY_DESCRIPTION = "retrieve model from server";
-    private static final String READ_MODEL_FROM_FILE_KEY = "s";
-    private static final String READ_MODEL_FROM_FILE_KEY_DESCRIPTION = "read model from file";
+    private static final String PRINT_MODEL_KEY = "m";
+    private static final String PRINT_MODEL_KEY_DESCRIPTION = "print model";
     private static final String GET_DATA_VALUES_KEY = "r";
     private static final String GET_DATA_VALUES_KEY_DESCRIPTION = "GetDataValues request";
 
@@ -48,6 +46,9 @@ public class ConsoleClient {
     private static final IntCliParameter portParam = new CliParameterBuilder("-p")
             .setDescription("The port to connect to.")
             .buildIntParameter("port", 102);
+    private static final StringCliParameter modelFileParam = new CliParameterBuilder("-m").setDescription(
+            "The file name of the SCL file to read the model from. If this parameter is omitted the model will be read from the server device after connection.")
+            .buildStringParameter("model-file");
 
     private static volatile ClientAssociation association;
     private static ServerModel serverModel;
@@ -79,39 +80,8 @@ public class ConsoleClient {
         public void actionCalled(String actionKey) throws ActionException {
             try {
                 switch (actionKey) {
-                case RETRIEVE_MODEL_KEY:
-                    System.out.println("** Retrieving model.");
-
-                    try {
-                        serverModel = association.retrieveModel();
-                    } catch (ServiceError e) {
-                        System.out.println("Service error: " + e.getMessage());
-                        return;
-                    } catch (IOException e) {
-                        System.out.println("Fatal error: " + e.getMessage());
-                        return;
-                    }
-
-                    System.out.println("successfully read model");
+                case PRINT_MODEL_KEY:
                     System.out.println(serverModel);
-
-                    break;
-                case READ_MODEL_FROM_FILE_KEY:
-                    System.out.println("** Reading model from file.");
-
-                    System.out.println("Enter the name of the SCL file: ");
-                    String modelFileName = actionProcessor.getReader().readLine();
-
-                    try {
-                        serverModel = association.getModelFromSclFile(modelFileName);
-                    } catch (SclParseException e1) {
-                        System.out.println("Error parsing SCL file: " + e1.getMessage());
-                        return;
-                    }
-
-                    System.out.println("successfully read model");
-                    System.out.println(serverModel);
-
                     break;
                 case GET_DATA_VALUES_KEY:
 
@@ -182,6 +152,7 @@ public class ConsoleClient {
         List<CliParameter> cliParameters = new ArrayList<>();
         cliParameters.add(hostParam);
         cliParameters.add(portParam);
+        cliParameters.add(modelFileParam);
 
         CliParser cliParser = new CliParser("openiec61850-console-client",
                 "A client application to access IEC 61850 MMS servers.");
@@ -226,9 +197,37 @@ public class ConsoleClient {
 
         System.out.println("successfully connected");
 
-        actionProcessor.addAction(new Action(RETRIEVE_MODEL_KEY, RETRIEVE_MODEL_KEY_DESCRIPTION));
+        if (modelFileParam.isSelected()) {
+            System.out.println("reading model from file...");
+
+            try {
+                serverModel = association.getModelFromSclFile(modelFileParam.getValue());
+            } catch (SclParseException e1) {
+                System.out.println("Error parsing SCL file: " + e1.getMessage());
+                return;
+            }
+
+            System.out.println("successfully read model");
+
+        }
+        else {
+            System.out.println("retrieving model...");
+
+            try {
+                serverModel = association.retrieveModel();
+            } catch (ServiceError e) {
+                System.out.println("Service error: " + e.getMessage());
+                return;
+            } catch (IOException e) {
+                System.out.println("Fatal error: " + e.getMessage());
+                return;
+            }
+
+            System.out.println("successfully read model");
+        }
+
+        actionProcessor.addAction(new Action(PRINT_MODEL_KEY, PRINT_MODEL_KEY_DESCRIPTION));
         actionProcessor.addAction(new Action(GET_DATA_VALUES_KEY, GET_DATA_VALUES_KEY_DESCRIPTION));
-        actionProcessor.addAction(new Action(READ_MODEL_FROM_FILE_KEY, READ_MODEL_FROM_FILE_KEY_DESCRIPTION));
 
         actionProcessor.start();
 
