@@ -37,7 +37,9 @@ public class ConsoleClient {
     private static final String PRINT_MODEL_KEY = "m";
     private static final String PRINT_MODEL_KEY_DESCRIPTION = "print model";
     private static final String GET_DATA_VALUES_KEY = "r";
-    private static final String GET_DATA_VALUES_KEY_DESCRIPTION = "GetDataValues request";
+    private static final String GET_DATA_VALUES_KEY_DESCRIPTION = "send GetDataValues request";
+    private static final String READ_ALL_DATA_KEY = "ra";
+    private static final String READ_ALL_DATA_KEY_DESCRIPTION = "update all data in the model";
 
     private static final StringCliParameter hostParam = new CliParameterBuilder("-h")
             .setDescription("The IP/domain address of the server you want to access.")
@@ -82,6 +84,11 @@ public class ConsoleClient {
                 switch (actionKey) {
                 case PRINT_MODEL_KEY:
                     System.out.println(serverModel);
+                    break;
+                case READ_ALL_DATA_KEY:
+                    System.out.print("Reading all data...");
+                    association.getAllDataValues();
+                    System.out.println("done");
                     break;
                 case GET_DATA_VALUES_KEY:
 
@@ -228,6 +235,7 @@ public class ConsoleClient {
 
         actionProcessor.addAction(new Action(PRINT_MODEL_KEY, PRINT_MODEL_KEY_DESCRIPTION));
         actionProcessor.addAction(new Action(GET_DATA_VALUES_KEY, GET_DATA_VALUES_KEY_DESCRIPTION));
+        actionProcessor.addAction(new Action(READ_ALL_DATA_KEY, READ_ALL_DATA_KEY_DESCRIPTION));
 
         actionProcessor.start();
 
