@@ -21,24 +21,22 @@ import java.util.List;
 public class Report {
 
     private final String rptId;
-    private final BdaOptFlds optFlds;
     private final Integer sqNum;
     private final Integer subSqNum;
     private final boolean moreSegmentsFollow;
     private final String dataSetRef;
-    private final boolean bufOvfl;
+    private final Boolean bufOvfl;
     private final Long confRev;
     private final BdaEntryTime timeOfEntry;
     private final BdaOctetString entryId;
-    private final byte[] inclusionBitString;
+    private final boolean[] inclusionBitString;
+    private final List<FcModelNode> values;
     private final List<BdaReasonForInclusion> reasonCodes;
-    private final DataSet dataSet;
 
-    public Report(String rptId, BdaOptFlds optFlds, Integer sqNum, Integer subSqNum, boolean moreSegmentsFollow,
-            String dataSetRef, boolean bufOvfl, Long confRev, BdaEntryTime timeOfEntry, BdaOctetString entryId,
-            byte[] inclusionBitString, List<BdaReasonForInclusion> reasonCodes, DataSet dataSet) {
+    public Report(String rptId, Integer sqNum, Integer subSqNum, boolean moreSegmentsFollow, String dataSetRef,
+            Boolean bufOvfl, Long confRev, BdaEntryTime timeOfEntry, BdaOctetString entryId,
+            boolean[] inclusionBitString, List<FcModelNode> values, List<BdaReasonForInclusion> reasonCodes) {
         this.rptId = rptId;
-        this.optFlds = optFlds;
         this.sqNum = sqNum;
         this.subSqNum = subSqNum;
         this.moreSegmentsFollow = moreSegmentsFollow;
@@ -48,16 +46,12 @@ public class Report {
         this.timeOfEntry = timeOfEntry;
         this.entryId = entryId;
         this.inclusionBitString = inclusionBitString;
+        this.values = values;
         this.reasonCodes = reasonCodes;
-        this.dataSet = dataSet;
     }
 
     public String getRptId() {
         return rptId;
-    }
-
-    public BdaOptFlds getOptFlds() {
-        return optFlds;
     }
 
     /**
@@ -100,7 +94,7 @@ public class Report {
      * 
      * @return true if buffer overflow is true
      */
-    public boolean isBufOvfl() {
+    public Boolean getBufOvfl() {
         return bufOvfl;
     }
 
@@ -126,7 +120,7 @@ public class Report {
      * 
      * @return the inclusion bit string as a byte array
      */
-    public byte[] getInclusionBitString() {
+    public boolean[] getInclusionBitString() {
         return inclusionBitString;
     }
 
@@ -139,13 +133,47 @@ public class Report {
         return reasonCodes;
     }
 
-    /**
-     * Gets the data set associated with this report.
-     * 
-     * @return the data set associated with this report.
-     */
-    public DataSet getDataSet() {
-        return dataSet;
+    public List<FcModelNode> getValues() {
+        return values;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Report ID: ").append(rptId);
+        sb.append("\nData set reference: ").append(dataSetRef);
+
+        if (sqNum != null) {
+            sb.append("\nSequence number: ").append(sqNum);
+        }
+        if (subSqNum != null) {
+            sb.append("\nSubsequence number: ").append(subSqNum);
+            if (moreSegmentsFollow) {
+                sb.append(" (more segments follow)");
+            }
+        }
+        if (timeOfEntry != null) {
+            sb.append("\nTime of entry (unix timestamp): ").append(timeOfEntry.getTimestampValue());
+        }
+        if (bufOvfl != null) {
+            sb.append("\nBuffer overflow: ").append(bufOvfl);
+        }
+        if (entryId != null) {
+            sb.append("\nEntry ID: ").append(HexConverter.toHexString(entryId.getValue()));
+        }
+        if (confRev != null) {
+            sb.append("\nConfiguration revision: ").append(confRev.toString());
+        }
+        sb.append("\nReported data set members:");
+        int index = 0;
+        for (FcModelNode reportedDataSetMember : values) {
+            sb.append("\n").append(reportedDataSetMember.toString());
+            if (reasonCodes != null) {
+                sb.append(", reason: ").append(reasonCodes.get(index));
+            }
+        }
+
+        return sb.toString();
     }
 
 }

@@ -32,7 +32,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.openmuc.jasn1.ber.BerByteArrayOutputStream;
-import org.openmuc.jasn1.ber.types.BerBitString;
 import org.openmuc.jasn1.ber.types.BerBoolean;
 import org.openmuc.jasn1.ber.types.BerInteger;
 import org.openmuc.jasn1.ber.types.BerNull;
@@ -1437,9 +1436,15 @@ public final class ClientAssociation {
     }
 
     /**
-     * Sets the selected values of the given report control block. Note that all these parameters may only be set if
-     * reporting for this report control block is not enabled and if it is not reserved by another client. The
-     * parameters PurgeBuf, EntryId are only applicable if the given rcb is of type BRCB.
+     * Sets the selected values of the given report control block. Note that all these parameters may only be set if the
+     * RCB has been reserved but reporting has not been enabled yet.
+     * <p>
+     * The data set reference as it is set in an RCB must contain a dollar sign instead of a dot to separate the logical
+     * node from the data set name, e.g.: 'LDevice1/LNode$DataSetName'. Therefore his method will check the reference
+     * for a dot and if necessary convert it to a '$' sign before sending the request to the server.
+     * <p>
+     * The parameters PurgeBuf, EntryId are only applicable if the given rcb is of type BRCB.
+     * 
      *
      * @param rcb
      *            the report control block
@@ -1474,6 +1479,7 @@ public final class ClientAssociation {
             parametersToSet.add(rcb.getRptId());
         }
         if (setDatSet == true) {
+            rcb.getDatSet().setValue(rcb.getDatSet().getStringValue().replace('.', '$'));
             parametersToSet.add(rcb.getDatSet());
         }
         if (setOptFlds == true) {
@@ -1534,6 +1540,7 @@ public final class ClientAssociation {
         }
 
         List<AccessResult> listRes = unconfirmedServ.getInformationReport().getListOfAccessResult().getAccessResult();
+
         int index = 0;
 
         if (listRes.get(index).getSuccess().getVisibleString() == null) {
@@ -1541,74 +1548,32 @@ public final class ClientAssociation {
                     "processReport: report does not contain RptID");
         }
 
-        String rptId;
-        BdaOptFlds optFlds;
-        Integer sqNum = null;
-        Integer subSqNum = null;
-        boolean moreSegmentsFollow = false;
-        String dataSetRef = null;
-        boolean bufOvfl = false;
-        Long confRev = null;
-        BdaEntryTime timeOfEntry = null;
-        BdaOctetString entryId = null;
-
-        DataSet dataSet = null;
-
-        rptId = listRes.get(index++).getSuccess().getVisibleString().toString();
+        String rptId = listRes.get(index++).getSuccess().getVisibleString().toString();
 
         if (listRes.get(index).getSuccess().getBitString() == null) {
             throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
                     "processReport: report does not contain OptFlds");
         }
 
-        optFlds = new BdaOptFlds(new ObjectReference("none"), null);
+        BdaOptFlds optFlds = new BdaOptFlds(new ObjectReference("none"), null);
         optFlds.setValue(listRes.get(index++).getSuccess().getBitString().value);
 
+        Integer sqNum = null;
         if (optFlds.isSequenceNumber()) {
             sqNum = listRes.get(index++).getSuccess().getUnsigned().intValue();
         }
 
+        BdaEntryTime timeOfEntry = null;
         if (optFlds.isReportTimestamp()) {
             timeOfEntry = new BdaEntryTime(new ObjectReference("none"), null, "", false, false);
             timeOfEntry.setValueFromMmsDataObj(listRes.get(index++).getSuccess());
         }
 
+        String dataSetRef = null;
         if (optFlds.isDataSetName()) {
             dataSetRef = (listRes.get(index++).getSuccess().getVisibleString().toString());
         }
-
-        if (optFlds.isBufferOverflow()) {
-            bufOvfl = (listRes.get(index++).getSuccess().getBool().value);
-        }
-
-        if (optFlds.isEntryId()) {
-            entryId = new BdaOctetString(new ObjectReference("none"), null, "", 8, false, false);
-            entryId.setValue(listRes.get(index++).getSuccess().getOctetString().value);
-        }
-
-        if (optFlds.isConfigRevision()) {
-            confRev = listRes.get(index++).getSuccess().getUnsigned().longValue();
-        }
-
-        if (optFlds.isSegmentation()) {
-            subSqNum = listRes.get(index++).getSuccess().getUnsigned().intValue();
-            moreSegmentsFollow = listRes.get(index++).getSuccess().getBool().value;
-        }
-
-        BerBitString inclusionBitString = listRes.get(index++).getSuccess().getBitString();
-
-        if (optFlds.isDataReference()) {
-            // this is just to move the index to the right place
-            // The next part will process the changes to the values
-            // without the dataRefs
-            for (int i = 0; i < inclusionBitString.numBits; i++) {
-                if ((inclusionBitString.value[i / 8] & (1 << (7 - i % 8))) == (1 << (7 - i % 8))) {
-                    index++;
-                }
-            }
-        }
-
-        if (dataSetRef == null) {
+        else {
             for (Urcb urcb : serverModel.getUrcbs()) {
                 if ((urcb.getRptId() != null && urcb.getRptId().getStringValue().equals(rptId))
                         || urcb.getReference().toString().equals(rptId)) {
@@ -1616,57 +1581,94 @@ public final class ClientAssociation {
                     break;
                 }
             }
-        }
-
-        if (dataSetRef == null) {
-            for (Brcb brcb : serverModel.getBrcbs()) {
-                if ((brcb.getRptId() != null && brcb.getRptId().getStringValue().equals(rptId))
-                        || brcb.getReference().toString().equals(rptId)) {
-                    dataSetRef = brcb.getDatSet().getStringValue();
-                    break;
+            if (dataSetRef == null) {
+                for (Brcb brcb : serverModel.getBrcbs()) {
+                    if ((brcb.getRptId() != null && brcb.getRptId().getStringValue().equals(rptId))
+                            || brcb.getReference().toString().equals(rptId)) {
+                        dataSetRef = brcb.getDatSet().getStringValue();
+                        break;
+                    }
                 }
             }
         }
-
         if (dataSetRef == null) {
             throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-                    "unable to find URCB that matches the given RptID in the report.");
+                    "unable to find RCB that matches the given RptID in the report.");
+        }
+        dataSetRef = dataSetRef.replace('$', '.');
+
+        DataSet dataSet = serverModel.getDataSet(dataSetRef);
+        if (dataSet == null) {
+            throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
+                    "unable to find data set that matches the given data set reference of the report.");
         }
 
-        // updating of data set copy - original stays the same
-        dataSet = serverModel.getDataSet(dataSetRef.replace('$', '.')).copy();
-        int shiftNum = 0;
-        for (ModelNode child : dataSet.getMembers()) {
-            if ((inclusionBitString.value[shiftNum / 8] & (1 << (7 - shiftNum % 8))) == (1 << (7 - shiftNum % 8))) {
+        Boolean bufOvfl = null;
+        if (optFlds.isBufferOverflow()) {
+            bufOvfl = (listRes.get(index++).getSuccess().getBool().value);
+        }
 
-                AccessResult accessRes = listRes.get(index++);
-                child.setValueFromMmsDataObj(accessRes.getSuccess());
+        BdaOctetString entryId = null;
+        if (optFlds.isEntryId()) {
+            entryId = new BdaOctetString(new ObjectReference("none"), null, "", 8, false, false);
+            entryId.setValue(listRes.get(index++).getSuccess().getOctetString().value);
+        }
+
+        Long confRev = null;
+        if (optFlds.isConfigRevision()) {
+            confRev = listRes.get(index++).getSuccess().getUnsigned().longValue();
+        }
+
+        Integer subSqNum = null;
+        boolean moreSegmentsFollow = false;
+        if (optFlds.isSegmentation()) {
+            subSqNum = listRes.get(index++).getSuccess().getUnsigned().intValue();
+            moreSegmentsFollow = listRes.get(index++).getSuccess().getBool().value;
+        }
+
+        boolean[] inclusionBitString = listRes.get(index++).getSuccess().getBitString().getValueAsBooleans();
+        int numMembersReported = 0;
+        for (boolean bit : inclusionBitString) {
+            if (bit) {
+                numMembersReported++;
             }
-            shiftNum++;
+        }
+
+        if (optFlds.isDataReference()) {
+            // this is just to move the index to the right place
+            // The next part will process the changes to the values
+            // without the dataRefs
+            index += numMembersReported;
+        }
+
+        List<FcModelNode> reportedDataSetMembers = new ArrayList<>(numMembersReported);
+        int dataSetIndex = 0;
+        for (FcModelNode dataSetMember : dataSet.getMembers()) {
+            if (inclusionBitString[dataSetIndex]) {
+                AccessResult accessRes = listRes.get(index++);
+                FcModelNode dataSetMemberCopy = (FcModelNode) dataSetMember.copy();
+                dataSetMemberCopy.setValueFromMmsDataObj(accessRes.getSuccess());
+                reportedDataSetMembers.add(dataSetMemberCopy);
+            }
+            dataSetIndex++;
         }
 
         List<BdaReasonForInclusion> reasonCodes = null;
         if (optFlds.isReasonForInclusion()) {
             reasonCodes = new ArrayList<>(dataSet.getMembers().size());
             for (int i = 0; i < dataSet.getMembers().size(); i++) {
-
-                if ((inclusionBitString.value[i / 8] & (1 << (7 - i % 8))) == (1 << (7 - i % 8))) {
-
+                if (inclusionBitString[dataSetIndex]) {
                     BdaReasonForInclusion reasonForInclusion = new BdaReasonForInclusion(null);
-
                     reasonCodes.add(reasonForInclusion);
-
                     byte[] reason = listRes.get(index++).getSuccess().getBitString().value;
-
                     reasonForInclusion.setValue(reason);
-
                 }
 
             }
         }
 
-        return new Report(rptId, optFlds, sqNum, subSqNum, moreSegmentsFollow, dataSetRef, bufOvfl, confRev,
-                timeOfEntry, entryId, inclusionBitString.value, reasonCodes, dataSet);
+        return new Report(rptId, sqNum, subSqNum, moreSegmentsFollow, dataSetRef, bufOvfl, confRev, timeOfEntry,
+                entryId, inclusionBitString, reportedDataSetMembers, reasonCodes);
 
     }
 
