@@ -80,10 +80,6 @@ abstract public class BdaBitString extends BasicDataAttribute {
             throw new ServiceError(ServiceError.TYPE_CONFLICT, objectReference
                     + ": bit_string is bigger than type's size: " + data.getBitString().numBits + ">" + maxNumBits);
         }
-        if (data.getBitString().numBits < maxNumBits) {
-            throw new ServiceError(ServiceError.TYPE_CONFLICT, objectReference
-                    + ": bit_string is smaller than type's size: " + data.getBitString().numBits + "<" + maxNumBits);
-        }
         value = data.getBitString().value;
     }
 
