@@ -916,8 +916,13 @@ public final class ClientAssociation {
             for (ModelNode logicalNode : logicalDevice.getChildren()) {
                 for (ModelNode dataObject : logicalNode.getChildren()) {
                     FcModelNode fcdo = (FcModelNode) dataObject;
-                    if (fcdo.getFc() != Fc.CO) {
-                        getDataValues(fcdo);
+                    if (fcdo.getFc() != Fc.CO && fcdo.getFc() != Fc.SE) {
+                        try {
+                            getDataValues(fcdo);
+                        } catch (ServiceError e) {
+                            throw new ServiceError(e.getErrorCode(), "service error retrieving " + fcdo.getReference()
+                                    + "[" + fcdo.getFc() + "]" + ", " + e.getMessage(), e);
+                        }
                     }
                 }
             }

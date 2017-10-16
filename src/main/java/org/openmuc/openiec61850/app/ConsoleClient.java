@@ -41,12 +41,16 @@ public class ConsoleClient {
 
     private static final String PRINT_MODEL_KEY = "m";
     private static final String PRINT_MODEL_KEY_DESCRIPTION = "print model";
+    // private static final String PRINT_CAPABILITIES = "c";
+    // private static final String PRINT_CAPABILITIES_KEY_DESCRIPTION = "print server capabilities";
     private static final String GET_DATA_VALUES_KEY = "g";
     private static final String GET_DATA_VALUES_KEY_DESCRIPTION = "send GetDataValues request";
     private static final String READ_ALL_DATA_KEY = "ga";
     private static final String READ_ALL_DATA_KEY_DESCRIPTION = "update all data in the model";
-    private static final String CREATE_DATA_SET_KEY = "ds";
+    private static final String CREATE_DATA_SET_KEY = "cds";
     private static final String CREATE_DATA_SET_KEY_DESCRIPTION = "create data set";
+    private static final String DELETE_DATA_SET_KEY = "dds";
+    private static final String DELETE_DATA_SET_KEY_DESCRIPTION = "delete data set";
     private static final String REPORTING_KEY = "r";
     private static final String REPORTING_KEY_DESCRIPTION = "configure reporting";
 
@@ -99,7 +103,11 @@ public class ConsoleClient {
                     break;
                 case READ_ALL_DATA_KEY:
                     System.out.print("Reading all data...");
-                    association.getAllDataValues();
+                    try {
+                        association.getAllDataValues();
+                    } catch (ServiceError e) {
+                        System.err.println("Service error: " + e.getMessage());
+                    }
                     System.out.println("done");
                     break;
                 case GET_DATA_VALUES_KEY: {
@@ -144,6 +152,21 @@ public class ConsoleClient {
 
                     DataSet dataSet = new DataSet(reference, dataSetMembers);
                     association.createDataSet(dataSet);
+
+                    break;
+                }
+                case DELETE_DATA_SET_KEY: {
+
+                    System.out.println("Enter the reference of the data set to delete (e.g. myld/MYLN0.dataset1): ");
+                    String reference = actionProcessor.getReader().readLine();
+
+                    DataSet dataSet = serverModel.getDataSet(reference);
+                    if (dataSet == null) {
+                        throw new ActionException("Unable to find data set with the given reference.");
+                    }
+                    System.out.print("Deleting data set..");
+                    association.deleteDataSet(dataSet);
+                    System.out.println("done");
 
                     break;
                 }
@@ -207,6 +230,9 @@ public class ConsoleClient {
                                 urcb.getDatSet().setValue(dataSetReference);
                                 List<ServiceError> serviceErrors = association.setRcbValues(urcb, false, true, false,
                                         false, false, false, false, false);
+                                if (serviceErrors.get(0) != null) {
+                                    throw serviceErrors.get(0);
+                                }
                                 break;
                             }
                             case 6: {
@@ -222,6 +248,9 @@ public class ConsoleClient {
                                 triggerOptions.setGeneralInterrogation(Boolean.parseBoolean(triggerOptionsStrings[4]));
                                 List<ServiceError> serviceErrors = association.setRcbValues(urcb, false, false, false,
                                         false, true, false, false, false);
+                                if (serviceErrors.get(0) != null) {
+                                    throw serviceErrors.get(0);
+                                }
                                 break;
                             }
                             case 7: {
@@ -230,6 +259,9 @@ public class ConsoleClient {
                                 urcb.getIntgPd().setValue(Long.parseLong(integrityPeriodString));
                                 List<ServiceError> serviceErrors = association.setRcbValues(urcb, false, false, false,
                                         false, false, true, false, false);
+                                if (serviceErrors.get(0) != null) {
+                                    throw serviceErrors.get(0);
+                                }
                                 System.out.println("done");
                                 break;
                             }
@@ -254,7 +286,7 @@ public class ConsoleClient {
                     break;
                 }
             } catch (Exception e) {
-                throw new FatalActionException(e);
+                throw new ActionException(e);
             }
         }
 

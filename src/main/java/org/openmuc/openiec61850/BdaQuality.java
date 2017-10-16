@@ -242,9 +242,4 @@ public final class BdaQuality extends BdaBitString {
         }
     }
 
-    @Override
-    public String toString() {
-        return getReference().toString() + ": " + String.format("0x%x, 0x%x", value[0], value[1]);
-    }
-
 }
