@@ -171,6 +171,7 @@ public class Report {
             if (reasonCodes != null) {
                 sb.append(", reason: ").append(reasonCodes.get(index));
             }
+            index++;
         }
 
         return sb.toString();

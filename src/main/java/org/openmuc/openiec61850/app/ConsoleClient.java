@@ -6,9 +6,11 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openmuc.openiec61850.Brcb;
 import org.openmuc.openiec61850.ClientAssociation;
 import org.openmuc.openiec61850.ClientEventListener;
 import org.openmuc.openiec61850.ClientSap;
+import org.openmuc.openiec61850.DataSet;
 import org.openmuc.openiec61850.Fc;
 import org.openmuc.openiec61850.FcModelNode;
 import org.openmuc.openiec61850.ModelNode;
@@ -16,6 +18,7 @@ import org.openmuc.openiec61850.Report;
 import org.openmuc.openiec61850.SclParseException;
 import org.openmuc.openiec61850.ServerModel;
 import org.openmuc.openiec61850.ServiceError;
+import org.openmuc.openiec61850.Urcb;
 import org.openmuc.openiec61850.internal.cli.Action;
 import org.openmuc.openiec61850.internal.cli.ActionException;
 import org.openmuc.openiec61850.internal.cli.ActionListener;
@@ -24,6 +27,7 @@ import org.openmuc.openiec61850.internal.cli.CliParameter;
 import org.openmuc.openiec61850.internal.cli.CliParameterBuilder;
 import org.openmuc.openiec61850.internal.cli.CliParseException;
 import org.openmuc.openiec61850.internal.cli.CliParser;
+import org.openmuc.openiec61850.internal.cli.FatalActionException;
 import org.openmuc.openiec61850.internal.cli.IntCliParameter;
 import org.openmuc.openiec61850.internal.cli.StringCliParameter;
 
@@ -40,6 +44,10 @@ public class ConsoleClient {
     private static final String GET_DATA_VALUES_KEY_DESCRIPTION = "send GetDataValues request";
     private static final String READ_ALL_DATA_KEY = "ra";
     private static final String READ_ALL_DATA_KEY_DESCRIPTION = "update all data in the model";
+    private static final String CREATE_DATA_SET_KEY = "da";
+    private static final String CREATE_DATA_SET_KEY_DESCRIPTION = "create data set";
+    private static final String ENABLE_REPORTING_KEY = "re";
+    private static final String ENABLE_REPORTING_KEY_DESCRIPTION = "reserve, configure and enable reporting";
 
     private static final StringCliParameter hostParam = new CliParameterBuilder("-h")
             .setDescription("The IP/domain address of the server you want to access.")
@@ -60,7 +68,10 @@ public class ConsoleClient {
 
         @Override
         public void newReport(Report report) {
-            System.out.println("Received report: " + report);
+            System.out.println("\n----------------");
+            System.out.println("Received report: ");
+            System.err.println(report);
+            System.out.println("------------------");
         }
 
         @Override
@@ -79,7 +90,7 @@ public class ConsoleClient {
     private static class ActionExecutor implements ActionListener {
 
         @Override
-        public void actionCalled(String actionKey) throws ActionException {
+        public void actionCalled(String actionKey) throws ActionException, FatalActionException {
             try {
                 switch (actionKey) {
                 case PRINT_MODEL_KEY:
@@ -90,40 +101,16 @@ public class ConsoleClient {
                     association.getAllDataValues();
                     System.out.println("done");
                     break;
-                case GET_DATA_VALUES_KEY:
-
-                    System.out.println("** Sending GetDataValues request.");
+                case GET_DATA_VALUES_KEY: {
 
                     if (serverModel == null) {
                         System.out.println("You have to retrieve the model before reading data.");
                         return;
                     }
 
-                    System.out.println("Enter reference to read (e.g. myld/MYLN0.do.da.bda): ");
-                    String reference = actionProcessor.getReader().readLine();
-                    System.out.println("Enter functional constraint of referenced node: ");
-                    String fcString = actionProcessor.getReader().readLine();
+                    FcModelNode fcModelNode = askForFcModelNode();
 
-                    Fc fc = Fc.fromString(fcString);
-                    if (fc == null) {
-                        System.out.println("Unknown functional constraint.");
-                        return;
-                    }
-
-                    ModelNode modelNode = serverModel.findModelNode(reference, Fc.fromString(fcString));
-                    if (modelNode == null) {
-                        System.out.println(
-                                "A model node with the given reference and functional constraint could not be found.");
-                        return;
-                    }
-
-                    if (!(modelNode instanceof FcModelNode)) {
-                        System.out.println("The given model node is not a functionally constraint model node.");
-                        return;
-                    }
-
-                    FcModelNode fcModelNode = (FcModelNode) serverModel.findModelNode(reference,
-                            Fc.fromString(fcString));
+                    System.out.println("Sending GetDataValues request...");
 
                     try {
                         association.getDataValues(fcModelNode);
@@ -137,13 +124,82 @@ public class ConsoleClient {
 
                     System.out.println("Successfully read data.");
                     System.out.println(fcModelNode);
+
                     break;
+                }
+                case CREATE_DATA_SET_KEY: {
+
+                    System.out.println("Enter the reference of the data set to create (e.g. myld/MYLN0.dataset1): ");
+                    String reference = actionProcessor.getReader().readLine();
+
+                    System.out.println("How many entries shall the data set have: ");
+                    String numberOfEntriesString = actionProcessor.getReader().readLine();
+                    int numDataSetEntries = Integer.parseInt(numberOfEntriesString);
+
+                    List<FcModelNode> dataSetMembers = new ArrayList<>();
+                    for (int i = 0; i < numDataSetEntries; i++) {
+                        dataSetMembers.add(askForFcModelNode());
+                    }
+
+                    DataSet dataSet = new DataSet(reference, dataSetMembers);
+                    association.createDataSet(dataSet);
+
+                    break;
+                }
+                case ENABLE_REPORTING_KEY: {
+
+                    System.out.println("Enter the URCB reference: ");
+                    String reference = actionProcessor.getReader().readLine();
+                    Urcb urcb = serverModel.getUrcb(reference);
+                    if (urcb == null) {
+                        Brcb brcb = serverModel.getBrcb(reference);
+                        if (brcb != null) {
+                            throw new ActionException(
+                                    "Though buffered reporting is supported by the library it is not yet supported by the console application.");
+                        }
+                        throw new ActionException("Unable to find RCB with the given reference.");
+                    }
+                    System.out.print("Reserving URCB..");
+                    association.reserveUrcb(urcb);
+                    System.out.println("done");
+
+                    System.out.println("Enabling reporting..");
+                    association.enableReporting(urcb);
+                    System.out.println("done");
+
+                    break;
+                }
                 default:
                     break;
                 }
             } catch (Exception e) {
-                throw new ActionException(e);
+                throw new FatalActionException(e);
             }
+        }
+
+        private FcModelNode askForFcModelNode() throws IOException, ActionException {
+            System.out.println("Enter reference (e.g. myld/MYLN0.do.da.bda): ");
+            String reference = actionProcessor.getReader().readLine();
+            System.out.println("Enter functional constraint of referenced node: ");
+            String fcString = actionProcessor.getReader().readLine();
+
+            Fc fc = Fc.fromString(fcString);
+            if (fc == null) {
+                throw new ActionException("Unknown functional constraint.");
+            }
+
+            ModelNode modelNode = serverModel.findModelNode(reference, Fc.fromString(fcString));
+            if (modelNode == null) {
+                throw new ActionException(
+                        "A model node with the given reference and functional constraint could not be found.");
+            }
+
+            if (!(modelNode instanceof FcModelNode)) {
+                throw new ActionException("The given model node is not a functionally constraint model node.");
+            }
+
+            FcModelNode fcModelNode = (FcModelNode) modelNode;
+            return fcModelNode;
         }
 
         @Override
@@ -236,6 +292,8 @@ public class ConsoleClient {
         actionProcessor.addAction(new Action(PRINT_MODEL_KEY, PRINT_MODEL_KEY_DESCRIPTION));
         actionProcessor.addAction(new Action(GET_DATA_VALUES_KEY, GET_DATA_VALUES_KEY_DESCRIPTION));
         actionProcessor.addAction(new Action(READ_ALL_DATA_KEY, READ_ALL_DATA_KEY_DESCRIPTION));
+        actionProcessor.addAction(new Action(CREATE_DATA_SET_KEY, CREATE_DATA_SET_KEY_DESCRIPTION));
+        actionProcessor.addAction(new Action(ENABLE_REPORTING_KEY, ENABLE_REPORTING_KEY_DESCRIPTION));
 
         actionProcessor.start();
 

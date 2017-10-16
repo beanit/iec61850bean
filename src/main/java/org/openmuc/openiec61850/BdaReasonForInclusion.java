@@ -117,4 +117,61 @@ public final class BdaReasonForInclusion extends BdaBitString {
         }
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        if (isDataChange()) {
+            if (!first) {
+                sb.append(",");
+            }
+            else {
+                first = false;
+            }
+            sb.append("data-change");
+        }
+
+        if (isDataUpdate()) {
+            if (!first) {
+                sb.append(",");
+            }
+            else {
+                first = false;
+            }
+            sb.append("data-update");
+        }
+
+        if (isQualityChange()) {
+            if (!first) {
+                sb.append(",");
+            }
+            else {
+                first = false;
+            }
+            sb.append("quality-change");
+        }
+
+        if (isIntegrity()) {
+            if (!first) {
+                sb.append(",");
+            }
+            else {
+                first = false;
+            }
+            sb.append("integrity");
+        }
+
+        if (isGeneralInterrogation()) {
+            if (!first) {
+                sb.append(",");
+            }
+            else {
+                first = false;
+            }
+            sb.append("general-interrogation");
+        }
+
+        return sb.toString();
+    }
+
 }

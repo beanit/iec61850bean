@@ -83,7 +83,11 @@ public class ActionProcessor {
                     return;
                 }
 
-                actionListener.actionCalled(actionKey);
+                try {
+                    actionListener.actionCalled(actionKey);
+                } catch (ActionException e) {
+                    System.err.println(e.getMessage() + "\n");
+                }
 
             }
 
