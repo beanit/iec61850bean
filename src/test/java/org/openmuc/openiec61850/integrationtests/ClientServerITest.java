@@ -516,6 +516,9 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     @Override
     public void associationClosed(IOException e) {
         System.out.println("Association closed!");
+        if (e != null) {
+            System.out.println(e.getMessage());
+        }
         numAssociationClosed++;
     }
 }

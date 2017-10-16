@@ -1657,7 +1657,7 @@ public final class ClientAssociation {
         if (optFlds.isReasonForInclusion()) {
             reasonCodes = new ArrayList<>(dataSet.getMembers().size());
             for (int i = 0; i < dataSet.getMembers().size(); i++) {
-                if (inclusionBitString[dataSetIndex]) {
+                if (inclusionBitString[i]) {
                     BdaReasonForInclusion reasonForInclusion = new BdaReasonForInclusion(null);
                     reasonCodes.add(reasonForInclusion);
                     byte[] reason = listRes.get(index++).getSuccess().getBitString().value;
