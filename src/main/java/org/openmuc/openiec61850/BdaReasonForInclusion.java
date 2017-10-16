@@ -171,6 +171,16 @@ public final class BdaReasonForInclusion extends BdaBitString {
             sb.append("general-interrogation");
         }
 
+        if (isApplicationTrigger()) {
+            if (!first) {
+                sb.append(",");
+            }
+            else {
+                first = false;
+            }
+            sb.append("application-trigger");
+        }
+
         return sb.toString();
     }
 

@@ -110,4 +110,12 @@ public final class BdaTriggerConditions extends BdaBitString {
         }
     }
 
+    @Override
+    public String toString() {
+
+        return super.toString() + ", data change: " + isDataChange() + ", data update: " + isDataUpdate()
+                + ", quality change:" + isQualityChange() + ", integrity period: " + isIntegrity() + ", GI: "
+                + isGeneralInterrogation();
+    }
+
 }

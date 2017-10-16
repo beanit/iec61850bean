@@ -6,6 +6,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openmuc.openiec61850.BdaTriggerConditions;
 import org.openmuc.openiec61850.Brcb;
 import org.openmuc.openiec61850.ClientAssociation;
 import org.openmuc.openiec61850.ClientEventListener;
@@ -40,14 +41,14 @@ public class ConsoleClient {
 
     private static final String PRINT_MODEL_KEY = "m";
     private static final String PRINT_MODEL_KEY_DESCRIPTION = "print model";
-    private static final String GET_DATA_VALUES_KEY = "r";
+    private static final String GET_DATA_VALUES_KEY = "g";
     private static final String GET_DATA_VALUES_KEY_DESCRIPTION = "send GetDataValues request";
-    private static final String READ_ALL_DATA_KEY = "ra";
+    private static final String READ_ALL_DATA_KEY = "ga";
     private static final String READ_ALL_DATA_KEY_DESCRIPTION = "update all data in the model";
-    private static final String CREATE_DATA_SET_KEY = "da";
+    private static final String CREATE_DATA_SET_KEY = "ds";
     private static final String CREATE_DATA_SET_KEY_DESCRIPTION = "create data set";
-    private static final String ENABLE_REPORTING_KEY = "re";
-    private static final String ENABLE_REPORTING_KEY_DESCRIPTION = "reserve, configure and enable reporting";
+    private static final String REPORTING_KEY = "r";
+    private static final String REPORTING_KEY_DESCRIPTION = "configure reporting";
 
     private static final StringCliParameter hostParam = new CliParameterBuilder("-h")
             .setDescription("The IP/domain address of the server you want to access.")
@@ -146,7 +147,7 @@ public class ConsoleClient {
 
                     break;
                 }
-                case ENABLE_REPORTING_KEY: {
+                case REPORTING_KEY: {
 
                     System.out.println("Enter the URCB reference: ");
                     String reference = actionProcessor.getReader().readLine();
@@ -159,15 +160,95 @@ public class ConsoleClient {
                         }
                         throw new ActionException("Unable to find RCB with the given reference.");
                     }
-                    System.out.print("Reserving URCB..");
-                    association.reserveUrcb(urcb);
-                    System.out.println("done");
 
-                    System.out.println("Enabling reporting..");
-                    association.enableReporting(urcb);
-                    System.out.println("done");
+                    while (true) {
+                        association.getRcbValues(urcb);
+                        System.out.println();
+                        System.out.println(urcb);
+                        System.out.println();
+                        System.out.println("What do you want to configure?");
+                        System.out.println("1 - reserve");
+                        System.out.println("2 - cancel reservation");
+                        System.out.println("3 - enable");
+                        System.out.println("4 - disable");
+                        System.out.println("5 - set data set");
+                        System.out.println("6 - set trigger options");
+                        System.out.println("7 - set integrity period");
+                        System.out.println("8 - send general interrogation");
+                        System.out.println("0 - quit");
+                        try {
+                            int rcbAction = Integer.parseInt(actionProcessor.getReader().readLine());
+                            switch (rcbAction) {
+                            case 0:
+                                return;
+                            case 1:
+                                System.out.print("Reserving RCB..");
+                                association.reserveUrcb(urcb);
+                                System.out.println("done");
+                                break;
+                            case 2:
+                                System.out.print("Canceling RCB reservation..");
+                                association.cancelUrcbReservation(urcb);
+                                System.out.println("done");
+                                break;
+                            case 3:
+                                System.out.print("Enabling reporting..");
+                                association.enableReporting(urcb);
+                                System.out.println("done");
+                                break;
+                            case 4:
+                                System.out.print("Disabling reporting..");
+                                association.disableReporting(urcb);
+                                System.out.println("done");
+                                break;
+                            case 5: {
+                                System.out.print("Set data set reference:");
+                                String dataSetReference = actionProcessor.getReader().readLine();
+                                urcb.getDatSet().setValue(dataSetReference);
+                                List<ServiceError> serviceErrors = association.setRcbValues(urcb, false, true, false,
+                                        false, false, false, false, false);
+                                break;
+                            }
+                            case 6: {
+                                System.out.print(
+                                        "Set the trigger options (data change, data update, quality change, interity, GI):");
+                                String triggerOptionsString = actionProcessor.getReader().readLine();
+                                String[] triggerOptionsStrings = triggerOptionsString.split(",");
+                                BdaTriggerConditions triggerOptions = urcb.getTrgOps();
+                                triggerOptions.setDataChange(Boolean.parseBoolean(triggerOptionsStrings[0]));
+                                triggerOptions.setDataUpdate(Boolean.parseBoolean(triggerOptionsStrings[1]));
+                                triggerOptions.setQualityChange(Boolean.parseBoolean(triggerOptionsStrings[2]));
+                                triggerOptions.setIntegrity(Boolean.parseBoolean(triggerOptionsStrings[3]));
+                                triggerOptions.setGeneralInterrogation(Boolean.parseBoolean(triggerOptionsStrings[4]));
+                                List<ServiceError> serviceErrors = association.setRcbValues(urcb, false, false, false,
+                                        false, true, false, false, false);
+                                break;
+                            }
+                            case 7: {
+                                System.out.print("Specify integrity period in ms:");
+                                String integrityPeriodString = actionProcessor.getReader().readLine();
+                                urcb.getIntgPd().setValue(Long.parseLong(integrityPeriodString));
+                                List<ServiceError> serviceErrors = association.setRcbValues(urcb, false, false, false,
+                                        false, false, true, false, false);
+                                System.out.println("done");
+                                break;
+                            }
+                            case 8:
+                                System.out.print("Sending GI..");
+                                association.startGi(urcb);
+                                System.out.println("done");
+                                break;
+                            default:
+                                System.err.println("Unknown option.");
+                                break;
+                            }
+                        } catch (ServiceError e) {
+                            System.err.println("Service error: " + e.getMessage());
+                        } catch (NumberFormatException e) {
+                            System.err.println("Cannot parse number: " + e.getMessage());
+                        }
 
-                    break;
+                    }
                 }
                 default:
                     break;
@@ -238,11 +319,6 @@ public class ConsoleClient {
         }
 
         ClientSap clientSap = new ClientSap();
-        // alternatively you could use ClientSap(SocketFactory factory) to e.g. connect using SSL
-
-        // optionally you can set some association parameters (but usually the default should work):
-        // clientSap.setTSelRemote(new byte[] { 0, 1 });
-        // clientSap.setTSelLocal(new byte[] { 0, 0 });
 
         try {
             association = clientSap.associate(address, portParam.getValue(), null, new EventListener());
@@ -293,49 +369,9 @@ public class ConsoleClient {
         actionProcessor.addAction(new Action(GET_DATA_VALUES_KEY, GET_DATA_VALUES_KEY_DESCRIPTION));
         actionProcessor.addAction(new Action(READ_ALL_DATA_KEY, READ_ALL_DATA_KEY_DESCRIPTION));
         actionProcessor.addAction(new Action(CREATE_DATA_SET_KEY, CREATE_DATA_SET_KEY_DESCRIPTION));
-        actionProcessor.addAction(new Action(ENABLE_REPORTING_KEY, ENABLE_REPORTING_KEY_DESCRIPTION));
+        actionProcessor.addAction(new Action(REPORTING_KEY, REPORTING_KEY_DESCRIPTION));
 
         actionProcessor.start();
-
-        //
-        // // example for writing a variable:
-        // FcModelNode modCtlModel = (FcModelNode) serverModel.findModelNode("ied1lDevice1/CSWI1.Mod.ctlModel", Fc.CF);
-        // association.setDataValues(modCtlModel);
-        //
-        // // example for enabling reporting
-        // Urcb urcb = serverModel.getUrcb("ied1lDevice1/LLN0.urcb1");
-        // if (urcb == null) {
-        // System.out.println("ReportControlBlock not found");
-        // }
-        // else {
-        // association.getRcbValues(urcb);
-        // System.out.println("urcb name: " + urcb.getName());
-        // System.out.println("RptId: " + urcb.getRptId());
-        // System.out.println("RptEna: " + urcb.getRptEna().getValue());
-        // association.reserveUrcb(urcb);
-        // association.enableReporting(urcb);
-        // association.startGi(urcb);
-        // association.disableReporting(urcb);
-        // association.cancelUrcbReservation(urcb);
-        // }
-        //
-        // // example for reading a variable:
-        // FcModelNode totW = (FcModelNode) serverModel.findModelNode("ied1lDevice1/MMXU1.TotW", Fc.MX);
-        // BdaFloat32 totWmag = (BdaFloat32) totW.getChild("mag").getChild("f");
-        // BdaTimestamp totWt = (BdaTimestamp) totW.getChild("t");
-        // BdaQuality totWq = (BdaQuality) totW.getChild("q");
-        //
-        // while (true) {
-        // association.getDataValues(totW);
-        // System.out.println("got totW: mag " + totWmag.getFloat() + ", time " + totWt.getDate() + ", quality "
-        // + totWq.getValidity());
-        //
-        // try {
-        // Thread.sleep(5000);
-        // } catch (InterruptedException e) {
-        // }
-        //
-        // }
 
     }
 
