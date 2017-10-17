@@ -41,8 +41,6 @@ public class ConsoleClient {
 
     private static final String PRINT_MODEL_KEY = "m";
     private static final String PRINT_MODEL_KEY_DESCRIPTION = "print model";
-    // private static final String PRINT_CAPABILITIES = "c";
-    // private static final String PRINT_CAPABILITIES_KEY_DESCRIPTION = "print server capabilities";
     private static final String GET_DATA_VALUES_KEY = "g";
     private static final String GET_DATA_VALUES_KEY_DESCRIPTION = "send GetDataValues request";
     private static final String READ_ALL_DATA_KEY = "ga";
@@ -151,7 +149,9 @@ public class ConsoleClient {
                     }
 
                     DataSet dataSet = new DataSet(reference, dataSetMembers);
+                    System.out.print("Creating data set..");
                     association.createDataSet(dataSet);
+                    System.out.println("done");
 
                     break;
                 }
@@ -233,6 +233,7 @@ public class ConsoleClient {
                                 if (serviceErrors.get(0) != null) {
                                     throw serviceErrors.get(0);
                                 }
+                                System.out.println("done");
                                 break;
                             }
                             case 6: {
@@ -251,6 +252,7 @@ public class ConsoleClient {
                                 if (serviceErrors.get(0) != null) {
                                     throw serviceErrors.get(0);
                                 }
+                                System.out.println("done");
                                 break;
                             }
                             case 7: {
@@ -401,6 +403,7 @@ public class ConsoleClient {
         actionProcessor.addAction(new Action(GET_DATA_VALUES_KEY, GET_DATA_VALUES_KEY_DESCRIPTION));
         actionProcessor.addAction(new Action(READ_ALL_DATA_KEY, READ_ALL_DATA_KEY_DESCRIPTION));
         actionProcessor.addAction(new Action(CREATE_DATA_SET_KEY, CREATE_DATA_SET_KEY_DESCRIPTION));
+        actionProcessor.addAction(new Action(DELETE_DATA_SET_KEY, DELETE_DATA_SET_KEY_DESCRIPTION));
         actionProcessor.addAction(new Action(REPORTING_KEY, REPORTING_KEY_DESCRIPTION));
 
         actionProcessor.start();
