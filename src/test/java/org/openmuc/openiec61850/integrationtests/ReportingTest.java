@@ -30,8 +30,8 @@ import org.openmuc.openiec61850.Urcb;
 
 public class ReportingTest implements ClientEventListener {
 
-    private static final String PREEXISTING_DATASET_REFERENCE = "ied1lDevice1/LLN0$dataset1";
-    private static final String CREATED_DATASET_REFERENCE = "ied1lDevice1/LLN0$datasetnew";
+    private static final String PREEXISTING_DATASET_REFERENCE = "ied1lDevice1/LLN0.dataset1";
+    private static final String CREATED_DATASET_REFERENCE = "ied1lDevice1/LLN0.datasetnew";
     private static final String CHANGING_SERVER_DA_REFERENCE_1 = "ied1lDevice1/MMXU1.W.phsA.cVal.mag.f";
     private static final String CHANGING_SERVER_DA_REFERENCE_2 = "ied1lDevice1/DSCH1.SchdAbsTm.sptestval1";
     private static final int PORT = 54321;
