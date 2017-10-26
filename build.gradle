@@ -5,13 +5,14 @@ buildscript {
     }
   }
   dependencies {
-    classpath group: "org.asciidoctor", name: "asciidoctorj-pdf", version: "1.5.0-alpha.11"
-    classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:3.0.0"
+    classpath group: "org.asciidoctor", name: "asciidoctorj-pdf", version: "1.5.0-alpha.16"
+    classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:3.3.0"
   }
 }
 
 plugins {
-  id "org.asciidoctor.convert" version "1.5.3"
+  id "org.asciidoctor.convert" version "1.5.6"
+  id "net.saliman.cobertura" version "2.5.1"
 }
 
 apply plugin: "org.asciidoctor.convert"
@@ -45,14 +46,15 @@ configure(javaProjects) {
   apply plugin: "maven"
   apply plugin: "signing"
   apply plugin: "biz.aQute.bnd.builder"
+  apply plugin: 'net.saliman.cobertura'
 
   uploadArchives.enabled = false
   
   group = cfgGroup
 
-  if (!project.properties.containsKey("cfgJavaVersion")) {
+  if (!project.properties.containsKey('cfgJavaVersion')) {
     project.ext {
-      cfgJavaVersion = "1.7"
+      cfgJavaVersion = '1.7'
     }
   }
 
@@ -75,11 +77,26 @@ configure(javaProjects) {
     testCompile group: "junit", name: "junit", version: "4.12"
     itestCompile group: "junit", name: "junit", version: "4.12"
   }
-
+  
   jar {
     manifest {
       version = project.version.replace("-",".");
     }
+  }
+  cobertura {
+  
+    dependencies {
+      testCompile 'org.slf4j:slf4j-simple:1.6.1'
+    }
+ 	coverageFormats = ['html', 'xml']				
+  	coverageIgnoreTrivial = false					
+  	coverageIgnores = ['org.slf4j.Logger.*']
+  	coverageExcludes = ['.*\\.app\\..*', '.*\\.cli-app\\..*', '.*\\.sample\\..*']	
+   	coverageReportDir = new File("$buildDir/reports/cobertura")
+   	coverageTestTasks {
+      project.tasks.withType(Test).matching {it.name == 'test'}
+    }
+ 	  
   }
 
   task jarAll(type: Copy) {
@@ -87,7 +104,6 @@ configure(javaProjects) {
 
     //only the jar file created:
     from configurations.default.getAllArtifacts().getFiles()
-
     if (cfgCopyDependencies) {
       if (cfgCopyToRoot) {
         into rootDir.getPath() + "/build/libs-all"
@@ -135,7 +151,6 @@ configure(javaProjects) {
     exclude "**/java-gen/**"
     exclude "**/app/**"
   }
-
 }
 
 
@@ -235,10 +250,11 @@ task writeSettings {
     out .write "\n\n";
 
     for (Project myproject: distributionProjects) {
-      if (!myproject.getProjectDir().equals(getProjectDir())) {
-        println myproject.name
-        out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int)(getProjectDir().toString().size() + 1)) + '")\n';
+      if (myproject.getProjectDir().equals(getProjectDir())) {
+        continue;
       }
+      println myproject.name
+      out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int)(getProjectDir().toString().size() + 1)) + '")\n';
     }
 
     out.close();
