@@ -28,6 +28,7 @@ public enum BdaType {
     INT16,
     INT32,
     INT64,
+    INT128,
     INT8U,
     INT16U,
     INT32U,

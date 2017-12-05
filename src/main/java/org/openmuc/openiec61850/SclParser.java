@@ -679,19 +679,19 @@ final class SclParser {
                             false));
                 }
 
+                children.add(new BdaOctetString(new ObjectReference(reportObjRef.toString() + ".Owner"), fc, "", 64, false, false));
+
                 rcb = new Brcb(reportObjRef, children);
 
             }
             else {
+                children.add(new BdaOctetString(new ObjectReference(reportObjRef.toString() + ".Owner"), fc, "", 64, false, false));
 
                 rcb = new Urcb(reportObjRef, children);
 
             }
 
-            // ignoring owner because it cannot be specified in SCL file
-
             rcbInstances.add(rcb);
-
         }
 
         return rcbInstances;
@@ -907,6 +907,17 @@ final class SclParser {
             }
             return bda;
         }
+        else if (bType.equals("INT128")) {
+            BdaInt128 bda = new BdaInt128(new ObjectReference(ref), fc, sAddr, dchg, dupd);
+            if (val != null) {
+                try {
+                    bda.setValue(Long.parseLong(val));
+                } catch (NumberFormatException e) {
+                    throw new SclParseException("invalid INT128 configured value: " + val);
+                }
+            }
+            return bda;
+        }
         else if (bType.equals("INT8U")) {
             BdaInt8U bda = new BdaInt8U(new ObjectReference(ref), fc, sAddr, dchg, dupd);
             if (val != null) {
@@ -983,7 +994,7 @@ final class SclParser {
                     Integer.parseInt(dattr.getbType().substring(5)), dchg, dupd);
             if (val != null) {
                 // TODO
-                throw new SclParseException("parsing configured value for octet string is not supported yet.");
+                //throw new SclParseException("parsing configured value for octet string is not supported yet.");
             }
             return bda;
         }
