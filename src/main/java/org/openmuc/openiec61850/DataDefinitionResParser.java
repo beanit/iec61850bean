@@ -215,6 +215,8 @@ final class DataDefinitionResParser {
                 return new BdaInt32(ref, fc, null, false, false);
             case 64:
                 return new BdaInt64(ref, fc, null, false, false);
+            case 128:
+                return new BdaInt128(ref, fc, null, false, false);
             }
         }
         else if (mmsTypeSpec.getUnsigned() != null) {
