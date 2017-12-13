@@ -1,3 +1,20 @@
+v1.5.0 13-Dec-2017
+------------------
+
+- big refactoring of reporting API on client side to make it more
+  convenient to use, including several bug fixes
+
+- extended console client:
+  * can now read model from file instead reading it from the server
+    device
+  * can configure RCBs and receive reports
+
+- removed check if received bit strings are smaller than max num bits
+  because some devices send empty bit strings
+
+- added support for legacy INT128 type from Ed1
+
+
 v1.4.1 27-Aug-2017
 ------------------
 
