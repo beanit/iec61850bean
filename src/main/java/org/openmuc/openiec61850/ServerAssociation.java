@@ -32,7 +32,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
 
-import org.openmuc.jasn1.ber.BerByteArrayOutputStream;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
 import org.openmuc.jasn1.ber.types.BerBoolean;
 import org.openmuc.jasn1.ber.types.BerInteger;
 import org.openmuc.jasn1.ber.types.BerNull;
@@ -101,7 +101,7 @@ final class ServerAssociation {
     private final ServerSap serverSap;
     final ServerModel serverModel;
 
-    private final BerByteArrayOutputStream berOStream = new BerByteArrayOutputStream(500, true);
+    private final ReverseByteArrayOutputStream reverseOStream = new ReverseByteArrayOutputStream(500, true);
     private boolean insertRef;
     private String continueAfter;
 
@@ -144,9 +144,9 @@ final class ServerAssociation {
 
         MMSpdu initiateResponseMmsPdu = constructAssociationResponsePdu(mmsPdu.getInitiateRequestPDU());
 
-        initiateResponseMmsPdu.encode(berOStream);
+        initiateResponseMmsPdu.encode(reverseOStream);
 
-        acseAssociation.accept(berOStream.getByteBuffer());
+        acseAssociation.accept(reverseOStream.getByteBuffer());
 
     }
 
@@ -376,16 +376,16 @@ final class ServerAssociation {
 
     boolean sendAnMmsPdu(MMSpdu mmsResponsePdu) {
 
-        synchronized (berOStream) {
-            berOStream.reset();
+        synchronized (reverseOStream) {
+            reverseOStream.reset();
             try {
-                mmsResponsePdu.encode(berOStream);
+                mmsResponsePdu.encode(reverseOStream);
             } catch (IOException e1) {
                 logger.error("IOException while encoding MMS PDU. Closing association.", e1);
                 return false;
             }
             try {
-                acseAssociation.send(berOStream.getByteBuffer());
+                acseAssociation.send(reverseOStream.getByteBuffer());
             } catch (IOException e) {
                 logger.warn("IOException while sending MMS PDU. Closing association.", e);
                 return false;

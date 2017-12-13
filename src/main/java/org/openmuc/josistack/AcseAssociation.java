@@ -29,7 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
-import org.openmuc.jasn1.ber.BerByteArrayOutputStream;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
 import org.openmuc.jasn1.ber.types.BerAny;
 import org.openmuc.jasn1.ber.types.BerInteger;
 import org.openmuc.jasn1.ber.types.BerObjectIdentifier;
@@ -147,10 +147,10 @@ public final class AcseAssociation {
         ACSEApdu acse = new ACSEApdu();
         acse.setAare(aare);
 
-        BerByteArrayOutputStream berOStream = new BerByteArrayOutputStream(100, true);
-        acse.encode(berOStream);
+        ReverseByteArrayOutputStream reverseOStream = new ReverseByteArrayOutputStream(100, true);
+        acse.encode(reverseOStream);
 
-        UserData userData = getPresentationUserDataField(berOStream.getArray());
+        UserData userData = getPresentationUserDataField(reverseOStream.getArray());
         CPAPPDU.NormalModeParameters normalModeParameters = new CPAPPDU.NormalModeParameters();
         normalModeParameters.setRespondingPresentationSelector(pSelLocalBerOctetString);
         normalModeParameters.setPresentationContextDefinitionResultList(presentationResultList);
@@ -160,16 +160,16 @@ public final class AcseAssociation {
         cpaPPdu.setModeSelector(normalModeSelector);
         cpaPPdu.setNormalModeParameters(normalModeParameters);
 
-        berOStream.reset();
-        cpaPPdu.encode(berOStream, true);
+        reverseOStream.reset();
+        cpaPPdu.encode(reverseOStream, true);
 
         List<byte[]> ssduList = new LinkedList<>();
         List<Integer> ssduOffsets = new LinkedList<>();
         List<Integer> ssduLengths = new LinkedList<>();
 
-        ssduList.add(berOStream.buffer);
-        ssduOffsets.add(berOStream.index + 1);
-        ssduLengths.add(berOStream.buffer.length - (berOStream.index + 1));
+        ssduList.add(reverseOStream.buffer);
+        ssduOffsets.add(reverseOStream.index + 1);
+        ssduLengths.add(reverseOStream.buffer.length - (reverseOStream.index + 1));
 
         writeSessionAccept(ssduList, ssduOffsets, ssduLengths);
 
@@ -325,10 +325,10 @@ public final class AcseAssociation {
         ACSEApdu acse = new ACSEApdu();
         acse.setAarq(aarq);
 
-        BerByteArrayOutputStream berOStream = new BerByteArrayOutputStream(200, true);
-        acse.encode(berOStream);
+        ReverseByteArrayOutputStream reverseOStream = new ReverseByteArrayOutputStream(200, true);
+        acse.encode(reverseOStream);
 
-        UserData userData = getPresentationUserDataField(berOStream.getArray());
+        UserData userData = getPresentationUserDataField(reverseOStream.getArray());
 
         CPType.NormalModeParameters normalModeParameter = new CPType.NormalModeParameters();
         normalModeParameter
@@ -341,16 +341,16 @@ public final class AcseAssociation {
         cpType.setModeSelector(normalModeSelector);
         cpType.setNormalModeParameters(normalModeParameter);
 
-        berOStream.reset();
-        cpType.encode(berOStream, true);
+        reverseOStream.reset();
+        cpType.encode(reverseOStream, true);
 
         List<byte[]> ssduList = new LinkedList<>();
         List<Integer> ssduOffsets = new LinkedList<>();
         List<Integer> ssduLengths = new LinkedList<>();
 
-        ssduList.add(berOStream.buffer);
-        ssduOffsets.add(berOStream.index + 1);
-        ssduLengths.add(berOStream.buffer.length - (berOStream.index + 1));
+        ssduList.add(reverseOStream.buffer);
+        ssduOffsets.add(reverseOStream.index + 1);
+        ssduLengths.add(reverseOStream.buffer.length - (reverseOStream.index + 1));
 
         ByteBuffer res = null;
         res = startSConnection(ssduList, ssduOffsets, ssduLengths, address, port, localAddr, localPort, tSAP,
@@ -632,12 +632,12 @@ public final class AcseAssociation {
         UserData user_data = new UserData();
         user_data.setFullyEncodedData(fully_encoded_data);
 
-        BerByteArrayOutputStream berOStream = new BerByteArrayOutputStream(200, true);
-        user_data.encode(berOStream);
+        ReverseByteArrayOutputStream reverseOStream = new ReverseByteArrayOutputStream(200, true);
+        user_data.encode(reverseOStream);
 
-        ssduList.add(berOStream.buffer);
-        ssduOffsets.add(berOStream.index + 1);
-        ssduLengths.add(berOStream.buffer.length - (berOStream.index + 1));
+        ssduList.add(reverseOStream.buffer);
+        ssduOffsets.add(reverseOStream.index + 1);
+        ssduLengths.add(reverseOStream.buffer.length - (reverseOStream.index + 1));
     }
 
     private void encodeSessionLayer(List<byte[]> ssduList, List<Integer> ssduOffsets, List<Integer> ssduLengths)

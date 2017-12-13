@@ -679,13 +679,15 @@ final class SclParser {
                             false));
                 }
 
-                children.add(new BdaOctetString(new ObjectReference(reportObjRef.toString() + ".Owner"), fc, "", 64, false, false));
+                children.add(new BdaOctetString(new ObjectReference(reportObjRef.toString() + ".Owner"), fc, "", 64,
+                        false, false));
 
                 rcb = new Brcb(reportObjRef, children);
 
             }
             else {
-                children.add(new BdaOctetString(new ObjectReference(reportObjRef.toString() + ".Owner"), fc, "", 64, false, false));
+                children.add(new BdaOctetString(new ObjectReference(reportObjRef.toString() + ".Owner"), fc, "", 64,
+                        false, false));
 
                 rcb = new Urcb(reportObjRef, children);
 
@@ -994,7 +996,7 @@ final class SclParser {
                     Integer.parseInt(dattr.getbType().substring(5)), dchg, dupd);
             if (val != null) {
                 // TODO
-                //throw new SclParseException("parsing configured value for octet string is not supported yet.");
+                // throw new SclParseException("parsing configured value for octet string is not supported yet.");
             }
             return bda;
         }

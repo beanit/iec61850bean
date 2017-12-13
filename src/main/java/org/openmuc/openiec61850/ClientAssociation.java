@@ -31,7 +31,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.openmuc.jasn1.ber.BerByteArrayOutputStream;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
 import org.openmuc.jasn1.ber.types.BerBoolean;
 import org.openmuc.jasn1.ber.types.BerInteger;
 import org.openmuc.jasn1.ber.types.BerNull;
@@ -99,7 +99,7 @@ public final class ClientAssociation {
 
     private final BlockingQueue<MMSpdu> incomingResponses = new LinkedBlockingQueue<>();
 
-    private final BerByteArrayOutputStream berOStream = new BerByteArrayOutputStream(500, true);
+    private final ReverseByteArrayOutputStream reverseOStream = new ReverseByteArrayOutputStream(500, true);
 
     ServerModel serverModel;
 
@@ -508,10 +508,10 @@ public final class ClientAssociation {
         MMSpdu requestPdu = new MMSpdu();
         requestPdu.setConfirmedRequestPDU(confirmedRequestPdu);
 
-        berOStream.reset();
+        reverseOStream.reset();
 
         try {
-            requestPdu.encode(berOStream);
+            requestPdu.encode(reverseOStream);
         } catch (Exception e) {
             IOException e2 = new IOException("Error encoding MmsPdu.", e);
             clientReceiver.close(e2);
@@ -520,7 +520,7 @@ public final class ClientAssociation {
 
         clientReceiver.setResponseExpected(currentInvokeId);
         try {
-            acseAssociation.send(berOStream.getByteBuffer());
+            acseAssociation.send(reverseOStream.getByteBuffer());
         } catch (IOException e) {
             IOException e2 = new IOException("Error sending packet.", e);
             clientReceiver.close(e2);
@@ -572,12 +572,12 @@ public final class ClientAssociation {
         MMSpdu initiateRequestMMSpdu = constructInitRequestPdu(proposedMaxPduSize, proposedMaxServOutstandingCalling,
                 proposedMaxServOutstandingCalled, proposedDataStructureNestingLevel, servicesSupportedCalling);
 
-        BerByteArrayOutputStream berOStream = new BerByteArrayOutputStream(500, true);
-        initiateRequestMMSpdu.encode(berOStream);
+        ReverseByteArrayOutputStream reverseOStream = new ReverseByteArrayOutputStream(500, true);
+        initiateRequestMMSpdu.encode(reverseOStream);
 
         try {
             acseAssociation = acseSap.associate(address, port, localAddr, localPort, authenticationParameter,
-                    berOStream.getByteBuffer());
+                    reverseOStream.getByteBuffer());
 
             ByteBuffer initResponse = acseAssociation.getAssociateResponseAPdu();
 
