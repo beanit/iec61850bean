@@ -12,7 +12,8 @@ v1.5.0 13-Dec-2017
 - removed check if received bit strings are smaller than max num bits
   because some devices send empty bit strings
 
-- added support for legacy INT128 type from Ed1
+- added support for legacy INT128 type from Ed1, thanks to Michael
+  Zillgith
 
 
 v1.4.1 27-Aug-2017
