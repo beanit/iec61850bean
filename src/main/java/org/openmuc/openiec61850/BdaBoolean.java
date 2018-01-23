@@ -36,6 +36,7 @@ public final class BdaBoolean extends BasicDataAttribute {
     }
 
     @Override
+    public
     void setValueFrom(BasicDataAttribute bda) {
         value = ((BdaBoolean) bda).getValue();
     }

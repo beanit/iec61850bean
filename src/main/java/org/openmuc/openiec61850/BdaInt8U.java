@@ -36,6 +36,7 @@ public final class BdaInt8U extends BasicDataAttribute {
     }
 
     @Override
+    public
     void setValueFrom(BasicDataAttribute bda) {
         value = ((BdaInt8U) bda).getValue();
     }

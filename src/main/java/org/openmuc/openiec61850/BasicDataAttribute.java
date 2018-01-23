@@ -104,7 +104,7 @@ abstract public class BasicDataAttribute extends FcModelNode {
         return subBasicDataAttributes;
     }
 
-    abstract void setValueFrom(BasicDataAttribute bda);
+    public abstract void setValueFrom(BasicDataAttribute bda);
 
     void setMirror(BasicDataAttribute bda) {
         mirror = bda;

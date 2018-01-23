@@ -47,6 +47,7 @@ public final class BdaVisibleString extends BasicDataAttribute {
     }
 
     @Override
+    public
     void setValueFrom(BasicDataAttribute bda) {
         byte[] srcValue = ((BdaVisibleString) bda).getValue();
         if (value.length != srcValue.length) {

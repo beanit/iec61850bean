@@ -38,6 +38,7 @@ public final class BdaFloat32 extends BasicDataAttribute {
     }
 
     @Override
+    public
     void setValueFrom(BasicDataAttribute bda) {
         byte[] srcValue = ((BdaFloat32) bda).getValue();
         if (value.length != srcValue.length) {

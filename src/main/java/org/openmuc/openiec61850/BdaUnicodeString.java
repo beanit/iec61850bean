@@ -47,6 +47,7 @@ public final class BdaUnicodeString extends BasicDataAttribute {
     }
 
     @Override
+    public
     void setValueFrom(BasicDataAttribute bda) {
         byte[] srcValue = ((BdaUnicodeString) bda).getValue();
         if (value.length != srcValue.length) {

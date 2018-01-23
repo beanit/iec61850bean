@@ -36,6 +36,7 @@ public final class BdaInt32 extends BasicDataAttribute {
     }
 
     @Override
+    public
     void setValueFrom(BasicDataAttribute bda) {
         value = ((BdaInt32) bda).getValue();
     }

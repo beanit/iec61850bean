@@ -44,6 +44,7 @@ abstract public class BdaBitString extends BasicDataAttribute {
     }
 
     @Override
+    public
     void setValueFrom(BasicDataAttribute bda) {
         byte[] srcValue = ((BdaBitString) bda).getValue();
         if (value.length != srcValue.length) {

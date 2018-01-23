@@ -36,6 +36,7 @@ public final class BdaInt128 extends BasicDataAttribute {
     }
 
     @Override
+    public
     void setValueFrom(BasicDataAttribute bda) {
         value = ((BdaInt128) bda).getValue();
     }
