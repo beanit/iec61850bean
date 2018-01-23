@@ -19,37 +19,37 @@ import org.openmuc.jasn1.ber.types.*;
 import org.openmuc.jasn1.ber.types.string.*;
 
 
-public class ConfirmedResponsePDU implements Serializable {
+public class DirectoryEntry implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
 
 	public byte[] code = null;
-	private Unsigned32 invokeID = null;
-	private ConfirmedServiceResponse service = null;
+	private FileName fileName = null;
+	private FileAttributes fileAttributes = null;
 	
-	public ConfirmedResponsePDU() {
+	public DirectoryEntry() {
 	}
 
-	public ConfirmedResponsePDU(byte[] code) {
+	public DirectoryEntry(byte[] code) {
 		this.code = code;
 	}
 
-	public void setInvokeID(Unsigned32 invokeID) {
-		this.invokeID = invokeID;
+	public void setFileName(FileName fileName) {
+		this.fileName = fileName;
 	}
 
-	public Unsigned32 getInvokeID() {
-		return invokeID;
+	public FileName getFileName() {
+		return fileName;
 	}
 
-	public void setService(ConfirmedServiceResponse service) {
-		this.service = service;
+	public void setFileAttributes(FileAttributes fileAttributes) {
+		this.fileAttributes = fileAttributes;
 	}
 
-	public ConfirmedServiceResponse getService() {
-		return service;
+	public FileAttributes getFileAttributes() {
+		return fileAttributes;
 	}
 
 	public int encode(OutputStream os) throws IOException {
@@ -69,9 +69,15 @@ public class ConfirmedResponsePDU implements Serializable {
 		}
 
 		int codeLength = 0;
-		codeLength += service.encode(os);
+		codeLength += fileAttributes.encode(os, false);
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
+		os.write(0xA1);
+		codeLength += 1;
 		
-		codeLength += invokeID.encode(os, true);
+		codeLength += fileName.encode(os, false);
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+		os.write(0xA0);
+		codeLength += 1;
 		
 		codeLength += BerLength.encodeLength(os, codeLength);
 
@@ -103,19 +109,21 @@ public class ConfirmedResponsePDU implements Serializable {
 		codeLength += totalLength;
 
 		subCodeLength += berTag.decode(is);
-		if (berTag.equals(Unsigned32.tag)) {
-			invokeID = new Unsigned32();
-			subCodeLength += invokeID.decode(is, false);
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
+			fileName = new FileName();
+			subCodeLength += fileName.decode(is, false);
 			subCodeLength += berTag.decode(is);
 		}
 		else {
 			throw new IOException("Tag does not match the mandatory sequence element tag.");
 		}
 		
-		service = new ConfirmedServiceResponse();
-		subCodeLength += service.decode(is, berTag);
-		if (subCodeLength == totalLength) {
-			return codeLength;
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 1)) {
+			fileAttributes = new FileAttributes();
+			subCodeLength += fileAttributes.decode(is, false);
+			if (subCodeLength == totalLength) {
+				return codeLength;
+			}
 		}
 		throw new IOException("Unexpected end of sequence, length tag: " + totalLength + ", actual sequence length: " + subCodeLength);
 
@@ -141,23 +149,24 @@ public class ConfirmedResponsePDU implements Serializable {
 		for (int i = 0; i < indentLevel + 1; i++) {
 			sb.append("\t");
 		}
-		if (invokeID != null) {
-			sb.append("invokeID: ").append(invokeID);
+		if (fileName != null) {
+			sb.append("fileName: ");
+			fileName.appendAsString(sb, indentLevel + 1);
 		}
 		else {
-			sb.append("invokeID: <empty-required-field>");
+			sb.append("fileName: <empty-required-field>");
 		}
 		
 		sb.append(",\n");
 		for (int i = 0; i < indentLevel + 1; i++) {
 			sb.append("\t");
 		}
-		if (service != null) {
-			sb.append("service: ");
-			service.appendAsString(sb, indentLevel + 1);
+		if (fileAttributes != null) {
+			sb.append("fileAttributes: ");
+			fileAttributes.appendAsString(sb, indentLevel + 1);
 		}
 		else {
-			sb.append("service: <empty-required-field>");
+			sb.append("fileAttributes: <empty-required-field>");
 		}
 		
 		sb.append("\n");

@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -35,6 +36,7 @@ import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
 import org.openmuc.jasn1.ber.types.BerBoolean;
 import org.openmuc.jasn1.ber.types.BerInteger;
 import org.openmuc.jasn1.ber.types.BerNull;
+import org.openmuc.jasn1.ber.types.string.BerGraphicString;
 import org.openmuc.jasn1.ber.types.string.BerVisibleString;
 import org.openmuc.josistack.AcseAssociation;
 import org.openmuc.josistack.ByteBufferInputStream;
@@ -50,6 +52,8 @@ import org.openmuc.openiec61850.internal.mms.asn1.DefineNamedVariableListRequest
 import org.openmuc.openiec61850.internal.mms.asn1.DeleteNamedVariableListRequest;
 import org.openmuc.openiec61850.internal.mms.asn1.DeleteNamedVariableListRequest.ListOfVariableListName;
 import org.openmuc.openiec61850.internal.mms.asn1.DeleteNamedVariableListResponse;
+import org.openmuc.openiec61850.internal.mms.asn1.FileDirectoryRequest;
+import org.openmuc.openiec61850.internal.mms.asn1.FileName;
 import org.openmuc.openiec61850.internal.mms.asn1.GetNameListRequest;
 import org.openmuc.openiec61850.internal.mms.asn1.GetNameListRequest.ObjectScope;
 import org.openmuc.openiec61850.internal.mms.asn1.GetNameListResponse;
@@ -901,6 +905,28 @@ public final class ClientAssociation {
         decodeGetDataValuesResponse(confirmedServiceResponse, modelNode);
     }
 
+    public void getFileDirectory(String directoryName) throws ServiceError, IOException {
+        
+        System.out.println("getFileDirectory");
+        
+        FileDirectoryRequest fileDirectoryRequest = new FileDirectoryRequest();
+        
+        BerGraphicString berGraphicString = new BerGraphicString(directoryName.getBytes());
+
+        FileName fileSpecifcation = new FileName();
+        fileSpecifcation.getBerGraphicString().add(berGraphicString);
+        
+        fileDirectoryRequest.setFileSpecification(fileSpecifcation);
+        
+        ConfirmedServiceRequest confirmedServiceRequest = new ConfirmedServiceRequest();
+        confirmedServiceRequest.setFileDirectory(fileDirectoryRequest);
+        
+        System.out.println("Create file directory request");
+        
+        ConfirmedServiceResponse confirmedServiceResponse = encodeWriteReadDecode(confirmedServiceRequest);
+    }
+    
+    
     /**
      * Will update all data inside the model except for control variables (those that have FC=CO). Control variables are
      * not meant to be read. Update is done by calling getDataValues on the FCDOs below the Logical Nodes.

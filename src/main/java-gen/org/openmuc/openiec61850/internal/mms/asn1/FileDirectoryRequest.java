@@ -19,37 +19,37 @@ import org.openmuc.jasn1.ber.types.*;
 import org.openmuc.jasn1.ber.types.string.*;
 
 
-public class ConfirmedResponsePDU implements Serializable {
+public class FileDirectoryRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
 
 	public byte[] code = null;
-	private Unsigned32 invokeID = null;
-	private ConfirmedServiceResponse service = null;
+	private FileName fileSpecification = null;
+	private FileName continueAfter = null;
 	
-	public ConfirmedResponsePDU() {
+	public FileDirectoryRequest() {
 	}
 
-	public ConfirmedResponsePDU(byte[] code) {
+	public FileDirectoryRequest(byte[] code) {
 		this.code = code;
 	}
 
-	public void setInvokeID(Unsigned32 invokeID) {
-		this.invokeID = invokeID;
+	public void setFileSpecification(FileName fileSpecification) {
+		this.fileSpecification = fileSpecification;
 	}
 
-	public Unsigned32 getInvokeID() {
-		return invokeID;
+	public FileName getFileSpecification() {
+		return fileSpecification;
 	}
 
-	public void setService(ConfirmedServiceResponse service) {
-		this.service = service;
+	public void setContinueAfter(FileName continueAfter) {
+		this.continueAfter = continueAfter;
 	}
 
-	public ConfirmedServiceResponse getService() {
-		return service;
+	public FileName getContinueAfter() {
+		return continueAfter;
 	}
 
 	public int encode(OutputStream os) throws IOException {
@@ -69,9 +69,19 @@ public class ConfirmedResponsePDU implements Serializable {
 		}
 
 		int codeLength = 0;
-		codeLength += service.encode(os);
+		if (continueAfter != null) {
+			codeLength += continueAfter.encode(os, false);
+			// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
+			os.write(0xA1);
+			codeLength += 1;
+		}
 		
-		codeLength += invokeID.encode(os, true);
+		if (fileSpecification != null) {
+			codeLength += fileSpecification.encode(os, false);
+			// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+			os.write(0xA0);
+			codeLength += 1;
+		}
 		
 		codeLength += BerLength.encodeLength(os, codeLength);
 
@@ -102,20 +112,25 @@ public class ConfirmedResponsePDU implements Serializable {
 		int totalLength = length.val;
 		codeLength += totalLength;
 
+		if (totalLength == 0) {
+			return codeLength;
+		}
 		subCodeLength += berTag.decode(is);
-		if (berTag.equals(Unsigned32.tag)) {
-			invokeID = new Unsigned32();
-			subCodeLength += invokeID.decode(is, false);
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
+			fileSpecification = new FileName();
+			subCodeLength += fileSpecification.decode(is, false);
+			if (subCodeLength == totalLength) {
+				return codeLength;
+			}
 			subCodeLength += berTag.decode(is);
 		}
-		else {
-			throw new IOException("Tag does not match the mandatory sequence element tag.");
-		}
 		
-		service = new ConfirmedServiceResponse();
-		subCodeLength += service.decode(is, berTag);
-		if (subCodeLength == totalLength) {
-			return codeLength;
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 1)) {
+			continueAfter = new FileName();
+			subCodeLength += continueAfter.decode(is, false);
+			if (subCodeLength == totalLength) {
+				return codeLength;
+			}
 		}
 		throw new IOException("Unexpected end of sequence, length tag: " + totalLength + ", actual sequence length: " + subCodeLength);
 
@@ -137,27 +152,27 @@ public class ConfirmedResponsePDU implements Serializable {
 	public void appendAsString(StringBuilder sb, int indentLevel) {
 
 		sb.append("{");
-		sb.append("\n");
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (invokeID != null) {
-			sb.append("invokeID: ").append(invokeID);
-		}
-		else {
-			sb.append("invokeID: <empty-required-field>");
+		boolean firstSelectedElement = true;
+		if (fileSpecification != null) {
+			sb.append("\n");
+			for (int i = 0; i < indentLevel + 1; i++) {
+				sb.append("\t");
+			}
+			sb.append("fileSpecification: ");
+			fileSpecification.appendAsString(sb, indentLevel + 1);
+			firstSelectedElement = false;
 		}
 		
-		sb.append(",\n");
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (service != null) {
-			sb.append("service: ");
-			service.appendAsString(sb, indentLevel + 1);
-		}
-		else {
-			sb.append("service: <empty-required-field>");
+		if (continueAfter != null) {
+			if (!firstSelectedElement) {
+				sb.append(",\n");
+			}
+			for (int i = 0; i < indentLevel + 1; i++) {
+				sb.append("\t");
+			}
+			sb.append("continueAfter: ");
+			continueAfter.appendAsString(sb, indentLevel + 1);
+			firstSelectedElement = false;
 		}
 		
 		sb.append("\n");

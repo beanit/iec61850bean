@@ -19,29 +19,29 @@ import org.openmuc.jasn1.ber.types.*;
 import org.openmuc.jasn1.ber.types.string.*;
 
 
-public class ReadResponse implements Serializable {
+public class FileDirectoryResponse implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	public static class ListOfAccessResult implements Serializable {
+	public static class ListOfDirectoryEntry implements Serializable {
 
 		private static final long serialVersionUID = 1L;
 
 		public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
 		public byte[] code = null;
-		private List<AccessResult> seqOf = null;
+		private List<DirectoryEntry> seqOf = null;
 
-		public ListOfAccessResult() {
-			seqOf = new ArrayList<AccessResult>();
+		public ListOfDirectoryEntry() {
+			seqOf = new ArrayList<DirectoryEntry>();
 		}
 
-		public ListOfAccessResult(byte[] code) {
+		public ListOfDirectoryEntry(byte[] code) {
 			this.code = code;
 		}
 
-		public List<AccessResult> getAccessResult() {
+		public List<DirectoryEntry> getDirectoryEntry() {
 			if (seqOf == null) {
-				seqOf = new ArrayList<AccessResult>();
+				seqOf = new ArrayList<DirectoryEntry>();
 			}
 			return seqOf;
 		}
@@ -64,7 +64,7 @@ public class ReadResponse implements Serializable {
 
 			int codeLength = 0;
 			for (int i = (seqOf.size() - 1); i >= 0; i--) {
-				codeLength += seqOf.get(i).encode(os);
+				codeLength += seqOf.get(i).encode(os, true);
 			}
 
 			codeLength += BerLength.encodeLength(os, codeLength);
@@ -92,8 +92,8 @@ public class ReadResponse implements Serializable {
 			int totalLength = length.val;
 
 			while (subCodeLength < totalLength) {
-				AccessResult element = new AccessResult();
-				subCodeLength += element.decode(is, null);
+				DirectoryEntry element = new DirectoryEntry();
+				subCodeLength += element.decode(is, true);
 				seqOf.add(element);
 			}
 			if (subCodeLength != totalLength) {
@@ -127,7 +127,7 @@ public class ReadResponse implements Serializable {
 				sb.append("null");
 			}
 			else {
-				Iterator<AccessResult> it = seqOf.iterator();
+				Iterator<DirectoryEntry> it = seqOf.iterator();
 				if (it.hasNext()) {
 					it.next().appendAsString(sb, indentLevel + 1);
 					while (it.hasNext()) {
@@ -152,30 +152,30 @@ public class ReadResponse implements Serializable {
 	public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
 
 	public byte[] code = null;
-	private VariableAccessSpecification variableAccessSpecification = null;
-	private ListOfAccessResult listOfAccessResult = null;
+	private ListOfDirectoryEntry listOfDirectoryEntry = null;
+	private BerBoolean moreFollows = null;
 	
-	public ReadResponse() {
+	public FileDirectoryResponse() {
 	}
 
-	public ReadResponse(byte[] code) {
+	public FileDirectoryResponse(byte[] code) {
 		this.code = code;
 	}
 
-	public void setVariableAccessSpecification(VariableAccessSpecification variableAccessSpecification) {
-		this.variableAccessSpecification = variableAccessSpecification;
+	public void setListOfDirectoryEntry(ListOfDirectoryEntry listOfDirectoryEntry) {
+		this.listOfDirectoryEntry = listOfDirectoryEntry;
 	}
 
-	public VariableAccessSpecification getVariableAccessSpecification() {
-		return variableAccessSpecification;
+	public ListOfDirectoryEntry getListOfDirectoryEntry() {
+		return listOfDirectoryEntry;
 	}
 
-	public void setListOfAccessResult(ListOfAccessResult listOfAccessResult) {
-		this.listOfAccessResult = listOfAccessResult;
+	public void setMoreFollows(BerBoolean moreFollows) {
+		this.moreFollows = moreFollows;
 	}
 
-	public ListOfAccessResult getListOfAccessResult() {
-		return listOfAccessResult;
+	public BerBoolean getMoreFollows() {
+		return moreFollows;
 	}
 
 	public int encode(OutputStream os) throws IOException {
@@ -197,19 +197,19 @@ public class ReadResponse implements Serializable {
 		int codeLength = 0;
 		int sublength;
 
-		codeLength += listOfAccessResult.encode(os, false);
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
-		os.write(0xA1);
-		codeLength += 1;
-		
-		if (variableAccessSpecification != null) {
-			sublength = variableAccessSpecification.encode(os);
-			codeLength += sublength;
-			codeLength += BerLength.encodeLength(os, sublength);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
-			os.write(0xA0);
+		if (moreFollows != null) {
+			codeLength += moreFollows.encode(os, false);
+			// write tag: CONTEXT_CLASS, PRIMITIVE, 1
+			os.write(0x81);
 			codeLength += 1;
 		}
+		
+		sublength = listOfDirectoryEntry.encode(os, true);
+		codeLength += sublength;
+		codeLength += BerLength.encodeLength(os, sublength);
+		// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+		os.write(0xA0);
+		codeLength += 1;
 		
 		codeLength += BerLength.encodeLength(os, codeLength);
 
@@ -243,14 +243,20 @@ public class ReadResponse implements Serializable {
 		subCodeLength += berTag.decode(is);
 		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
 			subCodeLength += length.decode(is);
-			variableAccessSpecification = new VariableAccessSpecification();
-			subCodeLength += variableAccessSpecification.decode(is, null);
+			listOfDirectoryEntry = new ListOfDirectoryEntry();
+			subCodeLength += listOfDirectoryEntry.decode(is, true);
+			if (subCodeLength == totalLength) {
+				return codeLength;
+			}
 			subCodeLength += berTag.decode(is);
 		}
+		else {
+			throw new IOException("Tag does not match the mandatory sequence element tag.");
+		}
 		
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 1)) {
-			listOfAccessResult = new ListOfAccessResult();
-			subCodeLength += listOfAccessResult.decode(is, false);
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 1)) {
+			moreFollows = new BerBoolean();
+			subCodeLength += moreFollows.decode(is, false);
 			if (subCodeLength == totalLength) {
 				return codeLength;
 			}
@@ -275,29 +281,24 @@ public class ReadResponse implements Serializable {
 	public void appendAsString(StringBuilder sb, int indentLevel) {
 
 		sb.append("{");
-		boolean firstSelectedElement = true;
-		if (variableAccessSpecification != null) {
-			sb.append("\n");
-			for (int i = 0; i < indentLevel + 1; i++) {
-				sb.append("\t");
-			}
-			sb.append("variableAccessSpecification: ");
-			variableAccessSpecification.appendAsString(sb, indentLevel + 1);
-			firstSelectedElement = false;
-		}
-		
-		if (!firstSelectedElement) {
-			sb.append(",\n");
-		}
+		sb.append("\n");
 		for (int i = 0; i < indentLevel + 1; i++) {
 			sb.append("\t");
 		}
-		if (listOfAccessResult != null) {
-			sb.append("listOfAccessResult: ");
-			listOfAccessResult.appendAsString(sb, indentLevel + 1);
+		if (listOfDirectoryEntry != null) {
+			sb.append("listOfDirectoryEntry: ");
+			listOfDirectoryEntry.appendAsString(sb, indentLevel + 1);
 		}
 		else {
-			sb.append("listOfAccessResult: <empty-required-field>");
+			sb.append("listOfDirectoryEntry: <empty-required-field>");
+		}
+		
+		if (moreFollows != null) {
+			sb.append(",\n");
+			for (int i = 0; i < indentLevel + 1; i++) {
+				sb.append("\t");
+			}
+			sb.append("moreFollows: ").append(moreFollows);
 		}
 		
 		sb.append("\n");

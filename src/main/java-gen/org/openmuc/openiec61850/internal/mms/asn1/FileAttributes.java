@@ -19,37 +19,37 @@ import org.openmuc.jasn1.ber.types.*;
 import org.openmuc.jasn1.ber.types.string.*;
 
 
-public class ConfirmedResponsePDU implements Serializable {
+public class FileAttributes implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
 
 	public byte[] code = null;
-	private Unsigned32 invokeID = null;
-	private ConfirmedServiceResponse service = null;
+	private Unsigned32 sizeOfFile = null;
+	private BerGeneralizedTime lastModified = null;
 	
-	public ConfirmedResponsePDU() {
+	public FileAttributes() {
 	}
 
-	public ConfirmedResponsePDU(byte[] code) {
+	public FileAttributes(byte[] code) {
 		this.code = code;
 	}
 
-	public void setInvokeID(Unsigned32 invokeID) {
-		this.invokeID = invokeID;
+	public void setSizeOfFile(Unsigned32 sizeOfFile) {
+		this.sizeOfFile = sizeOfFile;
 	}
 
-	public Unsigned32 getInvokeID() {
-		return invokeID;
+	public Unsigned32 getSizeOfFile() {
+		return sizeOfFile;
 	}
 
-	public void setService(ConfirmedServiceResponse service) {
-		this.service = service;
+	public void setLastModified(BerGeneralizedTime lastModified) {
+		this.lastModified = lastModified;
 	}
 
-	public ConfirmedServiceResponse getService() {
-		return service;
+	public BerGeneralizedTime getLastModified() {
+		return lastModified;
 	}
 
 	public int encode(OutputStream os) throws IOException {
@@ -69,9 +69,17 @@ public class ConfirmedResponsePDU implements Serializable {
 		}
 
 		int codeLength = 0;
-		codeLength += service.encode(os);
+		if (lastModified != null) {
+			codeLength += lastModified.encode(os, false);
+			// write tag: CONTEXT_CLASS, PRIMITIVE, 1
+			os.write(0x81);
+			codeLength += 1;
+		}
 		
-		codeLength += invokeID.encode(os, true);
+		codeLength += sizeOfFile.encode(os, false);
+		// write tag: CONTEXT_CLASS, PRIMITIVE, 0
+		os.write(0x80);
+		codeLength += 1;
 		
 		codeLength += BerLength.encodeLength(os, codeLength);
 
@@ -103,19 +111,24 @@ public class ConfirmedResponsePDU implements Serializable {
 		codeLength += totalLength;
 
 		subCodeLength += berTag.decode(is);
-		if (berTag.equals(Unsigned32.tag)) {
-			invokeID = new Unsigned32();
-			subCodeLength += invokeID.decode(is, false);
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 0)) {
+			sizeOfFile = new Unsigned32();
+			subCodeLength += sizeOfFile.decode(is, false);
+			if (subCodeLength == totalLength) {
+				return codeLength;
+			}
 			subCodeLength += berTag.decode(is);
 		}
 		else {
 			throw new IOException("Tag does not match the mandatory sequence element tag.");
 		}
 		
-		service = new ConfirmedServiceResponse();
-		subCodeLength += service.decode(is, berTag);
-		if (subCodeLength == totalLength) {
-			return codeLength;
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 1)) {
+			lastModified = new BerGeneralizedTime();
+			subCodeLength += lastModified.decode(is, false);
+			if (subCodeLength == totalLength) {
+				return codeLength;
+			}
 		}
 		throw new IOException("Unexpected end of sequence, length tag: " + totalLength + ", actual sequence length: " + subCodeLength);
 
@@ -141,23 +154,19 @@ public class ConfirmedResponsePDU implements Serializable {
 		for (int i = 0; i < indentLevel + 1; i++) {
 			sb.append("\t");
 		}
-		if (invokeID != null) {
-			sb.append("invokeID: ").append(invokeID);
+		if (sizeOfFile != null) {
+			sb.append("sizeOfFile: ").append(sizeOfFile);
 		}
 		else {
-			sb.append("invokeID: <empty-required-field>");
+			sb.append("sizeOfFile: <empty-required-field>");
 		}
 		
-		sb.append(",\n");
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (service != null) {
-			sb.append("service: ");
-			service.appendAsString(sb, indentLevel + 1);
-		}
-		else {
-			sb.append("service: <empty-required-field>");
+		if (lastModified != null) {
+			sb.append(",\n");
+			for (int i = 0; i < indentLevel + 1; i++) {
+				sb.append("\t");
+			}
+			sb.append("lastModified: ").append(lastModified);
 		}
 		
 		sb.append("\n");

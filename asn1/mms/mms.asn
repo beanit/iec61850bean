@@ -29,7 +29,11 @@ ConfirmedServiceRequest ::= CHOICE {
     getVariableAccessAttributes     [6]                 GetVariableAccessAttributes-Request,
     defineNamedVariableList         [11]    IMPLICIT    DefineNamedVariableList-Request,
     getNamedVariableListAttributes  [12]                GetNamedVariableListAttributes-Request,
-    deleteNamedVariableList         [13]    IMPLICIT    DeleteNamedVariableList-Request
+    deleteNamedVariableList         [13]    IMPLICIT    DeleteNamedVariableList-Request,
+--    fileOpen                        [72]    IMPLICIT    FileOpen-Request,
+--    fileRead                        [73]    IMPLICIT    FileRead-Request,
+--    fileClose                       [74]    IMPLICIT    FileClose-Request,
+    fileDirectory                   [77]    IMPLICIT    FileDirectory-Request
 }
 
 Unconfirmed-PDU ::= SEQUENCE {
@@ -52,7 +56,11 @@ ConfirmedServiceResponse ::= CHOICE {
     getVariableAccessAttributes     [6]     IMPLICIT GetVariableAccessAttributes-Response,
     defineNamedVariableList         [11]    IMPLICIT DefineNamedVariableList-Response,
     getNamedVariableListAttributes  [12]    IMPLICIT GetNamedVariableListAttributes-Response,
-    deleteNamedVariableList         [13]    IMPLICIT DeleteNamedVariableList-Response
+    deleteNamedVariableList         [13]    IMPLICIT DeleteNamedVariableList-Response,
+--    fileOpen                        [72]    IMPLICIT FileOpen-Response,
+--    fileRead                        [73]    IMPLICIT FileRead-Response,
+--    fileClose                       [74]    IMPLICIT FileClose-Response,
+    fileDirectory                   [77]    IMPLICIT FileDirectory-Response
 }
 
 
@@ -580,6 +588,28 @@ DeleteNamedVariableList-Response ::= SEQUENCE {
     numberMatched [0] IMPLICIT Unsigned32,
     numberDeleted [1] IMPLICIT Unsigned32
 }
+
+FileDirectory-Request ::= SEQUENCE {
+    fileSpecification [0] IMPLICIT FileName OPTIONAL,
+    continueAfter [1] IMPLICIT FileName OPTIONAL
+}
+
+FileDirectory-Response ::= SEQUENCE {
+    listOfDirectoryEntry [0] SEQUENCE OF DirectoryEntry,
+    moreFollows [1] IMPLICIT BOOLEAN DEFAULT FALSE
+}
+
+DirectoryEntry ::= SEQUENCE {
+    fileName [0] IMPLICIT FileName,
+    fileAttributes [1] IMPLICIT FileAttributes
+}
+
+FileAttributes ::= SEQUENCE {
+    sizeOfFile [0] IMPLICIT Unsigned32, -- in octets
+    lastModified [1] IMPLICIT GeneralizedTime OPTIONAL
+}
+
+FileName ::= SEQUENCE OF GraphicString
 
 TypeDescription ::= CHOICE {
     array [1] IMPLICIT SEQUENCE {
