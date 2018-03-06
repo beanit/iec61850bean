@@ -242,4 +242,8 @@ public final class BdaTimestamp extends BasicDataAttribute {
         return getReference().toString() + ": " + getDate();
     }
 
+    @Override
+    public String getValueString() {
+        return getDate().toString();
+    }
 }

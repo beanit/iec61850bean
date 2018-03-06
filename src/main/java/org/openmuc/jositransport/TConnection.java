@@ -294,7 +294,7 @@ public final class TConnection {
         }
 
         os.flush();
-
+        
         socket.setSoTimeout(messageTimeout);
 
         byte myByte;

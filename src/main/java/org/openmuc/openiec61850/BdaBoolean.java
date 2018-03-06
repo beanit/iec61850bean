@@ -90,4 +90,9 @@ public final class BdaBoolean extends BasicDataAttribute {
         return getReference().toString() + ": " + value;
     }
 
+    @Override
+    public String getValueString() 
+    {
+        return "" + value;
+    }
 }

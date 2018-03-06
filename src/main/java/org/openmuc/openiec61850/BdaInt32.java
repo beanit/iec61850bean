@@ -90,4 +90,8 @@ public final class BdaInt32 extends BasicDataAttribute {
         return getReference().toString() + ": " + value;
     }
 
+    @Override
+    public String getValueString() {
+        return "" + value;
+    }
 }

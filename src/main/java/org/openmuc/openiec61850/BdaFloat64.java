@@ -121,5 +121,11 @@ public final class BdaFloat64 extends BasicDataAttribute {
     public String toString() {
         return getReference().toString() + ": " + getDouble();
     }
+    
+    @Override
+    public String getValueString() 
+    {
+        return "" + value;
+    }
 
 }

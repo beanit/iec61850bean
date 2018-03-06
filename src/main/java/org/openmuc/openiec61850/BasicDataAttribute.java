@@ -110,4 +110,8 @@ abstract public class BasicDataAttribute extends FcModelNode {
         mirror = bda;
     }
 
+    public String getValueString() {
+        return null;
+    }
+
 }

@@ -120,5 +120,10 @@ public final class BdaVisibleString extends BasicDataAttribute {
         }
         return getReference().toString() + ": " + new String(value);
     }
-
+    
+    @Override
+    public String getValueString() 
+    {
+        return new String(value);
+    }
 }

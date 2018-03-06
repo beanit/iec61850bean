@@ -115,4 +115,9 @@ public final class BdaFloat32 extends BasicDataAttribute {
         return getReference().toString() + ": " + getFloat();
     }
 
+    @Override
+    public String getValueString() 
+    {
+        return getFloat().toString();
+    }
 }

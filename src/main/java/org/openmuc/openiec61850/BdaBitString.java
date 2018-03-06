@@ -95,5 +95,11 @@ abstract public class BdaBitString extends BasicDataAttribute {
     public String toString() {
         return getReference().toString() + ": " + HexConverter.toHexString(value);
     }
+    
+    @Override
+    public String getValueString() 
+    {
+        return HexConverter.toHexString(value);
+    }
 
 }

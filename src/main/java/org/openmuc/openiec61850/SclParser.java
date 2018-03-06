@@ -1012,6 +1012,22 @@ final class SclParser {
         else if (bType.equals("Tcmd")) {
             return new BdaTapCommand(new ObjectReference(ref), fc, sAddr, dchg, dupd);
         }
+        else if (bType.equals("OptFlds")) {
+            return new BdaOptFlds(new ObjectReference(ref), fc);
+        }
+        else if (bType.equals("TrgOps")) {
+            return new BdaTriggerConditions(new ObjectReference(ref), fc);
+        }
+        else if (bType.equals("EntryID")) {
+            return new BdaOctetString(new ObjectReference(ref), fc, sAddr, 8, dchg, dupd);
+        }
+        else if (bType.equals("EntryTime")) {
+            return new BdaEntryTime(new ObjectReference(ref), fc, sAddr, dchg, dupd);
+        }
+        else if (bType.equals("PhyComAddr")) {
+            //TODO not correct!
+            return new BdaOctetString(new ObjectReference(ref), fc, sAddr, 6, dchg, dupd);
+        }
         else if (bType.equals("Timestamp")) {
             BdaTimestamp bda = new BdaTimestamp(new ObjectReference(ref), fc, sAddr, dchg, dupd);
             if (val != null) {

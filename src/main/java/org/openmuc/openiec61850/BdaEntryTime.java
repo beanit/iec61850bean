@@ -132,4 +132,9 @@ public final class BdaEntryTime extends BasicDataAttribute {
         return getReference().toString() + ": " + getTimestampValue();
     }
 
+    @Override
+    public String getValueString() 
+    {
+        return "" + getTimestampValue();
+    }
 }

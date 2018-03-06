@@ -89,5 +89,11 @@ public final class BdaInt32U extends BasicDataAttribute {
     public String toString() {
         return getReference().toString() + ": " + value;
     }
+    
+    @Override
+    public String getValueString() 
+    {
+        return "" + value;
+    }
 
 }
