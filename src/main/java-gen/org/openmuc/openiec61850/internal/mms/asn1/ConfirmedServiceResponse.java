@@ -31,6 +31,10 @@ public class ConfirmedServiceResponse implements Serializable {
 	private DefineNamedVariableListResponse defineNamedVariableList = null;
 	private GetNamedVariableListAttributesResponse getNamedVariableListAttributes = null;
 	private DeleteNamedVariableListResponse deleteNamedVariableList = null;
+	private FileOpenResponse fileOpen = null;
+	private FileReadResponse fileRead = null;
+	private FileCloseResponse fileClose = null;
+	private FileDeleteResponse fileDelete = null;
 	private FileDirectoryResponse fileDirectory = null;
 	
 	public ConfirmedServiceResponse() {
@@ -96,6 +100,38 @@ public class ConfirmedServiceResponse implements Serializable {
 		return deleteNamedVariableList;
 	}
 
+	public void setFileOpen(FileOpenResponse fileOpen) {
+		this.fileOpen = fileOpen;
+	}
+
+	public FileOpenResponse getFileOpen() {
+		return fileOpen;
+	}
+
+	public void setFileRead(FileReadResponse fileRead) {
+		this.fileRead = fileRead;
+	}
+
+	public FileReadResponse getFileRead() {
+		return fileRead;
+	}
+
+	public void setFileClose(FileCloseResponse fileClose) {
+		this.fileClose = fileClose;
+	}
+
+	public FileCloseResponse getFileClose() {
+		return fileClose;
+	}
+
+	public void setFileDelete(FileDeleteResponse fileDelete) {
+		this.fileDelete = fileDelete;
+	}
+
+	public FileDeleteResponse getFileDelete() {
+		return fileDelete;
+	}
+
 	public void setFileDirectory(FileDirectoryResponse fileDirectory) {
 		this.fileDirectory = fileDirectory;
 	}
@@ -118,6 +154,42 @@ public class ConfirmedServiceResponse implements Serializable {
 			codeLength += fileDirectory.encode(os, false);
 			// write tag: CONTEXT_CLASS, CONSTRUCTED, 77
 			os.write(0x4D);
+			os.write(0xBF);
+			codeLength += 2;
+			return codeLength;
+		}
+		
+		if (fileDelete != null) {
+			codeLength += fileDelete.encode(os, false);
+			// write tag: CONTEXT_CLASS, PRIMITIVE, 76
+			os.write(0x4C);
+			os.write(0x9F);
+			codeLength += 2;
+			return codeLength;
+		}
+		
+		if (fileClose != null) {
+			codeLength += fileClose.encode(os, false);
+			// write tag: CONTEXT_CLASS, PRIMITIVE, 74
+			os.write(0x4A);
+			os.write(0x9F);
+			codeLength += 2;
+			return codeLength;
+		}
+		
+		if (fileRead != null) {
+			codeLength += fileRead.encode(os, false);
+			// write tag: CONTEXT_CLASS, CONSTRUCTED, 73
+			os.write(0x49);
+			os.write(0xBF);
+			codeLength += 2;
+			return codeLength;
+		}
+		
+		if (fileOpen != null) {
+			codeLength += fileOpen.encode(os, false);
+			// write tag: CONTEXT_CLASS, CONSTRUCTED, 72
+			os.write(0x48);
 			os.write(0xBF);
 			codeLength += 2;
 			return codeLength;
@@ -238,6 +310,30 @@ public class ConfirmedServiceResponse implements Serializable {
 			return codeLength;
 		}
 
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 72)) {
+			fileOpen = new FileOpenResponse();
+			codeLength += fileOpen.decode(is, false);
+			return codeLength;
+		}
+
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 73)) {
+			fileRead = new FileReadResponse();
+			codeLength += fileRead.decode(is, false);
+			return codeLength;
+		}
+
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 74)) {
+			fileClose = new FileCloseResponse();
+			codeLength += fileClose.decode(is, false);
+			return codeLength;
+		}
+
+		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 76)) {
+			fileDelete = new FileDeleteResponse();
+			codeLength += fileDelete.decode(is, false);
+			return codeLength;
+		}
+
 		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 77)) {
 			fileDirectory = new FileDirectoryResponse();
 			codeLength += fileDirectory.decode(is, false);
@@ -303,6 +399,28 @@ public class ConfirmedServiceResponse implements Serializable {
 		if (deleteNamedVariableList != null) {
 			sb.append("deleteNamedVariableList: ");
 			deleteNamedVariableList.appendAsString(sb, indentLevel + 1);
+			return;
+		}
+
+		if (fileOpen != null) {
+			sb.append("fileOpen: ");
+			fileOpen.appendAsString(sb, indentLevel + 1);
+			return;
+		}
+
+		if (fileRead != null) {
+			sb.append("fileRead: ");
+			fileRead.appendAsString(sb, indentLevel + 1);
+			return;
+		}
+
+		if (fileClose != null) {
+			sb.append("fileClose: ").append(fileClose);
+			return;
+		}
+
+		if (fileDelete != null) {
+			sb.append("fileDelete: ").append(fileDelete);
 			return;
 		}
 

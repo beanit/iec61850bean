@@ -35,6 +35,7 @@ public final class ServiceError extends Exception {
     public static final int CONNECTION_LOST = 14;
     public static final int MEMORY_UNAVAILABLE = 15;
     public static final int PROCESSOR_RESOURCE_UNAVAILABLE = 16;
+    public static final int FILE_NONE_EXISTENT = 17;
     public static final int FATAL = 20;
     // added to handle data access errors mentioned in iec61850-8-1
     // public static final int DATA_ACCESS_ERROR = 21;
@@ -80,6 +81,8 @@ public final class ServiceError extends Exception {
             return "MEMORY_UNAVAILABLE";
         case PROCESSOR_RESOURCE_UNAVAILABLE:
             return "PROCESSOR_RESOURCE_UNAVAILABLE";
+        case FILE_NONE_EXISTENT:
+            return "FILE_NONE_EXISTENT";
         case FATAL:
             return "FATAL";
         case TIMEOUT:

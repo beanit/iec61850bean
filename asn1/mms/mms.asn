@@ -30,9 +30,10 @@ ConfirmedServiceRequest ::= CHOICE {
     defineNamedVariableList         [11]    IMPLICIT    DefineNamedVariableList-Request,
     getNamedVariableListAttributes  [12]                GetNamedVariableListAttributes-Request,
     deleteNamedVariableList         [13]    IMPLICIT    DeleteNamedVariableList-Request,
---    fileOpen                        [72]    IMPLICIT    FileOpen-Request,
---    fileRead                        [73]    IMPLICIT    FileRead-Request,
---    fileClose                       [74]    IMPLICIT    FileClose-Request,
+    fileOpen                        [72]    IMPLICIT    FileOpen-Request,
+    fileRead                        [73]    IMPLICIT    FileRead-Request,
+    fileClose                       [74]    IMPLICIT    FileClose-Request,
+    fileDelete                      [76]    IMPLICIT    FileDelete-Request,
     fileDirectory                   [77]    IMPLICIT    FileDirectory-Request
 }
 
@@ -57,9 +58,10 @@ ConfirmedServiceResponse ::= CHOICE {
     defineNamedVariableList         [11]    IMPLICIT DefineNamedVariableList-Response,
     getNamedVariableListAttributes  [12]    IMPLICIT GetNamedVariableListAttributes-Response,
     deleteNamedVariableList         [13]    IMPLICIT DeleteNamedVariableList-Response,
---    fileOpen                        [72]    IMPLICIT FileOpen-Response,
---    fileRead                        [73]    IMPLICIT FileRead-Response,
---    fileClose                       [74]    IMPLICIT FileClose-Response,
+    fileOpen                        [72]    IMPLICIT FileOpen-Response,
+    fileRead                        [73]    IMPLICIT FileRead-Response,
+    fileClose                       [74]    IMPLICIT FileClose-Response,
+    fileDelete                      [76]    IMPLICIT FileDelete-Response,
     fileDirectory                   [77]    IMPLICIT FileDirectory-Response
 }
 
@@ -588,6 +590,31 @@ DeleteNamedVariableList-Response ::= SEQUENCE {
     numberMatched [0] IMPLICIT Unsigned32,
     numberDeleted [1] IMPLICIT Unsigned32
 }
+
+FileOpen-Request ::= SEQUENCE {
+    fileName [0] IMPLICIT FileName,
+    initialPosition [1] IMPLICIT Unsigned32
+}
+
+FileOpen-Response ::= SEQUENCE {
+    frsmID [0] IMPLICIT Integer32,
+    fileAttributes [1] IMPLICIT FileAttributes
+}
+
+FileRead-Request ::= Integer32 -- FRSM ID
+
+FileRead-Response ::= SEQUENCE {
+    fileData [0] IMPLICIT OCTET STRING,
+    moreFollows [1] IMPLICIT BOOLEAN DEFAULT TRUE
+}
+
+FileClose-Request ::= Integer32 -- FRSM ID
+
+FileClose-Response ::= NULL
+
+FileDelete-Request ::= FileName
+
+FileDelete-Response ::= NULL
 
 FileDirectory-Request ::= SEQUENCE {
     fileSpecification [0] IMPLICIT FileName OPTIONAL,
