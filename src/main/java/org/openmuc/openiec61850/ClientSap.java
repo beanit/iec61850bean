@@ -280,7 +280,6 @@ public final class ClientSap {
      */
     public ClientAssociation associate(InetAddress address, int port, String authenticationParameter,
             ClientEventListener reportListener) throws IOException {
-        System.out.println("Associate");
         return associate(address, port, authenticationParameter, null, -1, reportListener);
     }
 
