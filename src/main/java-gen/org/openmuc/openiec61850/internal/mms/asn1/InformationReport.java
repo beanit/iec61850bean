@@ -5,294 +5,290 @@
 package org.openmuc.openiec61850.internal.mms.asn1;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
-import org.openmuc.jasn1.ber.types.string.*;
-
 
 public class InformationReport implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public static class ListOfAccessResult implements Serializable {
+    public static class ListOfAccessResult implements Serializable {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
-		public byte[] code = null;
-		private List<AccessResult> seqOf = null;
+        public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
+        public byte[] code = null;
+        private List<AccessResult> seqOf = null;
 
-		public ListOfAccessResult() {
-			seqOf = new ArrayList<AccessResult>();
-		}
+        public ListOfAccessResult() {
+            seqOf = new ArrayList<AccessResult>();
+        }
 
-		public ListOfAccessResult(byte[] code) {
-			this.code = code;
-		}
+        public ListOfAccessResult(byte[] code) {
+            this.code = code;
+        }
 
-		public List<AccessResult> getAccessResult() {
-			if (seqOf == null) {
-				seqOf = new ArrayList<AccessResult>();
-			}
-			return seqOf;
-		}
+        public List<AccessResult> getAccessResult() {
+            if (seqOf == null) {
+                seqOf = new ArrayList<AccessResult>();
+            }
+            return seqOf;
+        }
 
-		public int encode(OutputStream os) throws IOException {
-			return encode(os, true);
-		}
+        public int encode(OutputStream os) throws IOException {
+            return encode(os, true);
+        }
 
-		public int encode(OutputStream os, boolean withTag) throws IOException {
+        public int encode(OutputStream os, boolean withTag) throws IOException {
 
-			if (code != null) {
-				for (int i = code.length - 1; i >= 0; i--) {
-					os.write(code[i]);
-				}
-				if (withTag) {
-					return tag.encode(os) + code.length;
-				}
-				return code.length;
-			}
+            if (code != null) {
+                for (int i = code.length - 1; i >= 0; i--) {
+                    os.write(code[i]);
+                }
+                if (withTag) {
+                    return tag.encode(os) + code.length;
+                }
+                return code.length;
+            }
 
-			int codeLength = 0;
-			for (int i = (seqOf.size() - 1); i >= 0; i--) {
-				codeLength += seqOf.get(i).encode(os);
-			}
+            int codeLength = 0;
+            for (int i = (seqOf.size() - 1); i >= 0; i--) {
+                codeLength += seqOf.get(i).encode(os);
+            }
 
-			codeLength += BerLength.encodeLength(os, codeLength);
+            codeLength += BerLength.encodeLength(os, codeLength);
 
-			if (withTag) {
-				codeLength += tag.encode(os);
-			}
+            if (withTag) {
+                codeLength += tag.encode(os);
+            }
 
-			return codeLength;
-		}
+            return codeLength;
+        }
 
-		public int decode(InputStream is) throws IOException {
-			return decode(is, true);
-		}
+        public int decode(InputStream is) throws IOException {
+            return decode(is, true);
+        }
 
-		public int decode(InputStream is, boolean withTag) throws IOException {
-			int codeLength = 0;
-			int subCodeLength = 0;
-			if (withTag) {
-				codeLength += tag.decodeAndCheck(is);
-			}
+        public int decode(InputStream is, boolean withTag) throws IOException {
+            int codeLength = 0;
+            int subCodeLength = 0;
+            if (withTag) {
+                codeLength += tag.decodeAndCheck(is);
+            }
 
-			BerLength length = new BerLength();
-			codeLength += length.decode(is);
-			int totalLength = length.val;
+            BerLength length = new BerLength();
+            codeLength += length.decode(is);
+            int totalLength = length.val;
 
-			while (subCodeLength < totalLength) {
-				AccessResult element = new AccessResult();
-				subCodeLength += element.decode(is, null);
-				seqOf.add(element);
-			}
-			if (subCodeLength != totalLength) {
-				throw new IOException("Decoded SequenceOf or SetOf has wrong length. Expected " + totalLength + " but has " + subCodeLength);
+            while (subCodeLength < totalLength) {
+                AccessResult element = new AccessResult();
+                subCodeLength += element.decode(is, null);
+                seqOf.add(element);
+            }
+            if (subCodeLength != totalLength) {
+                throw new IOException("Decoded SequenceOf or SetOf has wrong length. Expected " + totalLength
+                        + " but has " + subCodeLength);
 
-			}
-			codeLength += subCodeLength;
+            }
+            codeLength += subCodeLength;
 
-			return codeLength;
-		}
+            return codeLength;
+        }
 
-		public void encodeAndSave(int encodingSizeGuess) throws IOException {
-			ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-			encode(os, false);
-			code = os.getArray();
-		}
+        public void encodeAndSave(int encodingSizeGuess) throws IOException {
+            ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+            encode(os, false);
+            code = os.getArray();
+        }
 
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			appendAsString(sb, 0);
-			return sb.toString();
-		}
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            appendAsString(sb, 0);
+            return sb.toString();
+        }
 
-		public void appendAsString(StringBuilder sb, int indentLevel) {
+        public void appendAsString(StringBuilder sb, int indentLevel) {
 
-			sb.append("{\n");
-			for (int i = 0; i < indentLevel + 1; i++) {
-				sb.append("\t");
-			}
-			if (seqOf == null) {
-				sb.append("null");
-			}
-			else {
-				Iterator<AccessResult> it = seqOf.iterator();
-				if (it.hasNext()) {
-					it.next().appendAsString(sb, indentLevel + 1);
-					while (it.hasNext()) {
-						sb.append(",\n");
-						for (int i = 0; i < indentLevel + 1; i++) {
-							sb.append("\t");
-						}
-						it.next().appendAsString(sb, indentLevel + 1);
-					}
-				}
-			}
+            sb.append("{\n");
+            for (int i = 0; i < indentLevel + 1; i++) {
+                sb.append("\t");
+            }
+            if (seqOf == null) {
+                sb.append("null");
+            }
+            else {
+                Iterator<AccessResult> it = seqOf.iterator();
+                if (it.hasNext()) {
+                    it.next().appendAsString(sb, indentLevel + 1);
+                    while (it.hasNext()) {
+                        sb.append(",\n");
+                        for (int i = 0; i < indentLevel + 1; i++) {
+                            sb.append("\t");
+                        }
+                        it.next().appendAsString(sb, indentLevel + 1);
+                    }
+                }
+            }
 
-			sb.append("\n");
-			for (int i = 0; i < indentLevel; i++) {
-				sb.append("\t");
-			}
-			sb.append("}");
-		}
+            sb.append("\n");
+            for (int i = 0; i < indentLevel; i++) {
+                sb.append("\t");
+            }
+            sb.append("}");
+        }
 
-	}
+    }
 
-	public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
+    public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
 
-	public byte[] code = null;
-	private VariableAccessSpecification variableAccessSpecification = null;
-	private ListOfAccessResult listOfAccessResult = null;
-	
-	public InformationReport() {
-	}
+    public byte[] code = null;
+    private VariableAccessSpecification variableAccessSpecification = null;
+    private ListOfAccessResult listOfAccessResult = null;
 
-	public InformationReport(byte[] code) {
-		this.code = code;
-	}
+    public InformationReport() {
+    }
 
-	public void setVariableAccessSpecification(VariableAccessSpecification variableAccessSpecification) {
-		this.variableAccessSpecification = variableAccessSpecification;
-	}
+    public InformationReport(byte[] code) {
+        this.code = code;
+    }
 
-	public VariableAccessSpecification getVariableAccessSpecification() {
-		return variableAccessSpecification;
-	}
+    public void setVariableAccessSpecification(VariableAccessSpecification variableAccessSpecification) {
+        this.variableAccessSpecification = variableAccessSpecification;
+    }
 
-	public void setListOfAccessResult(ListOfAccessResult listOfAccessResult) {
-		this.listOfAccessResult = listOfAccessResult;
-	}
+    public VariableAccessSpecification getVariableAccessSpecification() {
+        return variableAccessSpecification;
+    }
 
-	public ListOfAccessResult getListOfAccessResult() {
-		return listOfAccessResult;
-	}
+    public void setListOfAccessResult(ListOfAccessResult listOfAccessResult) {
+        this.listOfAccessResult = listOfAccessResult;
+    }
 
-	public int encode(OutputStream os) throws IOException {
-		return encode(os, true);
-	}
+    public ListOfAccessResult getListOfAccessResult() {
+        return listOfAccessResult;
+    }
 
-	public int encode(OutputStream os, boolean withTag) throws IOException {
+    public int encode(OutputStream os) throws IOException {
+        return encode(os, true);
+    }
 
-		if (code != null) {
-			for (int i = code.length - 1; i >= 0; i--) {
-				os.write(code[i]);
-			}
-			if (withTag) {
-				return tag.encode(os) + code.length;
-			}
-			return code.length;
-		}
+    public int encode(OutputStream os, boolean withTag) throws IOException {
 
-		int codeLength = 0;
-		codeLength += listOfAccessResult.encode(os, false);
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
-		os.write(0xA0);
-		codeLength += 1;
-		
-		codeLength += variableAccessSpecification.encode(os);
-		
-		codeLength += BerLength.encodeLength(os, codeLength);
+        if (code != null) {
+            for (int i = code.length - 1; i >= 0; i--) {
+                os.write(code[i]);
+            }
+            if (withTag) {
+                return tag.encode(os) + code.length;
+            }
+            return code.length;
+        }
 
-		if (withTag) {
-			codeLength += tag.encode(os);
-		}
+        int codeLength = 0;
+        codeLength += listOfAccessResult.encode(os, false);
+        // write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+        os.write(0xA0);
+        codeLength += 1;
 
-		return codeLength;
+        codeLength += variableAccessSpecification.encode(os);
 
-	}
+        codeLength += BerLength.encodeLength(os, codeLength);
 
-	public int decode(InputStream is) throws IOException {
-		return decode(is, true);
-	}
+        if (withTag) {
+            codeLength += tag.encode(os);
+        }
 
-	public int decode(InputStream is, boolean withTag) throws IOException {
-		int codeLength = 0;
-		int subCodeLength = 0;
-		BerTag berTag = new BerTag();
+        return codeLength;
 
-		if (withTag) {
-			codeLength += tag.decodeAndCheck(is);
-		}
+    }
 
-		BerLength length = new BerLength();
-		codeLength += length.decode(is);
+    public int decode(InputStream is) throws IOException {
+        return decode(is, true);
+    }
 
-		int totalLength = length.val;
-		codeLength += totalLength;
+    public int decode(InputStream is, boolean withTag) throws IOException {
+        int codeLength = 0;
+        int subCodeLength = 0;
+        BerTag berTag = new BerTag();
 
-		subCodeLength += berTag.decode(is);
-		variableAccessSpecification = new VariableAccessSpecification();
-		subCodeLength += variableAccessSpecification.decode(is, berTag);
-		subCodeLength += berTag.decode(is);
-		
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
-			listOfAccessResult = new ListOfAccessResult();
-			subCodeLength += listOfAccessResult.decode(is, false);
-			if (subCodeLength == totalLength) {
-				return codeLength;
-			}
-		}
-		throw new IOException("Unexpected end of sequence, length tag: " + totalLength + ", actual sequence length: " + subCodeLength);
+        if (withTag) {
+            codeLength += tag.decodeAndCheck(is);
+        }
 
-		
-	}
+        BerLength length = new BerLength();
+        codeLength += length.decode(is);
 
-	public void encodeAndSave(int encodingSizeGuess) throws IOException {
-		ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-		encode(os, false);
-		code = os.getArray();
-	}
+        int totalLength = length.val;
+        codeLength += totalLength;
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		appendAsString(sb, 0);
-		return sb.toString();
-	}
+        subCodeLength += berTag.decode(is);
+        variableAccessSpecification = new VariableAccessSpecification();
+        subCodeLength += variableAccessSpecification.decode(is, berTag);
+        subCodeLength += berTag.decode(is);
 
-	public void appendAsString(StringBuilder sb, int indentLevel) {
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
+            listOfAccessResult = new ListOfAccessResult();
+            subCodeLength += listOfAccessResult.decode(is, false);
+            if (subCodeLength == totalLength) {
+                return codeLength;
+            }
+        }
+        throw new IOException("Unexpected end of sequence, length tag: " + totalLength + ", actual sequence length: "
+                + subCodeLength);
 
-		sb.append("{");
-		sb.append("\n");
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (variableAccessSpecification != null) {
-			sb.append("variableAccessSpecification: ");
-			variableAccessSpecification.appendAsString(sb, indentLevel + 1);
-		}
-		else {
-			sb.append("variableAccessSpecification: <empty-required-field>");
-		}
-		
-		sb.append(",\n");
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (listOfAccessResult != null) {
-			sb.append("listOfAccessResult: ");
-			listOfAccessResult.appendAsString(sb, indentLevel + 1);
-		}
-		else {
-			sb.append("listOfAccessResult: <empty-required-field>");
-		}
-		
-		sb.append("\n");
-		for (int i = 0; i < indentLevel; i++) {
-			sb.append("\t");
-		}
-		sb.append("}");
-	}
+    }
+
+    public void encodeAndSave(int encodingSizeGuess) throws IOException {
+        ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+        encode(os, false);
+        code = os.getArray();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        appendAsString(sb, 0);
+        return sb.toString();
+    }
+
+    public void appendAsString(StringBuilder sb, int indentLevel) {
+
+        sb.append("{");
+        sb.append("\n");
+        for (int i = 0; i < indentLevel + 1; i++) {
+            sb.append("\t");
+        }
+        if (variableAccessSpecification != null) {
+            sb.append("variableAccessSpecification: ");
+            variableAccessSpecification.appendAsString(sb, indentLevel + 1);
+        }
+        else {
+            sb.append("variableAccessSpecification: <empty-required-field>");
+        }
+
+        sb.append(",\n");
+        for (int i = 0; i < indentLevel + 1; i++) {
+            sb.append("\t");
+        }
+        if (listOfAccessResult != null) {
+            sb.append("listOfAccessResult: ");
+            listOfAccessResult.appendAsString(sb, indentLevel + 1);
+        }
+        else {
+            sb.append("listOfAccessResult: <empty-required-field>");
+        }
+
+        sb.append("\n");
+        for (int i = 0; i < indentLevel; i++) {
+            sb.append("\t");
+        }
+        sb.append("}");
+    }
 
 }
-

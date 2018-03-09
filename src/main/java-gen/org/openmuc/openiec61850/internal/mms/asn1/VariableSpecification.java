@@ -5,117 +5,108 @@
 package org.openmuc.openiec61850.internal.mms.asn1;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
-import org.openmuc.jasn1.ber.types.string.*;
-
 
 public class VariableSpecification implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public byte[] code = null;
-	private ObjectName name = null;
-	
-	public VariableSpecification() {
-	}
+    public byte[] code = null;
+    private ObjectName name = null;
 
-	public VariableSpecification(byte[] code) {
-		this.code = code;
-	}
+    public VariableSpecification() {
+    }
 
-	public void setName(ObjectName name) {
-		this.name = name;
-	}
+    public VariableSpecification(byte[] code) {
+        this.code = code;
+    }
 
-	public ObjectName getName() {
-		return name;
-	}
+    public void setName(ObjectName name) {
+        this.name = name;
+    }
 
-	public int encode(OutputStream os) throws IOException {
+    public ObjectName getName() {
+        return name;
+    }
 
-		if (code != null) {
-			for (int i = code.length - 1; i >= 0; i--) {
-				os.write(code[i]);
-			}
-			return code.length;
-		}
+    public int encode(OutputStream os) throws IOException {
 
-		int codeLength = 0;
-		int sublength;
+        if (code != null) {
+            for (int i = code.length - 1; i >= 0; i--) {
+                os.write(code[i]);
+            }
+            return code.length;
+        }
 
-		if (name != null) {
-			sublength = name.encode(os);
-			codeLength += sublength;
-			codeLength += BerLength.encodeLength(os, sublength);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
-			os.write(0xA0);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
-	}
+        int codeLength = 0;
+        int sublength;
 
-	public int decode(InputStream is) throws IOException {
-		return decode(is, null);
-	}
+        if (name != null) {
+            sublength = name.encode(os);
+            codeLength += sublength;
+            codeLength += BerLength.encodeLength(os, sublength);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+            os.write(0xA0);
+            codeLength += 1;
+            return codeLength;
+        }
 
-	public int decode(InputStream is, BerTag berTag) throws IOException {
+        throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
+    }
 
-		int codeLength = 0;
-		BerTag passedTag = berTag;
+    public int decode(InputStream is) throws IOException {
+        return decode(is, null);
+    }
 
-		if (berTag == null) {
-			berTag = new BerTag();
-			codeLength += berTag.decode(is);
-		}
+    public int decode(InputStream is, BerTag berTag) throws IOException {
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
-			codeLength += BerLength.skip(is);
-			name = new ObjectName();
-			codeLength += name.decode(is, null);
-			return codeLength;
-		}
+        int codeLength = 0;
+        BerTag passedTag = berTag;
 
-		if (passedTag != null) {
-			return 0;
-		}
+        if (berTag == null) {
+            berTag = new BerTag();
+            codeLength += berTag.decode(is);
+        }
 
-		throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
-	}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
+            codeLength += BerLength.skip(is);
+            name = new ObjectName();
+            codeLength += name.decode(is, null);
+            return codeLength;
+        }
 
-	public void encodeAndSave(int encodingSizeGuess) throws IOException {
-		ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-		encode(os);
-		code = os.getArray();
-	}
+        if (passedTag != null) {
+            return 0;
+        }
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		appendAsString(sb, 0);
-		return sb.toString();
-	}
+        throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
+    }
 
-	public void appendAsString(StringBuilder sb, int indentLevel) {
+    public void encodeAndSave(int encodingSizeGuess) throws IOException {
+        ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+        encode(os);
+        code = os.getArray();
+    }
 
-		if (name != null) {
-			sb.append("name: ");
-			name.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        appendAsString(sb, 0);
+        return sb.toString();
+    }
 
-		sb.append("<none>");
-	}
+    public void appendAsString(StringBuilder sb, int indentLevel) {
+
+        if (name != null) {
+            sb.append("name: ");
+            name.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        sb.append("<none>");
+    }
 
 }
-

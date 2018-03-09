@@ -49,12 +49,12 @@ public final class ObjectReference implements Iterable<String> {
         }
         return nodeNames.get(nodeNames.size() - 1);
     }
-    
+
     public String getLdName() {
         if (nodeNames == null) {
             parseForNameList();
         }
-        
+
         return nodeNames.get(0);
     }
 

@@ -36,8 +36,7 @@ public final class BdaInt8 extends BasicDataAttribute {
     }
 
     @Override
-    public
-    void setValueFrom(BasicDataAttribute bda) {
+    public void setValueFrom(BasicDataAttribute bda) {
         value = ((BdaInt8) bda).getValue();
     }
 
@@ -89,10 +88,9 @@ public final class BdaInt8 extends BasicDataAttribute {
     public String toString() {
         return getReference().toString() + ": " + value;
     }
-    
+
     @Override
-    public String getValueString() 
-    {
+    public String getValueString() {
         return "" + value;
     }
 

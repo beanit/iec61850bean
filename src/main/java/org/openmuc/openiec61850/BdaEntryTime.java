@@ -66,8 +66,7 @@ public final class BdaEntryTime extends BasicDataAttribute {
     }
 
     @Override
-    public
-    void setValueFrom(BasicDataAttribute bda) {
+    public void setValueFrom(BasicDataAttribute bda) {
         byte[] srcValue = ((BdaEntryTime) bda).getValue();
         if (value.length != srcValue.length) {
             value = new byte[srcValue.length];
@@ -133,8 +132,7 @@ public final class BdaEntryTime extends BasicDataAttribute {
     }
 
     @Override
-    public String getValueString() 
-    {
+    public String getValueString() {
         return "" + getTimestampValue();
     }
 }

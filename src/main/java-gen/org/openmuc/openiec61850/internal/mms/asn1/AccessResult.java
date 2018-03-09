@@ -5,140 +5,131 @@
 package org.openmuc.openiec61850.internal.mms.asn1;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
-import org.openmuc.jasn1.ber.types.string.*;
-
 
 public class AccessResult implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public byte[] code = null;
-	private DataAccessError failure = null;
-	private Data success = null;
-	
-	public AccessResult() {
-	}
+    public byte[] code = null;
+    private DataAccessError failure = null;
+    private Data success = null;
 
-	public AccessResult(byte[] code) {
-		this.code = code;
-	}
+    public AccessResult() {
+    }
 
-	public void setFailure(DataAccessError failure) {
-		this.failure = failure;
-	}
+    public AccessResult(byte[] code) {
+        this.code = code;
+    }
 
-	public DataAccessError getFailure() {
-		return failure;
-	}
+    public void setFailure(DataAccessError failure) {
+        this.failure = failure;
+    }
 
-	public void setSuccess(Data success) {
-		this.success = success;
-	}
+    public DataAccessError getFailure() {
+        return failure;
+    }
 
-	public Data getSuccess() {
-		return success;
-	}
+    public void setSuccess(Data success) {
+        this.success = success;
+    }
 
-	public int encode(OutputStream os) throws IOException {
+    public Data getSuccess() {
+        return success;
+    }
 
-		if (code != null) {
-			for (int i = code.length - 1; i >= 0; i--) {
-				os.write(code[i]);
-			}
-			return code.length;
-		}
+    public int encode(OutputStream os) throws IOException {
 
-		int codeLength = 0;
-		if (success != null) {
-			codeLength += success.encode(os);
-			return codeLength;
-		}
-		
-		if (failure != null) {
-			codeLength += failure.encode(os, false);
-			// write tag: CONTEXT_CLASS, PRIMITIVE, 0
-			os.write(0x80);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
-	}
+        if (code != null) {
+            for (int i = code.length - 1; i >= 0; i--) {
+                os.write(code[i]);
+            }
+            return code.length;
+        }
 
-	public int decode(InputStream is) throws IOException {
-		return decode(is, null);
-	}
+        int codeLength = 0;
+        if (success != null) {
+            codeLength += success.encode(os);
+            return codeLength;
+        }
 
-	public int decode(InputStream is, BerTag berTag) throws IOException {
+        if (failure != null) {
+            codeLength += failure.encode(os, false);
+            // write tag: CONTEXT_CLASS, PRIMITIVE, 0
+            os.write(0x80);
+            codeLength += 1;
+            return codeLength;
+        }
 
-		int codeLength = 0;
-		BerTag passedTag = berTag;
+        throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
+    }
 
-		if (berTag == null) {
-			berTag = new BerTag();
-			codeLength += berTag.decode(is);
-		}
+    public int decode(InputStream is) throws IOException {
+        return decode(is, null);
+    }
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 0)) {
-			failure = new DataAccessError();
-			codeLength += failure.decode(is, false);
-			return codeLength;
-		}
+    public int decode(InputStream is, BerTag berTag) throws IOException {
 
-		success = new Data();
-		int choiceDecodeLength = success.decode(is, berTag);
-		if (choiceDecodeLength != 0) {
-			return codeLength + choiceDecodeLength;
-		}
-		else {
-			success = null;
-		}
+        int codeLength = 0;
+        BerTag passedTag = berTag;
 
-		if (passedTag != null) {
-			return 0;
-		}
+        if (berTag == null) {
+            berTag = new BerTag();
+            codeLength += berTag.decode(is);
+        }
 
-		throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
-	}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 0)) {
+            failure = new DataAccessError();
+            codeLength += failure.decode(is, false);
+            return codeLength;
+        }
 
-	public void encodeAndSave(int encodingSizeGuess) throws IOException {
-		ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-		encode(os);
-		code = os.getArray();
-	}
+        success = new Data();
+        int choiceDecodeLength = success.decode(is, berTag);
+        if (choiceDecodeLength != 0) {
+            return codeLength + choiceDecodeLength;
+        }
+        else {
+            success = null;
+        }
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		appendAsString(sb, 0);
-		return sb.toString();
-	}
+        if (passedTag != null) {
+            return 0;
+        }
 
-	public void appendAsString(StringBuilder sb, int indentLevel) {
+        throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
+    }
 
-		if (failure != null) {
-			sb.append("failure: ").append(failure);
-			return;
-		}
+    public void encodeAndSave(int encodingSizeGuess) throws IOException {
+        ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+        encode(os);
+        code = os.getArray();
+    }
 
-		if (success != null) {
-			sb.append("success: ");
-			success.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        appendAsString(sb, 0);
+        return sb.toString();
+    }
 
-		sb.append("<none>");
-	}
+    public void appendAsString(StringBuilder sb, int indentLevel) {
+
+        if (failure != null) {
+            sb.append("failure: ").append(failure);
+            return;
+        }
+
+        if (success != null) {
+            sb.append("success: ");
+            success.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        sb.append("<none>");
+    }
 
 }
-

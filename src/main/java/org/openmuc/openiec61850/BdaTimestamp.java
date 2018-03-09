@@ -117,8 +117,7 @@ public final class BdaTimestamp extends BasicDataAttribute {
     }
 
     @Override
-    public
-    void setValueFrom(BasicDataAttribute bda) {
+    public void setValueFrom(BasicDataAttribute bda) {
         byte[] srcValue = ((BdaTimestamp) bda).getValue();
         if (value.length != srcValue.length) {
             value = new byte[srcValue.length];

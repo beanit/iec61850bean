@@ -96,8 +96,7 @@ public final class BdaDoubleBitPos extends BdaBitString {
     }
 
     @Override
-    public String getValueString() 
-    {
+    public String getValueString() {
         return getDoubleBitPos().toString();
     }
 }

@@ -5,343 +5,334 @@
 package org.openmuc.openiec61850.internal.mms.asn1;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
-import org.openmuc.jasn1.ber.types.string.*;
-
 
 public class MMSpdu implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public byte[] code = null;
-	private ConfirmedRequestPDU confirmedRequestPDU = null;
-	private ConfirmedResponsePDU confirmedResponsePDU = null;
-	private ConfirmedErrorPDU confirmedErrorPDU = null;
-	private UnconfirmedPDU unconfirmedPDU = null;
-	private RejectPDU rejectPDU = null;
-	private InitiateRequestPDU initiateRequestPDU = null;
-	private InitiateResponsePDU initiateResponsePDU = null;
-	private InitiateErrorPDU initiateErrorPDU = null;
-	private ConcludeRequestPDU concludeRequestPDU = null;
-	
-	public MMSpdu() {
-	}
+    public byte[] code = null;
+    private ConfirmedRequestPDU confirmedRequestPDU = null;
+    private ConfirmedResponsePDU confirmedResponsePDU = null;
+    private ConfirmedErrorPDU confirmedErrorPDU = null;
+    private UnconfirmedPDU unconfirmedPDU = null;
+    private RejectPDU rejectPDU = null;
+    private InitiateRequestPDU initiateRequestPDU = null;
+    private InitiateResponsePDU initiateResponsePDU = null;
+    private InitiateErrorPDU initiateErrorPDU = null;
+    private ConcludeRequestPDU concludeRequestPDU = null;
 
-	public MMSpdu(byte[] code) {
-		this.code = code;
-	}
+    public MMSpdu() {
+    }
 
-	public void setConfirmedRequestPDU(ConfirmedRequestPDU confirmedRequestPDU) {
-		this.confirmedRequestPDU = confirmedRequestPDU;
-	}
+    public MMSpdu(byte[] code) {
+        this.code = code;
+    }
 
-	public ConfirmedRequestPDU getConfirmedRequestPDU() {
-		return confirmedRequestPDU;
-	}
+    public void setConfirmedRequestPDU(ConfirmedRequestPDU confirmedRequestPDU) {
+        this.confirmedRequestPDU = confirmedRequestPDU;
+    }
 
-	public void setConfirmedResponsePDU(ConfirmedResponsePDU confirmedResponsePDU) {
-		this.confirmedResponsePDU = confirmedResponsePDU;
-	}
+    public ConfirmedRequestPDU getConfirmedRequestPDU() {
+        return confirmedRequestPDU;
+    }
 
-	public ConfirmedResponsePDU getConfirmedResponsePDU() {
-		return confirmedResponsePDU;
-	}
+    public void setConfirmedResponsePDU(ConfirmedResponsePDU confirmedResponsePDU) {
+        this.confirmedResponsePDU = confirmedResponsePDU;
+    }
 
-	public void setConfirmedErrorPDU(ConfirmedErrorPDU confirmedErrorPDU) {
-		this.confirmedErrorPDU = confirmedErrorPDU;
-	}
+    public ConfirmedResponsePDU getConfirmedResponsePDU() {
+        return confirmedResponsePDU;
+    }
 
-	public ConfirmedErrorPDU getConfirmedErrorPDU() {
-		return confirmedErrorPDU;
-	}
+    public void setConfirmedErrorPDU(ConfirmedErrorPDU confirmedErrorPDU) {
+        this.confirmedErrorPDU = confirmedErrorPDU;
+    }
 
-	public void setUnconfirmedPDU(UnconfirmedPDU unconfirmedPDU) {
-		this.unconfirmedPDU = unconfirmedPDU;
-	}
+    public ConfirmedErrorPDU getConfirmedErrorPDU() {
+        return confirmedErrorPDU;
+    }
 
-	public UnconfirmedPDU getUnconfirmedPDU() {
-		return unconfirmedPDU;
-	}
+    public void setUnconfirmedPDU(UnconfirmedPDU unconfirmedPDU) {
+        this.unconfirmedPDU = unconfirmedPDU;
+    }
 
-	public void setRejectPDU(RejectPDU rejectPDU) {
-		this.rejectPDU = rejectPDU;
-	}
+    public UnconfirmedPDU getUnconfirmedPDU() {
+        return unconfirmedPDU;
+    }
 
-	public RejectPDU getRejectPDU() {
-		return rejectPDU;
-	}
+    public void setRejectPDU(RejectPDU rejectPDU) {
+        this.rejectPDU = rejectPDU;
+    }
 
-	public void setInitiateRequestPDU(InitiateRequestPDU initiateRequestPDU) {
-		this.initiateRequestPDU = initiateRequestPDU;
-	}
+    public RejectPDU getRejectPDU() {
+        return rejectPDU;
+    }
 
-	public InitiateRequestPDU getInitiateRequestPDU() {
-		return initiateRequestPDU;
-	}
+    public void setInitiateRequestPDU(InitiateRequestPDU initiateRequestPDU) {
+        this.initiateRequestPDU = initiateRequestPDU;
+    }
 
-	public void setInitiateResponsePDU(InitiateResponsePDU initiateResponsePDU) {
-		this.initiateResponsePDU = initiateResponsePDU;
-	}
+    public InitiateRequestPDU getInitiateRequestPDU() {
+        return initiateRequestPDU;
+    }
 
-	public InitiateResponsePDU getInitiateResponsePDU() {
-		return initiateResponsePDU;
-	}
+    public void setInitiateResponsePDU(InitiateResponsePDU initiateResponsePDU) {
+        this.initiateResponsePDU = initiateResponsePDU;
+    }
 
-	public void setInitiateErrorPDU(InitiateErrorPDU initiateErrorPDU) {
-		this.initiateErrorPDU = initiateErrorPDU;
-	}
+    public InitiateResponsePDU getInitiateResponsePDU() {
+        return initiateResponsePDU;
+    }
 
-	public InitiateErrorPDU getInitiateErrorPDU() {
-		return initiateErrorPDU;
-	}
+    public void setInitiateErrorPDU(InitiateErrorPDU initiateErrorPDU) {
+        this.initiateErrorPDU = initiateErrorPDU;
+    }
 
-	public void setConcludeRequestPDU(ConcludeRequestPDU concludeRequestPDU) {
-		this.concludeRequestPDU = concludeRequestPDU;
-	}
+    public InitiateErrorPDU getInitiateErrorPDU() {
+        return initiateErrorPDU;
+    }
 
-	public ConcludeRequestPDU getConcludeRequestPDU() {
-		return concludeRequestPDU;
-	}
+    public void setConcludeRequestPDU(ConcludeRequestPDU concludeRequestPDU) {
+        this.concludeRequestPDU = concludeRequestPDU;
+    }
 
-	public int encode(OutputStream os) throws IOException {
+    public ConcludeRequestPDU getConcludeRequestPDU() {
+        return concludeRequestPDU;
+    }
 
-		if (code != null) {
-			for (int i = code.length - 1; i >= 0; i--) {
-				os.write(code[i]);
-			}
-			return code.length;
-		}
+    public int encode(OutputStream os) throws IOException {
 
-		int codeLength = 0;
-		if (concludeRequestPDU != null) {
-			codeLength += concludeRequestPDU.encode(os, false);
-			// write tag: CONTEXT_CLASS, PRIMITIVE, 11
-			os.write(0x8B);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		if (initiateErrorPDU != null) {
-			codeLength += initiateErrorPDU.encode(os, false);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 10
-			os.write(0xAA);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		if (initiateResponsePDU != null) {
-			codeLength += initiateResponsePDU.encode(os, false);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 9
-			os.write(0xA9);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		if (initiateRequestPDU != null) {
-			codeLength += initiateRequestPDU.encode(os, false);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 8
-			os.write(0xA8);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		if (rejectPDU != null) {
-			codeLength += rejectPDU.encode(os, false);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 4
-			os.write(0xA4);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		if (unconfirmedPDU != null) {
-			codeLength += unconfirmedPDU.encode(os, false);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 3
-			os.write(0xA3);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		if (confirmedErrorPDU != null) {
-			codeLength += confirmedErrorPDU.encode(os, false);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 2
-			os.write(0xA2);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		if (confirmedResponsePDU != null) {
-			codeLength += confirmedResponsePDU.encode(os, false);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
-			os.write(0xA1);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		if (confirmedRequestPDU != null) {
-			codeLength += confirmedRequestPDU.encode(os, false);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
-			os.write(0xA0);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
-	}
+        if (code != null) {
+            for (int i = code.length - 1; i >= 0; i--) {
+                os.write(code[i]);
+            }
+            return code.length;
+        }
 
-	public int decode(InputStream is) throws IOException {
-		return decode(is, null);
-	}
+        int codeLength = 0;
+        if (concludeRequestPDU != null) {
+            codeLength += concludeRequestPDU.encode(os, false);
+            // write tag: CONTEXT_CLASS, PRIMITIVE, 11
+            os.write(0x8B);
+            codeLength += 1;
+            return codeLength;
+        }
 
-	public int decode(InputStream is, BerTag berTag) throws IOException {
+        if (initiateErrorPDU != null) {
+            codeLength += initiateErrorPDU.encode(os, false);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 10
+            os.write(0xAA);
+            codeLength += 1;
+            return codeLength;
+        }
 
-		int codeLength = 0;
-		BerTag passedTag = berTag;
+        if (initiateResponsePDU != null) {
+            codeLength += initiateResponsePDU.encode(os, false);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 9
+            os.write(0xA9);
+            codeLength += 1;
+            return codeLength;
+        }
 
-		if (berTag == null) {
-			berTag = new BerTag();
-			codeLength += berTag.decode(is);
-		}
+        if (initiateRequestPDU != null) {
+            codeLength += initiateRequestPDU.encode(os, false);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 8
+            os.write(0xA8);
+            codeLength += 1;
+            return codeLength;
+        }
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
-			confirmedRequestPDU = new ConfirmedRequestPDU();
-			codeLength += confirmedRequestPDU.decode(is, false);
-			return codeLength;
-		}
+        if (rejectPDU != null) {
+            codeLength += rejectPDU.encode(os, false);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 4
+            os.write(0xA4);
+            codeLength += 1;
+            return codeLength;
+        }
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 1)) {
-			confirmedResponsePDU = new ConfirmedResponsePDU();
-			codeLength += confirmedResponsePDU.decode(is, false);
-			return codeLength;
-		}
+        if (unconfirmedPDU != null) {
+            codeLength += unconfirmedPDU.encode(os, false);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 3
+            os.write(0xA3);
+            codeLength += 1;
+            return codeLength;
+        }
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 2)) {
-			confirmedErrorPDU = new ConfirmedErrorPDU();
-			codeLength += confirmedErrorPDU.decode(is, false);
-			return codeLength;
-		}
+        if (confirmedErrorPDU != null) {
+            codeLength += confirmedErrorPDU.encode(os, false);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 2
+            os.write(0xA2);
+            codeLength += 1;
+            return codeLength;
+        }
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 3)) {
-			unconfirmedPDU = new UnconfirmedPDU();
-			codeLength += unconfirmedPDU.decode(is, false);
-			return codeLength;
-		}
+        if (confirmedResponsePDU != null) {
+            codeLength += confirmedResponsePDU.encode(os, false);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 1
+            os.write(0xA1);
+            codeLength += 1;
+            return codeLength;
+        }
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 4)) {
-			rejectPDU = new RejectPDU();
-			codeLength += rejectPDU.decode(is, false);
-			return codeLength;
-		}
+        if (confirmedRequestPDU != null) {
+            codeLength += confirmedRequestPDU.encode(os, false);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+            os.write(0xA0);
+            codeLength += 1;
+            return codeLength;
+        }
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 8)) {
-			initiateRequestPDU = new InitiateRequestPDU();
-			codeLength += initiateRequestPDU.decode(is, false);
-			return codeLength;
-		}
+        throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
+    }
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 9)) {
-			initiateResponsePDU = new InitiateResponsePDU();
-			codeLength += initiateResponsePDU.decode(is, false);
-			return codeLength;
-		}
+    public int decode(InputStream is) throws IOException {
+        return decode(is, null);
+    }
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 10)) {
-			initiateErrorPDU = new InitiateErrorPDU();
-			codeLength += initiateErrorPDU.decode(is, false);
-			return codeLength;
-		}
+    public int decode(InputStream is, BerTag berTag) throws IOException {
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 11)) {
-			concludeRequestPDU = new ConcludeRequestPDU();
-			codeLength += concludeRequestPDU.decode(is, false);
-			return codeLength;
-		}
+        int codeLength = 0;
+        BerTag passedTag = berTag;
 
-		if (passedTag != null) {
-			return 0;
-		}
+        if (berTag == null) {
+            berTag = new BerTag();
+            codeLength += berTag.decode(is);
+        }
 
-		throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
-	}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
+            confirmedRequestPDU = new ConfirmedRequestPDU();
+            codeLength += confirmedRequestPDU.decode(is, false);
+            return codeLength;
+        }
 
-	public void encodeAndSave(int encodingSizeGuess) throws IOException {
-		ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-		encode(os);
-		code = os.getArray();
-	}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 1)) {
+            confirmedResponsePDU = new ConfirmedResponsePDU();
+            codeLength += confirmedResponsePDU.decode(is, false);
+            return codeLength;
+        }
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		appendAsString(sb, 0);
-		return sb.toString();
-	}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 2)) {
+            confirmedErrorPDU = new ConfirmedErrorPDU();
+            codeLength += confirmedErrorPDU.decode(is, false);
+            return codeLength;
+        }
 
-	public void appendAsString(StringBuilder sb, int indentLevel) {
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 3)) {
+            unconfirmedPDU = new UnconfirmedPDU();
+            codeLength += unconfirmedPDU.decode(is, false);
+            return codeLength;
+        }
 
-		if (confirmedRequestPDU != null) {
-			sb.append("confirmedRequestPDU: ");
-			confirmedRequestPDU.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 4)) {
+            rejectPDU = new RejectPDU();
+            codeLength += rejectPDU.decode(is, false);
+            return codeLength;
+        }
 
-		if (confirmedResponsePDU != null) {
-			sb.append("confirmedResponsePDU: ");
-			confirmedResponsePDU.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 8)) {
+            initiateRequestPDU = new InitiateRequestPDU();
+            codeLength += initiateRequestPDU.decode(is, false);
+            return codeLength;
+        }
 
-		if (confirmedErrorPDU != null) {
-			sb.append("confirmedErrorPDU: ");
-			confirmedErrorPDU.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 9)) {
+            initiateResponsePDU = new InitiateResponsePDU();
+            codeLength += initiateResponsePDU.decode(is, false);
+            return codeLength;
+        }
 
-		if (unconfirmedPDU != null) {
-			sb.append("unconfirmedPDU: ");
-			unconfirmedPDU.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 10)) {
+            initiateErrorPDU = new InitiateErrorPDU();
+            codeLength += initiateErrorPDU.decode(is, false);
+            return codeLength;
+        }
 
-		if (rejectPDU != null) {
-			sb.append("rejectPDU: ");
-			rejectPDU.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 11)) {
+            concludeRequestPDU = new ConcludeRequestPDU();
+            codeLength += concludeRequestPDU.decode(is, false);
+            return codeLength;
+        }
 
-		if (initiateRequestPDU != null) {
-			sb.append("initiateRequestPDU: ");
-			initiateRequestPDU.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+        if (passedTag != null) {
+            return 0;
+        }
 
-		if (initiateResponsePDU != null) {
-			sb.append("initiateResponsePDU: ");
-			initiateResponsePDU.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+        throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
+    }
 
-		if (initiateErrorPDU != null) {
-			sb.append("initiateErrorPDU: ");
-			initiateErrorPDU.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+    public void encodeAndSave(int encodingSizeGuess) throws IOException {
+        ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+        encode(os);
+        code = os.getArray();
+    }
 
-		if (concludeRequestPDU != null) {
-			sb.append("concludeRequestPDU: ").append(concludeRequestPDU);
-			return;
-		}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        appendAsString(sb, 0);
+        return sb.toString();
+    }
 
-		sb.append("<none>");
-	}
+    public void appendAsString(StringBuilder sb, int indentLevel) {
+
+        if (confirmedRequestPDU != null) {
+            sb.append("confirmedRequestPDU: ");
+            confirmedRequestPDU.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        if (confirmedResponsePDU != null) {
+            sb.append("confirmedResponsePDU: ");
+            confirmedResponsePDU.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        if (confirmedErrorPDU != null) {
+            sb.append("confirmedErrorPDU: ");
+            confirmedErrorPDU.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        if (unconfirmedPDU != null) {
+            sb.append("unconfirmedPDU: ");
+            unconfirmedPDU.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        if (rejectPDU != null) {
+            sb.append("rejectPDU: ");
+            rejectPDU.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        if (initiateRequestPDU != null) {
+            sb.append("initiateRequestPDU: ");
+            initiateRequestPDU.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        if (initiateResponsePDU != null) {
+            sb.append("initiateResponsePDU: ");
+            initiateResponsePDU.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        if (initiateErrorPDU != null) {
+            sb.append("initiateErrorPDU: ");
+            initiateErrorPDU.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        if (concludeRequestPDU != null) {
+            sb.append("concludeRequestPDU: ").append(concludeRequestPDU);
+            return;
+        }
+
+        sb.append("<none>");
+    }
 
 }
-

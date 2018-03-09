@@ -5,112 +5,103 @@
 package org.openmuc.openiec61850.internal.mms.asn1;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
-import org.openmuc.jasn1.ber.types.string.*;
-
 
 public class TypeSpecification implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public byte[] code = null;
-	private TypeDescription typeDescription = null;
-	
-	public TypeSpecification() {
-	}
+    public byte[] code = null;
+    private TypeDescription typeDescription = null;
 
-	public TypeSpecification(byte[] code) {
-		this.code = code;
-	}
+    public TypeSpecification() {
+    }
 
-	public void setTypeDescription(TypeDescription typeDescription) {
-		this.typeDescription = typeDescription;
-	}
+    public TypeSpecification(byte[] code) {
+        this.code = code;
+    }
 
-	public TypeDescription getTypeDescription() {
-		return typeDescription;
-	}
+    public void setTypeDescription(TypeDescription typeDescription) {
+        this.typeDescription = typeDescription;
+    }
 
-	public int encode(OutputStream os) throws IOException {
+    public TypeDescription getTypeDescription() {
+        return typeDescription;
+    }
 
-		if (code != null) {
-			for (int i = code.length - 1; i >= 0; i--) {
-				os.write(code[i]);
-			}
-			return code.length;
-		}
+    public int encode(OutputStream os) throws IOException {
 
-		int codeLength = 0;
-		if (typeDescription != null) {
-			codeLength += typeDescription.encode(os);
-			return codeLength;
-		}
-		
-		throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
-	}
+        if (code != null) {
+            for (int i = code.length - 1; i >= 0; i--) {
+                os.write(code[i]);
+            }
+            return code.length;
+        }
 
-	public int decode(InputStream is) throws IOException {
-		return decode(is, null);
-	}
+        int codeLength = 0;
+        if (typeDescription != null) {
+            codeLength += typeDescription.encode(os);
+            return codeLength;
+        }
 
-	public int decode(InputStream is, BerTag berTag) throws IOException {
+        throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
+    }
 
-		int codeLength = 0;
-		BerTag passedTag = berTag;
+    public int decode(InputStream is) throws IOException {
+        return decode(is, null);
+    }
 
-		if (berTag == null) {
-			berTag = new BerTag();
-			codeLength += berTag.decode(is);
-		}
+    public int decode(InputStream is, BerTag berTag) throws IOException {
 
-		typeDescription = new TypeDescription();
-		int choiceDecodeLength = typeDescription.decode(is, berTag);
-		if (choiceDecodeLength != 0) {
-			return codeLength + choiceDecodeLength;
-		}
-		else {
-			typeDescription = null;
-		}
+        int codeLength = 0;
+        BerTag passedTag = berTag;
 
-		if (passedTag != null) {
-			return 0;
-		}
+        if (berTag == null) {
+            berTag = new BerTag();
+            codeLength += berTag.decode(is);
+        }
 
-		throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
-	}
+        typeDescription = new TypeDescription();
+        int choiceDecodeLength = typeDescription.decode(is, berTag);
+        if (choiceDecodeLength != 0) {
+            return codeLength + choiceDecodeLength;
+        }
+        else {
+            typeDescription = null;
+        }
 
-	public void encodeAndSave(int encodingSizeGuess) throws IOException {
-		ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-		encode(os);
-		code = os.getArray();
-	}
+        if (passedTag != null) {
+            return 0;
+        }
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		appendAsString(sb, 0);
-		return sb.toString();
-	}
+        throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
+    }
 
-	public void appendAsString(StringBuilder sb, int indentLevel) {
+    public void encodeAndSave(int encodingSizeGuess) throws IOException {
+        ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+        encode(os);
+        code = os.getArray();
+    }
 
-		if (typeDescription != null) {
-			sb.append("typeDescription: ");
-			typeDescription.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        appendAsString(sb, 0);
+        return sb.toString();
+    }
 
-		sb.append("<none>");
-	}
+    public void appendAsString(StringBuilder sb, int indentLevel) {
+
+        if (typeDescription != null) {
+            sb.append("typeDescription: ");
+            typeDescription.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        sb.append("<none>");
+    }
 
 }
-

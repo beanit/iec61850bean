@@ -41,8 +41,7 @@ public final class BdaFloat64 extends BasicDataAttribute {
     }
 
     @Override
-    public
-    void setValueFrom(BasicDataAttribute bda) {
+    public void setValueFrom(BasicDataAttribute bda) {
         byte[] srcValue = ((BdaFloat64) bda).getValue();
         if (value.length != srcValue.length) {
             value = new byte[srcValue.length];
@@ -121,10 +120,9 @@ public final class BdaFloat64 extends BasicDataAttribute {
     public String toString() {
         return getReference().toString() + ": " + getDouble();
     }
-    
+
     @Override
-    public String getValueString() 
-    {
+    public String getValueString() {
         return "" + value;
     }
 

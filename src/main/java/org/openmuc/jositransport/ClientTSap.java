@@ -152,10 +152,10 @@ public final class ClientTSap {
     public TConnection connectTo(InetAddress address, int port, InetAddress localAddr, int localPort)
             throws IOException {
         Socket socket;
-        
-        if (localAddr == null) {         
+
+        if (localAddr == null) {
             socket = socketFactory.createSocket();
-            
+
             socket.connect(new InetSocketAddress(address, port), messageTimeout);
         }
         else {

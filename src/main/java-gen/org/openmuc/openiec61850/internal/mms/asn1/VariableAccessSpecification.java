@@ -5,146 +5,137 @@
 package org.openmuc.openiec61850.internal.mms.asn1;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
-import org.openmuc.jasn1.ber.types.string.*;
-
 
 public class VariableAccessSpecification implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public byte[] code = null;
-	private VariableDefs listOfVariable = null;
-	private ObjectName variableListName = null;
-	
-	public VariableAccessSpecification() {
-	}
+    public byte[] code = null;
+    private VariableDefs listOfVariable = null;
+    private ObjectName variableListName = null;
 
-	public VariableAccessSpecification(byte[] code) {
-		this.code = code;
-	}
+    public VariableAccessSpecification() {
+    }
 
-	public void setListOfVariable(VariableDefs listOfVariable) {
-		this.listOfVariable = listOfVariable;
-	}
+    public VariableAccessSpecification(byte[] code) {
+        this.code = code;
+    }
 
-	public VariableDefs getListOfVariable() {
-		return listOfVariable;
-	}
+    public void setListOfVariable(VariableDefs listOfVariable) {
+        this.listOfVariable = listOfVariable;
+    }
 
-	public void setVariableListName(ObjectName variableListName) {
-		this.variableListName = variableListName;
-	}
+    public VariableDefs getListOfVariable() {
+        return listOfVariable;
+    }
 
-	public ObjectName getVariableListName() {
-		return variableListName;
-	}
+    public void setVariableListName(ObjectName variableListName) {
+        this.variableListName = variableListName;
+    }
 
-	public int encode(OutputStream os) throws IOException {
+    public ObjectName getVariableListName() {
+        return variableListName;
+    }
 
-		if (code != null) {
-			for (int i = code.length - 1; i >= 0; i--) {
-				os.write(code[i]);
-			}
-			return code.length;
-		}
+    public int encode(OutputStream os) throws IOException {
 
-		int codeLength = 0;
-		int sublength;
+        if (code != null) {
+            for (int i = code.length - 1; i >= 0; i--) {
+                os.write(code[i]);
+            }
+            return code.length;
+        }
 
-		if (variableListName != null) {
-			sublength = variableListName.encode(os);
-			codeLength += sublength;
-			codeLength += BerLength.encodeLength(os, sublength);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
-			os.write(0xA1);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		if (listOfVariable != null) {
-			codeLength += listOfVariable.encode(os, false);
-			// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
-			os.write(0xA0);
-			codeLength += 1;
-			return codeLength;
-		}
-		
-		throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
-	}
+        int codeLength = 0;
+        int sublength;
 
-	public int decode(InputStream is) throws IOException {
-		return decode(is, null);
-	}
+        if (variableListName != null) {
+            sublength = variableListName.encode(os);
+            codeLength += sublength;
+            codeLength += BerLength.encodeLength(os, sublength);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 1
+            os.write(0xA1);
+            codeLength += 1;
+            return codeLength;
+        }
 
-	public int decode(InputStream is, BerTag berTag) throws IOException {
+        if (listOfVariable != null) {
+            codeLength += listOfVariable.encode(os, false);
+            // write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+            os.write(0xA0);
+            codeLength += 1;
+            return codeLength;
+        }
 
-		int codeLength = 0;
-		BerTag passedTag = berTag;
+        throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
+    }
 
-		if (berTag == null) {
-			berTag = new BerTag();
-			codeLength += berTag.decode(is);
-		}
+    public int decode(InputStream is) throws IOException {
+        return decode(is, null);
+    }
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
-			listOfVariable = new VariableDefs();
-			codeLength += listOfVariable.decode(is, false);
-			return codeLength;
-		}
+    public int decode(InputStream is, BerTag berTag) throws IOException {
 
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 1)) {
-			codeLength += BerLength.skip(is);
-			variableListName = new ObjectName();
-			codeLength += variableListName.decode(is, null);
-			return codeLength;
-		}
+        int codeLength = 0;
+        BerTag passedTag = berTag;
 
-		if (passedTag != null) {
-			return 0;
-		}
+        if (berTag == null) {
+            berTag = new BerTag();
+            codeLength += berTag.decode(is);
+        }
 
-		throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
-	}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
+            listOfVariable = new VariableDefs();
+            codeLength += listOfVariable.decode(is, false);
+            return codeLength;
+        }
 
-	public void encodeAndSave(int encodingSizeGuess) throws IOException {
-		ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-		encode(os);
-		code = os.getArray();
-	}
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 1)) {
+            codeLength += BerLength.skip(is);
+            variableListName = new ObjectName();
+            codeLength += variableListName.decode(is, null);
+            return codeLength;
+        }
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		appendAsString(sb, 0);
-		return sb.toString();
-	}
+        if (passedTag != null) {
+            return 0;
+        }
 
-	public void appendAsString(StringBuilder sb, int indentLevel) {
+        throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
+    }
 
-		if (listOfVariable != null) {
-			sb.append("listOfVariable: ");
-			listOfVariable.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+    public void encodeAndSave(int encodingSizeGuess) throws IOException {
+        ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+        encode(os);
+        code = os.getArray();
+    }
 
-		if (variableListName != null) {
-			sb.append("variableListName: ");
-			variableListName.appendAsString(sb, indentLevel + 1);
-			return;
-		}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        appendAsString(sb, 0);
+        return sb.toString();
+    }
 
-		sb.append("<none>");
-	}
+    public void appendAsString(StringBuilder sb, int indentLevel) {
+
+        if (listOfVariable != null) {
+            sb.append("listOfVariable: ");
+            listOfVariable.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        if (variableListName != null) {
+            sb.append("variableListName: ");
+            variableListName.appendAsString(sb, indentLevel + 1);
+            return;
+        }
+
+        sb.append("<none>");
+    }
 
 }
-

@@ -5,13 +5,12 @@ import java.util.Calendar;
 /**
  * @brief Contains file information received by the GetFileDirectory service
  */
-public class FileInformation 
-{
+public class FileInformation {
 
     private String filename;
-    
+
     private long fileSize;
-    
+
     private Calendar lastModified;
 
     public String getFilename() {
@@ -26,14 +25,11 @@ public class FileInformation
         return lastModified;
     }
 
-    public FileInformation(String filename, long fileSize,
-            Calendar lastModified) 
-    {
+    public FileInformation(String filename, long fileSize, Calendar lastModified) {
         super();
         this.filename = filename;
         this.fileSize = fileSize;
         this.lastModified = lastModified;
     }
-    
-    
+
 }

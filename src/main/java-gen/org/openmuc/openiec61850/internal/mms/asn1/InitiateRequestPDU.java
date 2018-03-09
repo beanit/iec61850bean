@@ -5,464 +5,456 @@
 package org.openmuc.openiec61850.internal.mms.asn1;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
-import org.openmuc.jasn1.ber.types.string.*;
-
 
 public class InitiateRequestPDU implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public static class InitRequestDetail implements Serializable {
+    public static class InitRequestDetail implements Serializable {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
+        public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
 
-		public byte[] code = null;
-		private Integer16 proposedVersionNumber = null;
-		private ParameterSupportOptions proposedParameterCBB = null;
-		private ServiceSupportOptions servicesSupportedCalling = null;
-		
-		public InitRequestDetail() {
-		}
+        public byte[] code = null;
+        private Integer16 proposedVersionNumber = null;
+        private ParameterSupportOptions proposedParameterCBB = null;
+        private ServiceSupportOptions servicesSupportedCalling = null;
 
-		public InitRequestDetail(byte[] code) {
-			this.code = code;
-		}
+        public InitRequestDetail() {
+        }
 
-		public void setProposedVersionNumber(Integer16 proposedVersionNumber) {
-			this.proposedVersionNumber = proposedVersionNumber;
-		}
+        public InitRequestDetail(byte[] code) {
+            this.code = code;
+        }
 
-		public Integer16 getProposedVersionNumber() {
-			return proposedVersionNumber;
-		}
+        public void setProposedVersionNumber(Integer16 proposedVersionNumber) {
+            this.proposedVersionNumber = proposedVersionNumber;
+        }
 
-		public void setProposedParameterCBB(ParameterSupportOptions proposedParameterCBB) {
-			this.proposedParameterCBB = proposedParameterCBB;
-		}
+        public Integer16 getProposedVersionNumber() {
+            return proposedVersionNumber;
+        }
 
-		public ParameterSupportOptions getProposedParameterCBB() {
-			return proposedParameterCBB;
-		}
+        public void setProposedParameterCBB(ParameterSupportOptions proposedParameterCBB) {
+            this.proposedParameterCBB = proposedParameterCBB;
+        }
 
-		public void setServicesSupportedCalling(ServiceSupportOptions servicesSupportedCalling) {
-			this.servicesSupportedCalling = servicesSupportedCalling;
-		}
+        public ParameterSupportOptions getProposedParameterCBB() {
+            return proposedParameterCBB;
+        }
 
-		public ServiceSupportOptions getServicesSupportedCalling() {
-			return servicesSupportedCalling;
-		}
+        public void setServicesSupportedCalling(ServiceSupportOptions servicesSupportedCalling) {
+            this.servicesSupportedCalling = servicesSupportedCalling;
+        }
 
-		public int encode(OutputStream os) throws IOException {
-			return encode(os, true);
-		}
+        public ServiceSupportOptions getServicesSupportedCalling() {
+            return servicesSupportedCalling;
+        }
 
-		public int encode(OutputStream os, boolean withTag) throws IOException {
+        public int encode(OutputStream os) throws IOException {
+            return encode(os, true);
+        }
 
-			if (code != null) {
-				for (int i = code.length - 1; i >= 0; i--) {
-					os.write(code[i]);
-				}
-				if (withTag) {
-					return tag.encode(os) + code.length;
-				}
-				return code.length;
-			}
+        public int encode(OutputStream os, boolean withTag) throws IOException {
 
-			int codeLength = 0;
-			codeLength += servicesSupportedCalling.encode(os, false);
-			// write tag: CONTEXT_CLASS, PRIMITIVE, 2
-			os.write(0x82);
-			codeLength += 1;
-			
-			codeLength += proposedParameterCBB.encode(os, false);
-			// write tag: CONTEXT_CLASS, PRIMITIVE, 1
-			os.write(0x81);
-			codeLength += 1;
-			
-			codeLength += proposedVersionNumber.encode(os, false);
-			// write tag: CONTEXT_CLASS, PRIMITIVE, 0
-			os.write(0x80);
-			codeLength += 1;
-			
-			codeLength += BerLength.encodeLength(os, codeLength);
+            if (code != null) {
+                for (int i = code.length - 1; i >= 0; i--) {
+                    os.write(code[i]);
+                }
+                if (withTag) {
+                    return tag.encode(os) + code.length;
+                }
+                return code.length;
+            }
 
-			if (withTag) {
-				codeLength += tag.encode(os);
-			}
+            int codeLength = 0;
+            codeLength += servicesSupportedCalling.encode(os, false);
+            // write tag: CONTEXT_CLASS, PRIMITIVE, 2
+            os.write(0x82);
+            codeLength += 1;
 
-			return codeLength;
+            codeLength += proposedParameterCBB.encode(os, false);
+            // write tag: CONTEXT_CLASS, PRIMITIVE, 1
+            os.write(0x81);
+            codeLength += 1;
 
-		}
+            codeLength += proposedVersionNumber.encode(os, false);
+            // write tag: CONTEXT_CLASS, PRIMITIVE, 0
+            os.write(0x80);
+            codeLength += 1;
 
-		public int decode(InputStream is) throws IOException {
-			return decode(is, true);
-		}
+            codeLength += BerLength.encodeLength(os, codeLength);
 
-		public int decode(InputStream is, boolean withTag) throws IOException {
-			int codeLength = 0;
-			int subCodeLength = 0;
-			BerTag berTag = new BerTag();
+            if (withTag) {
+                codeLength += tag.encode(os);
+            }
 
-			if (withTag) {
-				codeLength += tag.decodeAndCheck(is);
-			}
+            return codeLength;
 
-			BerLength length = new BerLength();
-			codeLength += length.decode(is);
+        }
 
-			int totalLength = length.val;
-			codeLength += totalLength;
+        public int decode(InputStream is) throws IOException {
+            return decode(is, true);
+        }
 
-			subCodeLength += berTag.decode(is);
-			if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 0)) {
-				proposedVersionNumber = new Integer16();
-				subCodeLength += proposedVersionNumber.decode(is, false);
-				subCodeLength += berTag.decode(is);
-			}
-			else {
-				throw new IOException("Tag does not match the mandatory sequence element tag.");
-			}
-			
-			if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 1)) {
-				proposedParameterCBB = new ParameterSupportOptions();
-				subCodeLength += proposedParameterCBB.decode(is, false);
-				subCodeLength += berTag.decode(is);
-			}
-			else {
-				throw new IOException("Tag does not match the mandatory sequence element tag.");
-			}
-			
-			if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 2)) {
-				servicesSupportedCalling = new ServiceSupportOptions();
-				subCodeLength += servicesSupportedCalling.decode(is, false);
-				if (subCodeLength == totalLength) {
-					return codeLength;
-				}
-			}
-			throw new IOException("Unexpected end of sequence, length tag: " + totalLength + ", actual sequence length: " + subCodeLength);
+        public int decode(InputStream is, boolean withTag) throws IOException {
+            int codeLength = 0;
+            int subCodeLength = 0;
+            BerTag berTag = new BerTag();
 
-			
-		}
+            if (withTag) {
+                codeLength += tag.decodeAndCheck(is);
+            }
 
-		public void encodeAndSave(int encodingSizeGuess) throws IOException {
-			ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-			encode(os, false);
-			code = os.getArray();
-		}
+            BerLength length = new BerLength();
+            codeLength += length.decode(is);
 
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			appendAsString(sb, 0);
-			return sb.toString();
-		}
+            int totalLength = length.val;
+            codeLength += totalLength;
 
-		public void appendAsString(StringBuilder sb, int indentLevel) {
+            subCodeLength += berTag.decode(is);
+            if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 0)) {
+                proposedVersionNumber = new Integer16();
+                subCodeLength += proposedVersionNumber.decode(is, false);
+                subCodeLength += berTag.decode(is);
+            }
+            else {
+                throw new IOException("Tag does not match the mandatory sequence element tag.");
+            }
 
-			sb.append("{");
-			sb.append("\n");
-			for (int i = 0; i < indentLevel + 1; i++) {
-				sb.append("\t");
-			}
-			if (proposedVersionNumber != null) {
-				sb.append("proposedVersionNumber: ").append(proposedVersionNumber);
-			}
-			else {
-				sb.append("proposedVersionNumber: <empty-required-field>");
-			}
-			
-			sb.append(",\n");
-			for (int i = 0; i < indentLevel + 1; i++) {
-				sb.append("\t");
-			}
-			if (proposedParameterCBB != null) {
-				sb.append("proposedParameterCBB: ").append(proposedParameterCBB);
-			}
-			else {
-				sb.append("proposedParameterCBB: <empty-required-field>");
-			}
-			
-			sb.append(",\n");
-			for (int i = 0; i < indentLevel + 1; i++) {
-				sb.append("\t");
-			}
-			if (servicesSupportedCalling != null) {
-				sb.append("servicesSupportedCalling: ").append(servicesSupportedCalling);
-			}
-			else {
-				sb.append("servicesSupportedCalling: <empty-required-field>");
-			}
-			
-			sb.append("\n");
-			for (int i = 0; i < indentLevel; i++) {
-				sb.append("\t");
-			}
-			sb.append("}");
-		}
+            if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 1)) {
+                proposedParameterCBB = new ParameterSupportOptions();
+                subCodeLength += proposedParameterCBB.decode(is, false);
+                subCodeLength += berTag.decode(is);
+            }
+            else {
+                throw new IOException("Tag does not match the mandatory sequence element tag.");
+            }
 
-	}
+            if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 2)) {
+                servicesSupportedCalling = new ServiceSupportOptions();
+                subCodeLength += servicesSupportedCalling.decode(is, false);
+                if (subCodeLength == totalLength) {
+                    return codeLength;
+                }
+            }
+            throw new IOException("Unexpected end of sequence, length tag: " + totalLength
+                    + ", actual sequence length: " + subCodeLength);
 
-	public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
+        }
 
-	public byte[] code = null;
-	private Integer32 localDetailCalling = null;
-	private Integer16 proposedMaxServOutstandingCalling = null;
-	private Integer16 proposedMaxServOutstandingCalled = null;
-	private Integer8 proposedDataStructureNestingLevel = null;
-	private InitRequestDetail initRequestDetail = null;
-	
-	public InitiateRequestPDU() {
-	}
+        public void encodeAndSave(int encodingSizeGuess) throws IOException {
+            ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+            encode(os, false);
+            code = os.getArray();
+        }
 
-	public InitiateRequestPDU(byte[] code) {
-		this.code = code;
-	}
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            appendAsString(sb, 0);
+            return sb.toString();
+        }
 
-	public void setLocalDetailCalling(Integer32 localDetailCalling) {
-		this.localDetailCalling = localDetailCalling;
-	}
+        public void appendAsString(StringBuilder sb, int indentLevel) {
 
-	public Integer32 getLocalDetailCalling() {
-		return localDetailCalling;
-	}
+            sb.append("{");
+            sb.append("\n");
+            for (int i = 0; i < indentLevel + 1; i++) {
+                sb.append("\t");
+            }
+            if (proposedVersionNumber != null) {
+                sb.append("proposedVersionNumber: ").append(proposedVersionNumber);
+            }
+            else {
+                sb.append("proposedVersionNumber: <empty-required-field>");
+            }
 
-	public void setProposedMaxServOutstandingCalling(Integer16 proposedMaxServOutstandingCalling) {
-		this.proposedMaxServOutstandingCalling = proposedMaxServOutstandingCalling;
-	}
+            sb.append(",\n");
+            for (int i = 0; i < indentLevel + 1; i++) {
+                sb.append("\t");
+            }
+            if (proposedParameterCBB != null) {
+                sb.append("proposedParameterCBB: ").append(proposedParameterCBB);
+            }
+            else {
+                sb.append("proposedParameterCBB: <empty-required-field>");
+            }
 
-	public Integer16 getProposedMaxServOutstandingCalling() {
-		return proposedMaxServOutstandingCalling;
-	}
+            sb.append(",\n");
+            for (int i = 0; i < indentLevel + 1; i++) {
+                sb.append("\t");
+            }
+            if (servicesSupportedCalling != null) {
+                sb.append("servicesSupportedCalling: ").append(servicesSupportedCalling);
+            }
+            else {
+                sb.append("servicesSupportedCalling: <empty-required-field>");
+            }
 
-	public void setProposedMaxServOutstandingCalled(Integer16 proposedMaxServOutstandingCalled) {
-		this.proposedMaxServOutstandingCalled = proposedMaxServOutstandingCalled;
-	}
+            sb.append("\n");
+            for (int i = 0; i < indentLevel; i++) {
+                sb.append("\t");
+            }
+            sb.append("}");
+        }
 
-	public Integer16 getProposedMaxServOutstandingCalled() {
-		return proposedMaxServOutstandingCalled;
-	}
+    }
 
-	public void setProposedDataStructureNestingLevel(Integer8 proposedDataStructureNestingLevel) {
-		this.proposedDataStructureNestingLevel = proposedDataStructureNestingLevel;
-	}
+    public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
 
-	public Integer8 getProposedDataStructureNestingLevel() {
-		return proposedDataStructureNestingLevel;
-	}
+    public byte[] code = null;
+    private Integer32 localDetailCalling = null;
+    private Integer16 proposedMaxServOutstandingCalling = null;
+    private Integer16 proposedMaxServOutstandingCalled = null;
+    private Integer8 proposedDataStructureNestingLevel = null;
+    private InitRequestDetail initRequestDetail = null;
 
-	public void setInitRequestDetail(InitRequestDetail initRequestDetail) {
-		this.initRequestDetail = initRequestDetail;
-	}
+    public InitiateRequestPDU() {
+    }
 
-	public InitRequestDetail getInitRequestDetail() {
-		return initRequestDetail;
-	}
+    public InitiateRequestPDU(byte[] code) {
+        this.code = code;
+    }
 
-	public int encode(OutputStream os) throws IOException {
-		return encode(os, true);
-	}
+    public void setLocalDetailCalling(Integer32 localDetailCalling) {
+        this.localDetailCalling = localDetailCalling;
+    }
 
-	public int encode(OutputStream os, boolean withTag) throws IOException {
+    public Integer32 getLocalDetailCalling() {
+        return localDetailCalling;
+    }
 
-		if (code != null) {
-			for (int i = code.length - 1; i >= 0; i--) {
-				os.write(code[i]);
-			}
-			if (withTag) {
-				return tag.encode(os) + code.length;
-			}
-			return code.length;
-		}
+    public void setProposedMaxServOutstandingCalling(Integer16 proposedMaxServOutstandingCalling) {
+        this.proposedMaxServOutstandingCalling = proposedMaxServOutstandingCalling;
+    }
 
-		int codeLength = 0;
-		codeLength += initRequestDetail.encode(os, false);
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 4
-		os.write(0xA4);
-		codeLength += 1;
-		
-		if (proposedDataStructureNestingLevel != null) {
-			codeLength += proposedDataStructureNestingLevel.encode(os, false);
-			// write tag: CONTEXT_CLASS, PRIMITIVE, 3
-			os.write(0x83);
-			codeLength += 1;
-		}
-		
-		codeLength += proposedMaxServOutstandingCalled.encode(os, false);
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 2
-		os.write(0x82);
-		codeLength += 1;
-		
-		codeLength += proposedMaxServOutstandingCalling.encode(os, false);
-		// write tag: CONTEXT_CLASS, PRIMITIVE, 1
-		os.write(0x81);
-		codeLength += 1;
-		
-		if (localDetailCalling != null) {
-			codeLength += localDetailCalling.encode(os, false);
-			// write tag: CONTEXT_CLASS, PRIMITIVE, 0
-			os.write(0x80);
-			codeLength += 1;
-		}
-		
-		codeLength += BerLength.encodeLength(os, codeLength);
+    public Integer16 getProposedMaxServOutstandingCalling() {
+        return proposedMaxServOutstandingCalling;
+    }
 
-		if (withTag) {
-			codeLength += tag.encode(os);
-		}
+    public void setProposedMaxServOutstandingCalled(Integer16 proposedMaxServOutstandingCalled) {
+        this.proposedMaxServOutstandingCalled = proposedMaxServOutstandingCalled;
+    }
 
-		return codeLength;
+    public Integer16 getProposedMaxServOutstandingCalled() {
+        return proposedMaxServOutstandingCalled;
+    }
 
-	}
+    public void setProposedDataStructureNestingLevel(Integer8 proposedDataStructureNestingLevel) {
+        this.proposedDataStructureNestingLevel = proposedDataStructureNestingLevel;
+    }
 
-	public int decode(InputStream is) throws IOException {
-		return decode(is, true);
-	}
+    public Integer8 getProposedDataStructureNestingLevel() {
+        return proposedDataStructureNestingLevel;
+    }
 
-	public int decode(InputStream is, boolean withTag) throws IOException {
-		int codeLength = 0;
-		int subCodeLength = 0;
-		BerTag berTag = new BerTag();
+    public void setInitRequestDetail(InitRequestDetail initRequestDetail) {
+        this.initRequestDetail = initRequestDetail;
+    }
 
-		if (withTag) {
-			codeLength += tag.decodeAndCheck(is);
-		}
+    public InitRequestDetail getInitRequestDetail() {
+        return initRequestDetail;
+    }
 
-		BerLength length = new BerLength();
-		codeLength += length.decode(is);
+    public int encode(OutputStream os) throws IOException {
+        return encode(os, true);
+    }
 
-		int totalLength = length.val;
-		codeLength += totalLength;
+    public int encode(OutputStream os, boolean withTag) throws IOException {
 
-		subCodeLength += berTag.decode(is);
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 0)) {
-			localDetailCalling = new Integer32();
-			subCodeLength += localDetailCalling.decode(is, false);
-			subCodeLength += berTag.decode(is);
-		}
-		
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 1)) {
-			proposedMaxServOutstandingCalling = new Integer16();
-			subCodeLength += proposedMaxServOutstandingCalling.decode(is, false);
-			subCodeLength += berTag.decode(is);
-		}
-		else {
-			throw new IOException("Tag does not match the mandatory sequence element tag.");
-		}
-		
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 2)) {
-			proposedMaxServOutstandingCalled = new Integer16();
-			subCodeLength += proposedMaxServOutstandingCalled.decode(is, false);
-			subCodeLength += berTag.decode(is);
-		}
-		else {
-			throw new IOException("Tag does not match the mandatory sequence element tag.");
-		}
-		
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 3)) {
-			proposedDataStructureNestingLevel = new Integer8();
-			subCodeLength += proposedDataStructureNestingLevel.decode(is, false);
-			subCodeLength += berTag.decode(is);
-		}
-		
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 4)) {
-			initRequestDetail = new InitRequestDetail();
-			subCodeLength += initRequestDetail.decode(is, false);
-			if (subCodeLength == totalLength) {
-				return codeLength;
-			}
-		}
-		throw new IOException("Unexpected end of sequence, length tag: " + totalLength + ", actual sequence length: " + subCodeLength);
+        if (code != null) {
+            for (int i = code.length - 1; i >= 0; i--) {
+                os.write(code[i]);
+            }
+            if (withTag) {
+                return tag.encode(os) + code.length;
+            }
+            return code.length;
+        }
 
-		
-	}
+        int codeLength = 0;
+        codeLength += initRequestDetail.encode(os, false);
+        // write tag: CONTEXT_CLASS, CONSTRUCTED, 4
+        os.write(0xA4);
+        codeLength += 1;
 
-	public void encodeAndSave(int encodingSizeGuess) throws IOException {
-		ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-		encode(os, false);
-		code = os.getArray();
-	}
+        if (proposedDataStructureNestingLevel != null) {
+            codeLength += proposedDataStructureNestingLevel.encode(os, false);
+            // write tag: CONTEXT_CLASS, PRIMITIVE, 3
+            os.write(0x83);
+            codeLength += 1;
+        }
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		appendAsString(sb, 0);
-		return sb.toString();
-	}
+        codeLength += proposedMaxServOutstandingCalled.encode(os, false);
+        // write tag: CONTEXT_CLASS, PRIMITIVE, 2
+        os.write(0x82);
+        codeLength += 1;
 
-	public void appendAsString(StringBuilder sb, int indentLevel) {
+        codeLength += proposedMaxServOutstandingCalling.encode(os, false);
+        // write tag: CONTEXT_CLASS, PRIMITIVE, 1
+        os.write(0x81);
+        codeLength += 1;
 
-		sb.append("{");
-		boolean firstSelectedElement = true;
-		if (localDetailCalling != null) {
-			sb.append("\n");
-			for (int i = 0; i < indentLevel + 1; i++) {
-				sb.append("\t");
-			}
-			sb.append("localDetailCalling: ").append(localDetailCalling);
-			firstSelectedElement = false;
-		}
-		
-		if (!firstSelectedElement) {
-			sb.append(",\n");
-		}
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (proposedMaxServOutstandingCalling != null) {
-			sb.append("proposedMaxServOutstandingCalling: ").append(proposedMaxServOutstandingCalling);
-		}
-		else {
-			sb.append("proposedMaxServOutstandingCalling: <empty-required-field>");
-		}
-		
-		sb.append(",\n");
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (proposedMaxServOutstandingCalled != null) {
-			sb.append("proposedMaxServOutstandingCalled: ").append(proposedMaxServOutstandingCalled);
-		}
-		else {
-			sb.append("proposedMaxServOutstandingCalled: <empty-required-field>");
-		}
-		
-		if (proposedDataStructureNestingLevel != null) {
-			sb.append(",\n");
-			for (int i = 0; i < indentLevel + 1; i++) {
-				sb.append("\t");
-			}
-			sb.append("proposedDataStructureNestingLevel: ").append(proposedDataStructureNestingLevel);
-		}
-		
-		sb.append(",\n");
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (initRequestDetail != null) {
-			sb.append("initRequestDetail: ");
-			initRequestDetail.appendAsString(sb, indentLevel + 1);
-		}
-		else {
-			sb.append("initRequestDetail: <empty-required-field>");
-		}
-		
-		sb.append("\n");
-		for (int i = 0; i < indentLevel; i++) {
-			sb.append("\t");
-		}
-		sb.append("}");
-	}
+        if (localDetailCalling != null) {
+            codeLength += localDetailCalling.encode(os, false);
+            // write tag: CONTEXT_CLASS, PRIMITIVE, 0
+            os.write(0x80);
+            codeLength += 1;
+        }
+
+        codeLength += BerLength.encodeLength(os, codeLength);
+
+        if (withTag) {
+            codeLength += tag.encode(os);
+        }
+
+        return codeLength;
+
+    }
+
+    public int decode(InputStream is) throws IOException {
+        return decode(is, true);
+    }
+
+    public int decode(InputStream is, boolean withTag) throws IOException {
+        int codeLength = 0;
+        int subCodeLength = 0;
+        BerTag berTag = new BerTag();
+
+        if (withTag) {
+            codeLength += tag.decodeAndCheck(is);
+        }
+
+        BerLength length = new BerLength();
+        codeLength += length.decode(is);
+
+        int totalLength = length.val;
+        codeLength += totalLength;
+
+        subCodeLength += berTag.decode(is);
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 0)) {
+            localDetailCalling = new Integer32();
+            subCodeLength += localDetailCalling.decode(is, false);
+            subCodeLength += berTag.decode(is);
+        }
+
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 1)) {
+            proposedMaxServOutstandingCalling = new Integer16();
+            subCodeLength += proposedMaxServOutstandingCalling.decode(is, false);
+            subCodeLength += berTag.decode(is);
+        }
+        else {
+            throw new IOException("Tag does not match the mandatory sequence element tag.");
+        }
+
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 2)) {
+            proposedMaxServOutstandingCalled = new Integer16();
+            subCodeLength += proposedMaxServOutstandingCalled.decode(is, false);
+            subCodeLength += berTag.decode(is);
+        }
+        else {
+            throw new IOException("Tag does not match the mandatory sequence element tag.");
+        }
+
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 3)) {
+            proposedDataStructureNestingLevel = new Integer8();
+            subCodeLength += proposedDataStructureNestingLevel.decode(is, false);
+            subCodeLength += berTag.decode(is);
+        }
+
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 4)) {
+            initRequestDetail = new InitRequestDetail();
+            subCodeLength += initRequestDetail.decode(is, false);
+            if (subCodeLength == totalLength) {
+                return codeLength;
+            }
+        }
+        throw new IOException("Unexpected end of sequence, length tag: " + totalLength + ", actual sequence length: "
+                + subCodeLength);
+
+    }
+
+    public void encodeAndSave(int encodingSizeGuess) throws IOException {
+        ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+        encode(os, false);
+        code = os.getArray();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        appendAsString(sb, 0);
+        return sb.toString();
+    }
+
+    public void appendAsString(StringBuilder sb, int indentLevel) {
+
+        sb.append("{");
+        boolean firstSelectedElement = true;
+        if (localDetailCalling != null) {
+            sb.append("\n");
+            for (int i = 0; i < indentLevel + 1; i++) {
+                sb.append("\t");
+            }
+            sb.append("localDetailCalling: ").append(localDetailCalling);
+            firstSelectedElement = false;
+        }
+
+        if (!firstSelectedElement) {
+            sb.append(",\n");
+        }
+        for (int i = 0; i < indentLevel + 1; i++) {
+            sb.append("\t");
+        }
+        if (proposedMaxServOutstandingCalling != null) {
+            sb.append("proposedMaxServOutstandingCalling: ").append(proposedMaxServOutstandingCalling);
+        }
+        else {
+            sb.append("proposedMaxServOutstandingCalling: <empty-required-field>");
+        }
+
+        sb.append(",\n");
+        for (int i = 0; i < indentLevel + 1; i++) {
+            sb.append("\t");
+        }
+        if (proposedMaxServOutstandingCalled != null) {
+            sb.append("proposedMaxServOutstandingCalled: ").append(proposedMaxServOutstandingCalled);
+        }
+        else {
+            sb.append("proposedMaxServOutstandingCalled: <empty-required-field>");
+        }
+
+        if (proposedDataStructureNestingLevel != null) {
+            sb.append(",\n");
+            for (int i = 0; i < indentLevel + 1; i++) {
+                sb.append("\t");
+            }
+            sb.append("proposedDataStructureNestingLevel: ").append(proposedDataStructureNestingLevel);
+        }
+
+        sb.append(",\n");
+        for (int i = 0; i < indentLevel + 1; i++) {
+            sb.append("\t");
+        }
+        if (initRequestDetail != null) {
+            sb.append("initRequestDetail: ");
+            initRequestDetail.appendAsString(sb, indentLevel + 1);
+        }
+        else {
+            sb.append("initRequestDetail: <empty-required-field>");
+        }
+
+        sb.append("\n");
+        for (int i = 0; i < indentLevel; i++) {
+            sb.append("\t");
+        }
+        sb.append("}");
+    }
 
 }
-

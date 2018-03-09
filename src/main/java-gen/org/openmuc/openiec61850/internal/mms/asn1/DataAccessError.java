@@ -4,38 +4,26 @@
 
 package org.openmuc.openiec61850.internal.mms.asn1;
 
-import java.io.IOException;
-import java.io.EOFException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.io.Serializable;
-import org.openmuc.jasn1.ber.*;
 import org.openmuc.jasn1.ber.types.*;
-import org.openmuc.jasn1.ber.types.string.*;
-
 
 public class DataAccessError extends BerInteger {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public DataAccessError() {
-	}
+    public DataAccessError() {
+    }
 
-	public DataAccessError(byte[] code) {
-		super(code);
-	}
+    public DataAccessError(byte[] code) {
+        super(code);
+    }
 
-	public DataAccessError(BigInteger value) {
-		super(value);
-	}
+    public DataAccessError(BigInteger value) {
+        super(value);
+    }
 
-	public DataAccessError(long value) {
-		super(value);
-	}
+    public DataAccessError(long value) {
+        super(value);
+    }
 
 }

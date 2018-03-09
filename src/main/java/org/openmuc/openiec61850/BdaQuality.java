@@ -241,10 +241,9 @@ public final class BdaQuality extends BdaBitString {
             value[1] = (byte) (value[0] & 0xf7);
         }
     }
-    
+
     @Override
-    public String getValueString() 
-    {
+    public String getValueString() {
         return getValidity().toString();
     }
 

@@ -5,370 +5,363 @@
 package org.openmuc.openiec61850.internal.mms.asn1;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
 import org.openmuc.jasn1.ber.types.*;
-import org.openmuc.jasn1.ber.types.string.*;
-
 
 public class GetNameListRequest implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public static class ObjectScope implements Serializable {
+    public static class ObjectScope implements Serializable {
 
-		private static final long serialVersionUID = 1L;
+        private static final long serialVersionUID = 1L;
 
-		public byte[] code = null;
-		private BerNull vmdSpecific = null;
-		private Identifier domainSpecific = null;
-		private BerNull aaSpecific = null;
-		
-		public ObjectScope() {
-		}
+        public byte[] code = null;
+        private BerNull vmdSpecific = null;
+        private Identifier domainSpecific = null;
+        private BerNull aaSpecific = null;
 
-		public ObjectScope(byte[] code) {
-			this.code = code;
-		}
+        public ObjectScope() {
+        }
 
-		public void setVmdSpecific(BerNull vmdSpecific) {
-			this.vmdSpecific = vmdSpecific;
-		}
+        public ObjectScope(byte[] code) {
+            this.code = code;
+        }
 
-		public BerNull getVmdSpecific() {
-			return vmdSpecific;
-		}
+        public void setVmdSpecific(BerNull vmdSpecific) {
+            this.vmdSpecific = vmdSpecific;
+        }
 
-		public void setDomainSpecific(Identifier domainSpecific) {
-			this.domainSpecific = domainSpecific;
-		}
+        public BerNull getVmdSpecific() {
+            return vmdSpecific;
+        }
 
-		public Identifier getDomainSpecific() {
-			return domainSpecific;
-		}
+        public void setDomainSpecific(Identifier domainSpecific) {
+            this.domainSpecific = domainSpecific;
+        }
 
-		public void setAaSpecific(BerNull aaSpecific) {
-			this.aaSpecific = aaSpecific;
-		}
+        public Identifier getDomainSpecific() {
+            return domainSpecific;
+        }
 
-		public BerNull getAaSpecific() {
-			return aaSpecific;
-		}
+        public void setAaSpecific(BerNull aaSpecific) {
+            this.aaSpecific = aaSpecific;
+        }
 
-		public int encode(OutputStream os) throws IOException {
+        public BerNull getAaSpecific() {
+            return aaSpecific;
+        }
 
-			if (code != null) {
-				for (int i = code.length - 1; i >= 0; i--) {
-					os.write(code[i]);
-				}
-				return code.length;
-			}
+        public int encode(OutputStream os) throws IOException {
 
-			int codeLength = 0;
-			if (aaSpecific != null) {
-				codeLength += aaSpecific.encode(os, false);
-				// write tag: CONTEXT_CLASS, PRIMITIVE, 2
-				os.write(0x82);
-				codeLength += 1;
-				return codeLength;
-			}
-			
-			if (domainSpecific != null) {
-				codeLength += domainSpecific.encode(os, false);
-				// write tag: CONTEXT_CLASS, PRIMITIVE, 1
-				os.write(0x81);
-				codeLength += 1;
-				return codeLength;
-			}
-			
-			if (vmdSpecific != null) {
-				codeLength += vmdSpecific.encode(os, false);
-				// write tag: CONTEXT_CLASS, PRIMITIVE, 0
-				os.write(0x80);
-				codeLength += 1;
-				return codeLength;
-			}
-			
-			throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
-		}
+            if (code != null) {
+                for (int i = code.length - 1; i >= 0; i--) {
+                    os.write(code[i]);
+                }
+                return code.length;
+            }
 
-		public int decode(InputStream is) throws IOException {
-			return decode(is, null);
-		}
+            int codeLength = 0;
+            if (aaSpecific != null) {
+                codeLength += aaSpecific.encode(os, false);
+                // write tag: CONTEXT_CLASS, PRIMITIVE, 2
+                os.write(0x82);
+                codeLength += 1;
+                return codeLength;
+            }
 
-		public int decode(InputStream is, BerTag berTag) throws IOException {
+            if (domainSpecific != null) {
+                codeLength += domainSpecific.encode(os, false);
+                // write tag: CONTEXT_CLASS, PRIMITIVE, 1
+                os.write(0x81);
+                codeLength += 1;
+                return codeLength;
+            }
 
-			int codeLength = 0;
-			BerTag passedTag = berTag;
+            if (vmdSpecific != null) {
+                codeLength += vmdSpecific.encode(os, false);
+                // write tag: CONTEXT_CLASS, PRIMITIVE, 0
+                os.write(0x80);
+                codeLength += 1;
+                return codeLength;
+            }
 
-			if (berTag == null) {
-				berTag = new BerTag();
-				codeLength += berTag.decode(is);
-			}
+            throw new IOException("Error encoding CHOICE: No element of CHOICE was selected.");
+        }
 
-			if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 0)) {
-				vmdSpecific = new BerNull();
-				codeLength += vmdSpecific.decode(is, false);
-				return codeLength;
-			}
+        public int decode(InputStream is) throws IOException {
+            return decode(is, null);
+        }
 
-			if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 1)) {
-				domainSpecific = new Identifier();
-				codeLength += domainSpecific.decode(is, false);
-				return codeLength;
-			}
+        public int decode(InputStream is, BerTag berTag) throws IOException {
 
-			if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 2)) {
-				aaSpecific = new BerNull();
-				codeLength += aaSpecific.decode(is, false);
-				return codeLength;
-			}
+            int codeLength = 0;
+            BerTag passedTag = berTag;
 
-			if (passedTag != null) {
-				return 0;
-			}
+            if (berTag == null) {
+                berTag = new BerTag();
+                codeLength += berTag.decode(is);
+            }
 
-			throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
-		}
+            if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 0)) {
+                vmdSpecific = new BerNull();
+                codeLength += vmdSpecific.decode(is, false);
+                return codeLength;
+            }
 
-		public void encodeAndSave(int encodingSizeGuess) throws IOException {
-			ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-			encode(os);
-			code = os.getArray();
-		}
+            if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 1)) {
+                domainSpecific = new Identifier();
+                codeLength += domainSpecific.decode(is, false);
+                return codeLength;
+            }
 
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			appendAsString(sb, 0);
-			return sb.toString();
-		}
+            if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 2)) {
+                aaSpecific = new BerNull();
+                codeLength += aaSpecific.decode(is, false);
+                return codeLength;
+            }
 
-		public void appendAsString(StringBuilder sb, int indentLevel) {
+            if (passedTag != null) {
+                return 0;
+            }
 
-			if (vmdSpecific != null) {
-				sb.append("vmdSpecific: ").append(vmdSpecific);
-				return;
-			}
+            throw new IOException("Error decoding CHOICE: Tag " + berTag + " matched to no item.");
+        }
 
-			if (domainSpecific != null) {
-				sb.append("domainSpecific: ").append(domainSpecific);
-				return;
-			}
+        public void encodeAndSave(int encodingSizeGuess) throws IOException {
+            ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+            encode(os);
+            code = os.getArray();
+        }
 
-			if (aaSpecific != null) {
-				sb.append("aaSpecific: ").append(aaSpecific);
-				return;
-			}
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            appendAsString(sb, 0);
+            return sb.toString();
+        }
 
-			sb.append("<none>");
-		}
+        public void appendAsString(StringBuilder sb, int indentLevel) {
 
-	}
+            if (vmdSpecific != null) {
+                sb.append("vmdSpecific: ").append(vmdSpecific);
+                return;
+            }
 
-	public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
+            if (domainSpecific != null) {
+                sb.append("domainSpecific: ").append(domainSpecific);
+                return;
+            }
 
-	public byte[] code = null;
-	private ObjectClass objectClass = null;
-	private ObjectScope objectScope = null;
-	private Identifier continueAfter = null;
-	
-	public GetNameListRequest() {
-	}
+            if (aaSpecific != null) {
+                sb.append("aaSpecific: ").append(aaSpecific);
+                return;
+            }
 
-	public GetNameListRequest(byte[] code) {
-		this.code = code;
-	}
+            sb.append("<none>");
+        }
 
-	public void setObjectClass(ObjectClass objectClass) {
-		this.objectClass = objectClass;
-	}
+    }
 
-	public ObjectClass getObjectClass() {
-		return objectClass;
-	}
+    public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
 
-	public void setObjectScope(ObjectScope objectScope) {
-		this.objectScope = objectScope;
-	}
+    public byte[] code = null;
+    private ObjectClass objectClass = null;
+    private ObjectScope objectScope = null;
+    private Identifier continueAfter = null;
 
-	public ObjectScope getObjectScope() {
-		return objectScope;
-	}
+    public GetNameListRequest() {
+    }
 
-	public void setContinueAfter(Identifier continueAfter) {
-		this.continueAfter = continueAfter;
-	}
+    public GetNameListRequest(byte[] code) {
+        this.code = code;
+    }
 
-	public Identifier getContinueAfter() {
-		return continueAfter;
-	}
+    public void setObjectClass(ObjectClass objectClass) {
+        this.objectClass = objectClass;
+    }
 
-	public int encode(OutputStream os) throws IOException {
-		return encode(os, true);
-	}
+    public ObjectClass getObjectClass() {
+        return objectClass;
+    }
 
-	public int encode(OutputStream os, boolean withTag) throws IOException {
+    public void setObjectScope(ObjectScope objectScope) {
+        this.objectScope = objectScope;
+    }
 
-		if (code != null) {
-			for (int i = code.length - 1; i >= 0; i--) {
-				os.write(code[i]);
-			}
-			if (withTag) {
-				return tag.encode(os) + code.length;
-			}
-			return code.length;
-		}
+    public ObjectScope getObjectScope() {
+        return objectScope;
+    }
 
-		int codeLength = 0;
-		int sublength;
+    public void setContinueAfter(Identifier continueAfter) {
+        this.continueAfter = continueAfter;
+    }
 
-		if (continueAfter != null) {
-			codeLength += continueAfter.encode(os, false);
-			// write tag: CONTEXT_CLASS, PRIMITIVE, 2
-			os.write(0x82);
-			codeLength += 1;
-		}
-		
-		sublength = objectScope.encode(os);
-		codeLength += sublength;
-		codeLength += BerLength.encodeLength(os, sublength);
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 1
-		os.write(0xA1);
-		codeLength += 1;
-		
-		sublength = objectClass.encode(os);
-		codeLength += sublength;
-		codeLength += BerLength.encodeLength(os, sublength);
-		// write tag: CONTEXT_CLASS, CONSTRUCTED, 0
-		os.write(0xA0);
-		codeLength += 1;
-		
-		codeLength += BerLength.encodeLength(os, codeLength);
+    public Identifier getContinueAfter() {
+        return continueAfter;
+    }
 
-		if (withTag) {
-			codeLength += tag.encode(os);
-		}
+    public int encode(OutputStream os) throws IOException {
+        return encode(os, true);
+    }
 
-		return codeLength;
+    public int encode(OutputStream os, boolean withTag) throws IOException {
 
-	}
+        if (code != null) {
+            for (int i = code.length - 1; i >= 0; i--) {
+                os.write(code[i]);
+            }
+            if (withTag) {
+                return tag.encode(os) + code.length;
+            }
+            return code.length;
+        }
 
-	public int decode(InputStream is) throws IOException {
-		return decode(is, true);
-	}
+        int codeLength = 0;
+        int sublength;
 
-	public int decode(InputStream is, boolean withTag) throws IOException {
-		int codeLength = 0;
-		int subCodeLength = 0;
-		BerTag berTag = new BerTag();
+        if (continueAfter != null) {
+            codeLength += continueAfter.encode(os, false);
+            // write tag: CONTEXT_CLASS, PRIMITIVE, 2
+            os.write(0x82);
+            codeLength += 1;
+        }
 
-		if (withTag) {
-			codeLength += tag.decodeAndCheck(is);
-		}
+        sublength = objectScope.encode(os);
+        codeLength += sublength;
+        codeLength += BerLength.encodeLength(os, sublength);
+        // write tag: CONTEXT_CLASS, CONSTRUCTED, 1
+        os.write(0xA1);
+        codeLength += 1;
 
-		BerLength length = new BerLength();
-		codeLength += length.decode(is);
+        sublength = objectClass.encode(os);
+        codeLength += sublength;
+        codeLength += BerLength.encodeLength(os, sublength);
+        // write tag: CONTEXT_CLASS, CONSTRUCTED, 0
+        os.write(0xA0);
+        codeLength += 1;
 
-		int totalLength = length.val;
-		codeLength += totalLength;
+        codeLength += BerLength.encodeLength(os, codeLength);
 
-		subCodeLength += berTag.decode(is);
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
-			subCodeLength += length.decode(is);
-			objectClass = new ObjectClass();
-			subCodeLength += objectClass.decode(is, null);
-			subCodeLength += berTag.decode(is);
-		}
-		else {
-			throw new IOException("Tag does not match the mandatory sequence element tag.");
-		}
-		
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 1)) {
-			subCodeLength += length.decode(is);
-			objectScope = new ObjectScope();
-			subCodeLength += objectScope.decode(is, null);
-			if (subCodeLength == totalLength) {
-				return codeLength;
-			}
-			subCodeLength += berTag.decode(is);
-		}
-		else {
-			throw new IOException("Tag does not match the mandatory sequence element tag.");
-		}
-		
-		if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 2)) {
-			continueAfter = new Identifier();
-			subCodeLength += continueAfter.decode(is, false);
-			if (subCodeLength == totalLength) {
-				return codeLength;
-			}
-		}
-		throw new IOException("Unexpected end of sequence, length tag: " + totalLength + ", actual sequence length: " + subCodeLength);
+        if (withTag) {
+            codeLength += tag.encode(os);
+        }
 
-		
-	}
+        return codeLength;
 
-	public void encodeAndSave(int encodingSizeGuess) throws IOException {
-		ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-		encode(os, false);
-		code = os.getArray();
-	}
+    }
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		appendAsString(sb, 0);
-		return sb.toString();
-	}
+    public int decode(InputStream is) throws IOException {
+        return decode(is, true);
+    }
 
-	public void appendAsString(StringBuilder sb, int indentLevel) {
+    public int decode(InputStream is, boolean withTag) throws IOException {
+        int codeLength = 0;
+        int subCodeLength = 0;
+        BerTag berTag = new BerTag();
 
-		sb.append("{");
-		sb.append("\n");
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (objectClass != null) {
-			sb.append("objectClass: ");
-			objectClass.appendAsString(sb, indentLevel + 1);
-		}
-		else {
-			sb.append("objectClass: <empty-required-field>");
-		}
-		
-		sb.append(",\n");
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (objectScope != null) {
-			sb.append("objectScope: ");
-			objectScope.appendAsString(sb, indentLevel + 1);
-		}
-		else {
-			sb.append("objectScope: <empty-required-field>");
-		}
-		
-		if (continueAfter != null) {
-			sb.append(",\n");
-			for (int i = 0; i < indentLevel + 1; i++) {
-				sb.append("\t");
-			}
-			sb.append("continueAfter: ").append(continueAfter);
-		}
-		
-		sb.append("\n");
-		for (int i = 0; i < indentLevel; i++) {
-			sb.append("\t");
-		}
-		sb.append("}");
-	}
+        if (withTag) {
+            codeLength += tag.decodeAndCheck(is);
+        }
+
+        BerLength length = new BerLength();
+        codeLength += length.decode(is);
+
+        int totalLength = length.val;
+        codeLength += totalLength;
+
+        subCodeLength += berTag.decode(is);
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 0)) {
+            subCodeLength += length.decode(is);
+            objectClass = new ObjectClass();
+            subCodeLength += objectClass.decode(is, null);
+            subCodeLength += berTag.decode(is);
+        }
+        else {
+            throw new IOException("Tag does not match the mandatory sequence element tag.");
+        }
+
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.CONSTRUCTED, 1)) {
+            subCodeLength += length.decode(is);
+            objectScope = new ObjectScope();
+            subCodeLength += objectScope.decode(is, null);
+            if (subCodeLength == totalLength) {
+                return codeLength;
+            }
+            subCodeLength += berTag.decode(is);
+        }
+        else {
+            throw new IOException("Tag does not match the mandatory sequence element tag.");
+        }
+
+        if (berTag.equals(BerTag.CONTEXT_CLASS, BerTag.PRIMITIVE, 2)) {
+            continueAfter = new Identifier();
+            subCodeLength += continueAfter.decode(is, false);
+            if (subCodeLength == totalLength) {
+                return codeLength;
+            }
+        }
+        throw new IOException("Unexpected end of sequence, length tag: " + totalLength + ", actual sequence length: "
+                + subCodeLength);
+
+    }
+
+    public void encodeAndSave(int encodingSizeGuess) throws IOException {
+        ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+        encode(os, false);
+        code = os.getArray();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        appendAsString(sb, 0);
+        return sb.toString();
+    }
+
+    public void appendAsString(StringBuilder sb, int indentLevel) {
+
+        sb.append("{");
+        sb.append("\n");
+        for (int i = 0; i < indentLevel + 1; i++) {
+            sb.append("\t");
+        }
+        if (objectClass != null) {
+            sb.append("objectClass: ");
+            objectClass.appendAsString(sb, indentLevel + 1);
+        }
+        else {
+            sb.append("objectClass: <empty-required-field>");
+        }
+
+        sb.append(",\n");
+        for (int i = 0; i < indentLevel + 1; i++) {
+            sb.append("\t");
+        }
+        if (objectScope != null) {
+            sb.append("objectScope: ");
+            objectScope.appendAsString(sb, indentLevel + 1);
+        }
+        else {
+            sb.append("objectScope: <empty-required-field>");
+        }
+
+        if (continueAfter != null) {
+            sb.append(",\n");
+            for (int i = 0; i < indentLevel + 1; i++) {
+                sb.append("\t");
+            }
+            sb.append("continueAfter: ").append(continueAfter);
+        }
+
+        sb.append("\n");
+        for (int i = 0; i < indentLevel; i++) {
+            sb.append("\t");
+        }
+        sb.append("}");
+    }
 
 }
-

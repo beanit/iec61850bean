@@ -406,7 +406,7 @@ public final class ClientAssociation {
         }
 
         ErrorClass errClass = mmsResponsePdu.getConfirmedErrorPDU().getServiceError().getErrorClass();
-        
+
         if (errClass != null) {
             if (errClass.getAccess() != null) {
                 if (errClass.getAccess().value.intValue() == 3) {
@@ -423,9 +423,9 @@ public final class ClientAssociation {
             else if (errClass.getFile() != null) {
                 if (errClass.getFile().value.intValue() == 7) {
 
-                   throw new ServiceError(ServiceError.FILE_NONE_EXISTENT,
-                           "MMS confirmed error: class: \"file\", error code: \"file-non-existent\"");
-               }
+                    throw new ServiceError(ServiceError.FILE_NONE_EXISTENT,
+                            "MMS confirmed error: class: \"file\", error code: \"file-non-existent\"");
+                }
             }
         }
 
@@ -922,230 +922,226 @@ public final class ClientAssociation {
         decodeGetDataValuesResponse(confirmedServiceResponse, modelNode);
     }
 
-    private boolean decodeGetFileDirectoryResponse(ConfirmedServiceResponse confirmedServiceResponse, List<FileInformation> files)
-            throws ServiceError 
-    {
+    private boolean decodeGetFileDirectoryResponse(ConfirmedServiceResponse confirmedServiceResponse,
+            List<FileInformation> files) throws ServiceError {
         if (confirmedServiceResponse.getFileDirectory() == null) {
             throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
                     "Error decoding GetFileDirectoryResponsePdu");
         }
 
         FileDirectoryResponse fileDirectoryRes = confirmedServiceResponse.getFileDirectory();
-        
+
         List<DirectoryEntry> entries = fileDirectoryRes.getListOfDirectoryEntry().getDirectoryEntry();
-        
+
         for (DirectoryEntry entry : entries) {
             List<BerGraphicString> graphicStrings = entry.getFileName().getBerGraphicString();
-            
+
             StringBuilder filename = new StringBuilder();
-            
+
             for (BerGraphicString bgs : graphicStrings) {
                 filename.append(bgs.toString());
             }
-            
+
             long fileSize = entry.getFileAttributes().getSizeOfFile().longValue();
-            
+
             Calendar lastModified;
-            
+
             try {
                 lastModified = entry.getFileAttributes().getLastModified().asCalendar();
-                
+
             } catch (ParseException e) {
                 throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
                         "Error decoding GetFileDirectoryResponsePdu");
             }
-            
-            
+
             FileInformation fileInfo = new FileInformation(filename.toString(), fileSize, lastModified);
-            
+
             files.add(fileInfo);
         }
-        
-        boolean moreFollows = (fileDirectoryRes.getMoreFollows() == null) ? false : fileDirectoryRes.getMoreFollows().value;
-        
+
+        boolean moreFollows = (fileDirectoryRes.getMoreFollows() == null) ? false
+                : fileDirectoryRes.getMoreFollows().value;
+
         return moreFollows;
     }
 
-    
     /**
      * Read the file directory of the server
      * 
-     * @param directoryName name of a directory or empty string for the root directory
+     * @param directoryName
+     *            name of a directory or empty string for the root directory
      * 
      * @return the list of available
      * 
      * @throws ServiceError
-     *              if a ServiceError is returned by the server or parsing of response failed.
+     *             if a ServiceError is returned by the server or parsing of response failed.
      * @throws IOException
      *             if a fatal association error occurs. The association object will be closed and can no longer be used
      *             after this exception is thrown.
      */
-    public List<FileInformation> getFileDirectory(String directoryName) throws ServiceError, IOException 
-    {    
+    public List<FileInformation> getFileDirectory(String directoryName) throws ServiceError, IOException {
         List<FileInformation> files = new LinkedList<FileInformation>();
-        
+
         boolean moreFollows = true;
-        
+
         String continueAfter = null;
-        
+
         while (moreFollows) {
-        
+
             FileDirectoryRequest fileDirectoryRequest = new FileDirectoryRequest();
-            
+
             BerGraphicString berGraphicString = new BerGraphicString(directoryName.getBytes());
-    
+
             FileName fileSpecification = new FileName();
             fileSpecification.getBerGraphicString().add(berGraphicString);
-            
+
             fileDirectoryRequest.setFileSpecification(fileSpecification);
-            
+
             if (continueAfter != null) {
                 FileName continueAfterSpecification = new FileName();
-                
+
                 continueAfterSpecification.getBerGraphicString().add(new BerGraphicString(continueAfter.getBytes()));
-                
-                fileDirectoryRequest.setContinueAfter(continueAfterSpecification);         
+
+                fileDirectoryRequest.setContinueAfter(continueAfterSpecification);
             }
-            
+
             ConfirmedServiceRequest confirmedServiceRequest = new ConfirmedServiceRequest();
             confirmedServiceRequest.setFileDirectory(fileDirectoryRequest);
-            
+
             ConfirmedServiceResponse confirmedServiceResponse = encodeWriteReadDecode(confirmedServiceRequest);
-                   
+
             moreFollows = decodeGetFileDirectoryResponse(confirmedServiceResponse, files);
-      
+
             if (moreFollows)
                 continueAfter = files.get(files.size() - 1).getFilename();
         }
-        
+
         return files;
     }
-    
+
     /**
      * Delete a file from the server
      * 
-     * @param filename name of the file to delete
+     * @param filename
+     *            name of the file to delete
      * 
      * @throws ServiceError
-     *              if a ServiceError is returned by the server
+     *             if a ServiceError is returned by the server
      * @throws IOException
-     *              if a fatal association error occurs. The association object will be closed and can no longer be used
-     *              after this exception is thrown.
+     *             if a fatal association error occurs. The association object will be closed and can no longer be used
+     *             after this exception is thrown.
      */
-    public void deleteFile(String filename) throws ServiceError, IOException
-    {
+    public void deleteFile(String filename) throws ServiceError, IOException {
         FileDeleteRequest fileDeleteRequest = new FileDeleteRequest();
-        
+
         fileDeleteRequest.getBerGraphicString().add(new BerGraphicString(filename.getBytes()));
-        
+
         ConfirmedServiceRequest confirmedServiceRequest = new ConfirmedServiceRequest();
         confirmedServiceRequest.setFileDelete(fileDeleteRequest);
-        
+
         ConfirmedServiceResponse confirmedServiceResponse = encodeWriteReadDecode(confirmedServiceRequest);
-        
+
         if (confirmedServiceResponse.getFileDelete() == null) {
             throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
                     "Error decoding DeleteFileResponsePdu");
         }
     }
-    
-    private Integer32 openFile(String filename) throws ServiceError, IOException
-    {
+
+    private Integer32 openFile(String filename) throws ServiceError, IOException {
         FileOpenRequest fileOpenRequest = new FileOpenRequest();
-        
+
         FileName fileSpecification = new FileName();
         fileSpecification.getBerGraphicString().add(new BerGraphicString(filename.getBytes()));
-        
+
         fileOpenRequest.setFileName(fileSpecification);
         fileOpenRequest.setInitialPosition(new Unsigned32(0));
-        
+
         ConfirmedServiceRequest confirmedServiceRequest = new ConfirmedServiceRequest();
         confirmedServiceRequest.setFileOpen(fileOpenRequest);
-       
+
         ConfirmedServiceResponse confirmedServiceResponse = encodeWriteReadDecode(confirmedServiceRequest);
-        
+
         if (confirmedServiceResponse.getFileOpen() == null) {
             throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
                     "Error decoding FileOpenResponsePdu");
         }
-        
+
         Integer32 frsmId = confirmedServiceResponse.getFileOpen().getFrsmID();
-        
+
         return frsmId;
     }
-    
-    private boolean readNextFileDataBlock(Integer32 frsmId, GetFileListener listener) throws ServiceError, IOException
-    {
+
+    private boolean readNextFileDataBlock(Integer32 frsmId, GetFileListener listener) throws ServiceError, IOException {
         FileReadRequest fileReadRequest = new FileReadRequest(frsmId.longValue());
-        
+
         ConfirmedServiceRequest confirmedServiceRequest = new ConfirmedServiceRequest();
         confirmedServiceRequest.setFileRead(fileReadRequest);
-        
+
         ConfirmedServiceResponse confirmedServiceResponse = encodeWriteReadDecode(confirmedServiceRequest);
-        
+
         if (confirmedServiceResponse.getFileRead() == null) {
             throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
                     "Error decoding FileReadResponsePdu");
         }
-        
+
         byte[] fileData = confirmedServiceResponse.getFileRead().getFileData().value;
-        
+
         boolean moreFollows = true;
-        
+
         if (confirmedServiceResponse.getFileRead().getMoreFollows() != null)
             moreFollows = confirmedServiceResponse.getFileRead().getMoreFollows().value;
-        
+
         if (listener != null) {
             boolean continueRead = listener.dataReceived(fileData, moreFollows);
-            
+
             if (moreFollows == true)
                 moreFollows = continueRead;
         }
-        
+
         return moreFollows;
     }
-    
-    private void closeFile(Integer32 frsmId) throws ServiceError, IOException
-    {
+
+    private void closeFile(Integer32 frsmId) throws ServiceError, IOException {
         FileCloseRequest fileCloseRequest = new FileCloseRequest(frsmId.longValue());
-        
+
         ConfirmedServiceRequest confirmedServiceRequest = new ConfirmedServiceRequest();
         confirmedServiceRequest.setFileClose(fileCloseRequest);
-        
+
         ConfirmedServiceResponse confirmedServiceResponse = encodeWriteReadDecode(confirmedServiceRequest);
-        
+
         if (confirmedServiceResponse.getFileClose() == null) {
             throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
                     "Error decoding FileCloseResponsePdu");
         }
     }
-    
+
     /**
      * Read a file from the server
      * 
-     * @param filename name of the file to delete
+     * @param filename
+     *            name of the file to delete
      * 
-     * @param listener callback handler to receive fall data
+     * @param listener
+     *            callback handler to receive fall data
      * 
      * @throws ServiceError
-     *              if a ServiceError is returned by the server
+     *             if a ServiceError is returned by the server
      * @throws IOException
-     *              if a fatal association error occurs. The association object will be closed and can no longer be used
-     *              after this exception is thrown.
+     *             if a fatal association error occurs. The association object will be closed and can no longer be used
+     *             after this exception is thrown.
      */
-    public void getFile(String filename, GetFileListener listener) throws ServiceError, IOException
-    {        
+    public void getFile(String filename, GetFileListener listener) throws ServiceError, IOException {
         Integer32 frsmId = openFile(filename);
-        
+
         boolean moreFollows = true;
-        
+
         while (moreFollows) {
             moreFollows = readNextFileDataBlock(frsmId, listener);
         }
-        
+
         closeFile(frsmId);
     }
-    
+
     /**
      * Will update all data inside the model except for control variables (those that have FC=CO). Control variables are
      * not meant to be read. Update is done by calling getDataValues on the FCDOs below the Logical Nodes.

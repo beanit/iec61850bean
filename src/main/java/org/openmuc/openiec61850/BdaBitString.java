@@ -44,8 +44,7 @@ abstract public class BdaBitString extends BasicDataAttribute {
     }
 
     @Override
-    public
-    void setValueFrom(BasicDataAttribute bda) {
+    public void setValueFrom(BasicDataAttribute bda) {
         byte[] srcValue = ((BdaBitString) bda).getValue();
         if (value.length != srcValue.length) {
             value = new byte[srcValue.length];
@@ -95,10 +94,9 @@ abstract public class BdaBitString extends BasicDataAttribute {
     public String toString() {
         return getReference().toString() + ": " + HexConverter.toHexString(value);
     }
-    
+
     @Override
-    public String getValueString() 
-    {
+    public String getValueString() {
         return HexConverter.toHexString(value);
     }
 

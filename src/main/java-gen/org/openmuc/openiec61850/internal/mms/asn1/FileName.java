@@ -5,143 +5,139 @@
 package org.openmuc.openiec61850.internal.mms.asn1;
 
 import java.io.IOException;
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.io.UnsupportedEncodingException;
-import java.math.BigInteger;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
 import org.openmuc.jasn1.ber.types.string.*;
-
 
 public class FileName implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
-	public byte[] code = null;
-	private List<BerGraphicString> seqOf = null;
+    public static final BerTag tag = new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.CONSTRUCTED, 16);
+    public byte[] code = null;
+    private List<BerGraphicString> seqOf = null;
 
-	public FileName() {
-		seqOf = new ArrayList<BerGraphicString>();
-	}
+    public FileName() {
+        seqOf = new ArrayList<BerGraphicString>();
+    }
 
-	public FileName(byte[] code) {
-		this.code = code;
-	}
+    public FileName(byte[] code) {
+        this.code = code;
+    }
 
-	public List<BerGraphicString> getBerGraphicString() {
-		if (seqOf == null) {
-			seqOf = new ArrayList<BerGraphicString>();
-		}
-		return seqOf;
-	}
+    public List<BerGraphicString> getBerGraphicString() {
+        if (seqOf == null) {
+            seqOf = new ArrayList<BerGraphicString>();
+        }
+        return seqOf;
+    }
 
-	public int encode(OutputStream os) throws IOException {
-		return encode(os, true);
-	}
+    public int encode(OutputStream os) throws IOException {
+        return encode(os, true);
+    }
 
-	public int encode(OutputStream os, boolean withTag) throws IOException {
+    public int encode(OutputStream os, boolean withTag) throws IOException {
 
-		if (code != null) {
-			for (int i = code.length - 1; i >= 0; i--) {
-				os.write(code[i]);
-			}
-			if (withTag) {
-				return tag.encode(os) + code.length;
-			}
-			return code.length;
-		}
+        if (code != null) {
+            for (int i = code.length - 1; i >= 0; i--) {
+                os.write(code[i]);
+            }
+            if (withTag) {
+                return tag.encode(os) + code.length;
+            }
+            return code.length;
+        }
 
-		int codeLength = 0;
-		for (int i = (seqOf.size() - 1); i >= 0; i--) {
-			codeLength += seqOf.get(i).encode(os, true);
-		}
+        int codeLength = 0;
+        for (int i = (seqOf.size() - 1); i >= 0; i--) {
+            codeLength += seqOf.get(i).encode(os, true);
+        }
 
-		codeLength += BerLength.encodeLength(os, codeLength);
+        codeLength += BerLength.encodeLength(os, codeLength);
 
-		if (withTag) {
-			codeLength += tag.encode(os);
-		}
+        if (withTag) {
+            codeLength += tag.encode(os);
+        }
 
-		return codeLength;
-	}
+        return codeLength;
+    }
 
-	public int decode(InputStream is) throws IOException {
-		return decode(is, true);
-	}
+    public int decode(InputStream is) throws IOException {
+        return decode(is, true);
+    }
 
-	public int decode(InputStream is, boolean withTag) throws IOException {
-		int codeLength = 0;
-		int subCodeLength = 0;
-		if (withTag) {
-			codeLength += tag.decodeAndCheck(is);
-		}
+    public int decode(InputStream is, boolean withTag) throws IOException {
+        int codeLength = 0;
+        int subCodeLength = 0;
+        if (withTag) {
+            codeLength += tag.decodeAndCheck(is);
+        }
 
-		BerLength length = new BerLength();
-		codeLength += length.decode(is);
-		int totalLength = length.val;
+        BerLength length = new BerLength();
+        codeLength += length.decode(is);
+        int totalLength = length.val;
 
-		while (subCodeLength < totalLength) {
-			BerGraphicString element = new BerGraphicString();
-			subCodeLength += element.decode(is, true);
-			seqOf.add(element);
-		}
-		if (subCodeLength != totalLength) {
-			throw new IOException("Decoded SequenceOf or SetOf has wrong length. Expected " + totalLength + " but has " + subCodeLength);
+        while (subCodeLength < totalLength) {
+            BerGraphicString element = new BerGraphicString();
+            subCodeLength += element.decode(is, true);
+            seqOf.add(element);
+        }
+        if (subCodeLength != totalLength) {
+            throw new IOException("Decoded SequenceOf or SetOf has wrong length. Expected " + totalLength + " but has "
+                    + subCodeLength);
 
-		}
-		codeLength += subCodeLength;
+        }
+        codeLength += subCodeLength;
 
-		return codeLength;
-	}
+        return codeLength;
+    }
 
-	public void encodeAndSave(int encodingSizeGuess) throws IOException {
-		ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
-		encode(os, false);
-		code = os.getArray();
-	}
+    public void encodeAndSave(int encodingSizeGuess) throws IOException {
+        ReverseByteArrayOutputStream os = new ReverseByteArrayOutputStream(encodingSizeGuess);
+        encode(os, false);
+        code = os.getArray();
+    }
 
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		appendAsString(sb, 0);
-		return sb.toString();
-	}
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        appendAsString(sb, 0);
+        return sb.toString();
+    }
 
-	public void appendAsString(StringBuilder sb, int indentLevel) {
+    public void appendAsString(StringBuilder sb, int indentLevel) {
 
-		sb.append("{\n");
-		for (int i = 0; i < indentLevel + 1; i++) {
-			sb.append("\t");
-		}
-		if (seqOf == null) {
-			sb.append("null");
-		}
-		else {
-			Iterator<BerGraphicString> it = seqOf.iterator();
-			if (it.hasNext()) {
-				sb.append(it.next());
-				while (it.hasNext()) {
-					sb.append(",\n");
-					for (int i = 0; i < indentLevel + 1; i++) {
-						sb.append("\t");
-					}
-					sb.append(it.next());
-				}
-			}
-		}
+        sb.append("{\n");
+        for (int i = 0; i < indentLevel + 1; i++) {
+            sb.append("\t");
+        }
+        if (seqOf == null) {
+            sb.append("null");
+        }
+        else {
+            Iterator<BerGraphicString> it = seqOf.iterator();
+            if (it.hasNext()) {
+                sb.append(it.next());
+                while (it.hasNext()) {
+                    sb.append(",\n");
+                    for (int i = 0; i < indentLevel + 1; i++) {
+                        sb.append("\t");
+                    }
+                    sb.append(it.next());
+                }
+            }
+        }
 
-		sb.append("\n");
-		for (int i = 0; i < indentLevel; i++) {
-			sb.append("\t");
-		}
-		sb.append("}");
-	}
+        sb.append("\n");
+        for (int i = 0; i < indentLevel; i++) {
+            sb.append("\t");
+        }
+        sb.append("}");
+    }
 
 }
-

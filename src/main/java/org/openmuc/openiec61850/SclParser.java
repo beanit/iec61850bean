@@ -1025,7 +1025,7 @@ final class SclParser {
             return new BdaEntryTime(new ObjectReference(ref), fc, sAddr, dchg, dupd);
         }
         else if (bType.equals("PhyComAddr")) {
-            //TODO not correct!
+            // TODO not correct!
             return new BdaOctetString(new ObjectReference(ref), fc, sAddr, 6, dchg, dupd);
         }
         else if (bType.equals("Timestamp")) {

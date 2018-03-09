@@ -48,8 +48,7 @@ public final class BdaOctetString extends BasicDataAttribute {
     }
 
     @Override
-    public
-    void setValueFrom(BasicDataAttribute bda) {
+    public void setValueFrom(BasicDataAttribute bda) {
         byte[] srcValue = ((BdaOctetString) bda).getValue();
         if (value.length != srcValue.length) {
             value = new byte[srcValue.length];
