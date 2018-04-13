@@ -57,8 +57,8 @@ public final class BdaEntryTime extends BasicDataAttribute {
         if (value.length != 6) {
             return -1;
         }
-        return ((value[0] & 0xffl) << 24) + ((value[1] & 0xffl) << 16) + ((value[2] & 0xffl) << 8) + (value[3] & 0xffl)
-                + (((value[4] & 0xffl) << 8) + (value[5] & 0xffl)) * 86400000l;
+        return (((value[0] & 0xffl) << 24) + ((value[1] & 0xffl) << 16) + ((value[2] & 0xffl) << 8) + (value[3] & 0xffl)
+                + (((value[4] & 0xffl) << 8) + (value[5] & 0xffl)) * 86400000l) + 441763200000l;
     }
 
     public void setValue(byte[] value) {

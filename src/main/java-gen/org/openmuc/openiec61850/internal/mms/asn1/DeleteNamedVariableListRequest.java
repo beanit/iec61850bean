@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
 import org.openmuc.jasn1.ber.types.*;
+import org.openmuc.jasn1.ber.types.string.BerVisibleString;
 
 public class DeleteNamedVariableListRequest implements Serializable {
 
