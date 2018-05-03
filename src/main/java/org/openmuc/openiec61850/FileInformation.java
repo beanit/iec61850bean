@@ -21,6 +21,11 @@ public class FileInformation {
         return fileSize;
     }
 
+    /**
+     * Get the time stamp of last modification. As it is an optional attribute the return value can be null
+     * 
+     * @return the time stamp of last modification, or null if the time stamp is not present
+     */
     public Calendar getLastModified() {
         return lastModified;
     }

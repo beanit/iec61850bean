@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import org.openmuc.jasn1.ber.*;
+import org.openmuc.jasn1.ber.types.string.BerVisibleString;
 
 public class ObjectName implements Serializable {
 

@@ -944,10 +944,13 @@ public final class ClientAssociation {
 
             long fileSize = entry.getFileAttributes().getSizeOfFile().longValue();
 
-            Calendar lastModified;
+            Calendar lastModified = null;
 
+            
             try {
-                lastModified = entry.getFileAttributes().getLastModified().asCalendar();
+            	
+            	if (entry.getFileAttributes().getLastModified() != null)
+            		lastModified = entry.getFileAttributes().getLastModified().asCalendar();
 
             } catch (ParseException e) {
                 throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
