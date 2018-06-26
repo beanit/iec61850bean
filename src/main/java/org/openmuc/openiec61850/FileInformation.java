@@ -7,11 +7,11 @@ import java.util.Calendar;
  */
 public class FileInformation {
 
-    private String filename;
+    private final String filename;
 
-    private long fileSize;
+    private final long fileSize;
 
-    private Calendar lastModified;
+    private final Calendar lastModified;
 
     public String getFilename() {
         return filename;

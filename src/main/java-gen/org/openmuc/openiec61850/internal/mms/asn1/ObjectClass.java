@@ -8,8 +8,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
+
+import org.openmuc.jasn1.ber.BerTag;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
+import org.openmuc.jasn1.ber.types.BerInteger;
 
 public class ObjectClass implements Serializable {
 

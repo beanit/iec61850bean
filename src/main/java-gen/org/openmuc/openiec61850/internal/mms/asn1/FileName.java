@@ -7,12 +7,15 @@ package org.openmuc.openiec61850.internal.mms.asn1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.io.Serializable;
-import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.string.*;
+import java.util.List;
+
+import org.openmuc.jasn1.ber.BerLength;
+import org.openmuc.jasn1.ber.BerTag;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
+import org.openmuc.jasn1.ber.types.string.BerGraphicString;
 
 public class FileName implements Serializable {
 
@@ -23,7 +26,7 @@ public class FileName implements Serializable {
     private List<BerGraphicString> seqOf = null;
 
     public FileName() {
-        seqOf = new ArrayList<BerGraphicString>();
+        seqOf = new ArrayList<>();
     }
 
     public FileName(byte[] code) {
@@ -32,7 +35,7 @@ public class FileName implements Serializable {
 
     public List<BerGraphicString> getBerGraphicString() {
         if (seqOf == null) {
-            seqOf = new ArrayList<BerGraphicString>();
+            seqOf = new ArrayList<>();
         }
         return seqOf;
     }

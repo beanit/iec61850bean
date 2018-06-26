@@ -8,8 +8,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
+
+import org.openmuc.jasn1.ber.BerLength;
+import org.openmuc.jasn1.ber.BerTag;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
+import org.openmuc.jasn1.ber.types.BerBoolean;
+import org.openmuc.jasn1.ber.types.BerOctetString;
 
 public class FileReadResponse implements Serializable {
 

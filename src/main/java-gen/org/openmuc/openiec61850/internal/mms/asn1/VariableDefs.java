@@ -7,11 +7,14 @@ package org.openmuc.openiec61850.internal.mms.asn1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.io.Serializable;
-import org.openmuc.jasn1.ber.*;
+import java.util.List;
+
+import org.openmuc.jasn1.ber.BerLength;
+import org.openmuc.jasn1.ber.BerTag;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
 
 public class VariableDefs implements Serializable {
 
@@ -176,7 +179,7 @@ public class VariableDefs implements Serializable {
     private List<SEQUENCE> seqOf = null;
 
     public VariableDefs() {
-        seqOf = new ArrayList<SEQUENCE>();
+        seqOf = new ArrayList<>();
     }
 
     public VariableDefs(byte[] code) {
@@ -185,7 +188,7 @@ public class VariableDefs implements Serializable {
 
     public List<SEQUENCE> getSEQUENCE() {
         if (seqOf == null) {
-            seqOf = new ArrayList<SEQUENCE>();
+            seqOf = new ArrayList<>();
         }
         return seqOf;
     }

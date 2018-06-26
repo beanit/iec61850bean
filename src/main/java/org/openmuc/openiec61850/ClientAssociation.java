@@ -20,7 +20,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -946,11 +945,11 @@ public final class ClientAssociation {
 
             Calendar lastModified = null;
 
-            
             try {
-            	
-            	if (entry.getFileAttributes().getLastModified() != null)
-            		lastModified = entry.getFileAttributes().getLastModified().asCalendar();
+
+                if (entry.getFileAttributes().getLastModified() != null) {
+                    lastModified = entry.getFileAttributes().getLastModified().asCalendar();
+                }
 
             } catch (ParseException e) {
                 throw new ServiceError(ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
@@ -983,7 +982,7 @@ public final class ClientAssociation {
      *             after this exception is thrown.
      */
     public List<FileInformation> getFileDirectory(String directoryName) throws ServiceError, IOException {
-        List<FileInformation> files = new LinkedList<FileInformation>();
+        List<FileInformation> files = new LinkedList<>();
 
         boolean moreFollows = true;
 
@@ -1015,8 +1014,9 @@ public final class ClientAssociation {
 
             moreFollows = decodeGetFileDirectoryResponse(confirmedServiceResponse, files);
 
-            if (moreFollows)
+            if (moreFollows) {
                 continueAfter = files.get(files.size() - 1).getFilename();
+            }
         }
 
         return files;
@@ -1091,14 +1091,16 @@ public final class ClientAssociation {
 
         boolean moreFollows = true;
 
-        if (confirmedServiceResponse.getFileRead().getMoreFollows() != null)
+        if (confirmedServiceResponse.getFileRead().getMoreFollows() != null) {
             moreFollows = confirmedServiceResponse.getFileRead().getMoreFollows().value;
+        }
 
         if (listener != null) {
             boolean continueRead = listener.dataReceived(fileData, moreFollows);
 
-            if (moreFollows == true)
+            if (moreFollows == true) {
                 moreFollows = continueRead;
+            }
         }
 
         return moreFollows;

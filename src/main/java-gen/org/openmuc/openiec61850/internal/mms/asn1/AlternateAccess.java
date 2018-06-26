@@ -7,11 +7,14 @@ package org.openmuc.openiec61850.internal.mms.asn1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.io.Serializable;
-import org.openmuc.jasn1.ber.*;
+import java.util.List;
+
+import org.openmuc.jasn1.ber.BerLength;
+import org.openmuc.jasn1.ber.BerTag;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
 
 public class AlternateAccess implements Serializable {
 
@@ -118,7 +121,7 @@ public class AlternateAccess implements Serializable {
     private List<CHOICE> seqOf = null;
 
     public AlternateAccess() {
-        seqOf = new ArrayList<CHOICE>();
+        seqOf = new ArrayList<>();
     }
 
     public AlternateAccess(byte[] code) {
@@ -127,7 +130,7 @@ public class AlternateAccess implements Serializable {
 
     public List<CHOICE> getCHOICE() {
         if (seqOf == null) {
-            seqOf = new ArrayList<CHOICE>();
+            seqOf = new ArrayList<>();
         }
         return seqOf;
     }

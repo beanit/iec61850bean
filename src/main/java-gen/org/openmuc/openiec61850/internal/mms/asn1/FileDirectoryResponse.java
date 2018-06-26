@@ -7,12 +7,15 @@ package org.openmuc.openiec61850.internal.mms.asn1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.io.Serializable;
-import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
+import java.util.List;
+
+import org.openmuc.jasn1.ber.BerLength;
+import org.openmuc.jasn1.ber.BerTag;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
+import org.openmuc.jasn1.ber.types.BerBoolean;
 
 public class FileDirectoryResponse implements Serializable {
 
@@ -27,7 +30,7 @@ public class FileDirectoryResponse implements Serializable {
         private List<DirectoryEntry> seqOf = null;
 
         public ListOfDirectoryEntry() {
-            seqOf = new ArrayList<DirectoryEntry>();
+            seqOf = new ArrayList<>();
         }
 
         public ListOfDirectoryEntry(byte[] code) {
@@ -36,7 +39,7 @@ public class FileDirectoryResponse implements Serializable {
 
         public List<DirectoryEntry> getDirectoryEntry() {
             if (seqOf == null) {
-                seqOf = new ArrayList<DirectoryEntry>();
+                seqOf = new ArrayList<>();
             }
             return seqOf;
         }

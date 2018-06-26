@@ -7,13 +7,19 @@ package org.openmuc.openiec61850.internal.mms.asn1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.io.Serializable;
-import org.openmuc.jasn1.ber.*;
-import org.openmuc.jasn1.ber.types.*;
-import org.openmuc.jasn1.ber.types.string.*;
+import java.util.List;
+
+import org.openmuc.jasn1.ber.BerLength;
+import org.openmuc.jasn1.ber.BerTag;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
+import org.openmuc.jasn1.ber.types.BerBitString;
+import org.openmuc.jasn1.ber.types.BerBoolean;
+import org.openmuc.jasn1.ber.types.BerInteger;
+import org.openmuc.jasn1.ber.types.BerOctetString;
+import org.openmuc.jasn1.ber.types.string.BerVisibleString;
 
 public class Data implements Serializable {
 
@@ -30,7 +36,7 @@ public class Data implements Serializable {
         private List<Data> seqOf = null;
 
         public Array() {
-            seqOf = new ArrayList<Data>();
+            seqOf = new ArrayList<>();
         }
 
         public Array(byte[] code) {
@@ -39,7 +45,7 @@ public class Data implements Serializable {
 
         public List<Data> getData() {
             if (seqOf == null) {
-                seqOf = new ArrayList<Data>();
+                seqOf = new ArrayList<>();
             }
             return seqOf;
         }
@@ -158,7 +164,7 @@ public class Data implements Serializable {
         private List<Data> seqOf = null;
 
         public Structure() {
-            seqOf = new ArrayList<Data>();
+            seqOf = new ArrayList<>();
         }
 
         public Structure(byte[] code) {
@@ -167,7 +173,7 @@ public class Data implements Serializable {
 
         public List<Data> getData() {
             if (seqOf == null) {
-                seqOf = new ArrayList<Data>();
+                seqOf = new ArrayList<>();
             }
             return seqOf;
         }

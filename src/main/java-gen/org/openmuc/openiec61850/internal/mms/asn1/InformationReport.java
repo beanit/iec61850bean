@@ -7,11 +7,14 @@ package org.openmuc.openiec61850.internal.mms.asn1;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.io.Serializable;
-import org.openmuc.jasn1.ber.*;
+import java.util.List;
+
+import org.openmuc.jasn1.ber.BerLength;
+import org.openmuc.jasn1.ber.BerTag;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
 
 public class InformationReport implements Serializable {
 
@@ -26,7 +29,7 @@ public class InformationReport implements Serializable {
         private List<AccessResult> seqOf = null;
 
         public ListOfAccessResult() {
-            seqOf = new ArrayList<AccessResult>();
+            seqOf = new ArrayList<>();
         }
 
         public ListOfAccessResult(byte[] code) {
@@ -35,7 +38,7 @@ public class InformationReport implements Serializable {
 
         public List<AccessResult> getAccessResult() {
             if (seqOf == null) {
-                seqOf = new ArrayList<AccessResult>();
+                seqOf = new ArrayList<>();
             }
             return seqOf;
         }

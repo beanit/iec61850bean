@@ -4,7 +4,7 @@
 
 package org.openmuc.openiec61850.internal.mms.asn1;
 
-import org.openmuc.jasn1.ber.types.*;
+import org.openmuc.jasn1.ber.types.BerNull;
 
 public class ConcludeRequestPDU extends BerNull {
 

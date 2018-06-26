@@ -4,7 +4,7 @@
 
 package org.openmuc.openiec61850.internal.mms.asn1;
 
-import org.openmuc.jasn1.ber.types.string.*;
+import org.openmuc.jasn1.ber.types.string.BerVisibleString;
 
 public class MMSString extends BerVisibleString {
 

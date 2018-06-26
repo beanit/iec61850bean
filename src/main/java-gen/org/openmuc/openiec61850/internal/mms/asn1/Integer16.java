@@ -5,7 +5,8 @@
 package org.openmuc.openiec61850.internal.mms.asn1;
 
 import java.math.BigInteger;
-import org.openmuc.jasn1.ber.types.*;
+
+import org.openmuc.jasn1.ber.types.BerInteger;
 
 public class Integer16 extends BerInteger {
 
