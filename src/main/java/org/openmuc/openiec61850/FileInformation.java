@@ -3,7 +3,7 @@ package org.openmuc.openiec61850;
 import java.util.Calendar;
 
 /**
- * @brief Contains file information received by the GetFileDirectory service
+ * Contains file information received by the GetFileDirectory service
  */
 public class FileInformation {
 
