@@ -1128,7 +1128,7 @@ final class ServerAssociation {
 
             if (fcModelNodeCopy.fc == Fc.CO) {
                 // TODO timeactivate operate
-                fcModelNodeCopy = (BasicDataAttribute) fcModelNodeCopy.getChild("ctlVal");
+                fcModelNodeCopy = (FcModelNode) fcModelNodeCopy.getChild("ctlVal");
                 // TODO write origin and ctlNum if they exist
             }
             else {
