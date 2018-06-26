@@ -6,7 +6,7 @@ buildscript {
   }
   dependencies {
     classpath group: "org.asciidoctor", name: "asciidoctorj-pdf", version: "1.5.0-alpha.16"
-    classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:3.5.0"
+    classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:4.0.0"
   }
 }
 
