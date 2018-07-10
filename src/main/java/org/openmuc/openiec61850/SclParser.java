@@ -45,31 +45,36 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-final class SclParser {
+public class SclParser {
 
     private TypeDefinitions typeDefinitions;
     private final Map<String, DataSet> dataSetsMap = new HashMap<>();
 
     private Document doc;
     private String iedName;
-    private List<ServerSap> serverSaps = null;
+    private List<ServerModel> serverModels = null;
     private boolean useResvTmsAttributes = false;
 
     private final List<LnSubDef> dataSetDefs = new ArrayList<>();
 
-    public List<ServerSap> getServerSaps() {
-        return serverSaps;
+    public static List<ServerModel> parse(InputStream is) throws SclParseException {
+        SclParser sclParser = new SclParser();
+        sclParser.parseStream(is);
+        return sclParser.serverModels;
     }
 
-    public void parse(String icdFile) throws SclParseException {
+    public static List<ServerModel> parse(String sclFilePath) throws SclParseException {
         try {
-            parse(new FileInputStream(icdFile));
+            return parse(new FileInputStream(sclFilePath));
         } catch (FileNotFoundException e) {
             throw new SclParseException(e);
         }
     }
 
-    public void parse(InputStream icdFileStream) throws SclParseException {
+    private SclParser() {
+    }
+
+    private void parseStream(InputStream icdFileStream) throws SclParseException {
 
         typeDefinitions = new TypeDefinitions();
 
@@ -104,12 +109,12 @@ final class SclParser {
 
         NodeList iedElements = iedList.item(0).getChildNodes();
 
-        serverSaps = new ArrayList<>(iedElements.getLength());
+        serverModels = new ArrayList<>(iedElements.getLength());
         for (int i = 0; i < iedElements.getLength(); i++) {
             Node element = iedElements.item(i);
             String nodeName = element.getNodeName();
             if ("AccessPoint".equals(nodeName)) {
-                serverSaps.add(createAccessPoint(element));
+                serverModels.add(createAccessPoint(element).serverModel);
             }
             else if ("Services".equals(nodeName)) {
                 NodeList servicesElements = element.getChildNodes();
@@ -174,7 +179,7 @@ final class SclParser {
                     throw new SclParseException("AccessPoint has no name attribute!");
                 }
                 String name = namedItem.getNodeValue();
-                serverSap = new ServerSap(102, 0, null, server, name, null);
+                serverSap = new ServerSap(102, 0, null, server, null);
 
                 break;
             }

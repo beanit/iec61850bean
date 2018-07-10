@@ -114,6 +114,12 @@ public final class LogicalNode extends ModelNode {
         if (fc != null) {
             return fcDataObjects.get(fc).get(childName);
         }
+        for (Map<String, FcDataObject> map : fcDataObjects.values()) {
+            FcDataObject fcDataObject = map.get(childName);
+            if (fcDataObject != null) {
+                return fcDataObject;
+            }
+        }
         return null;
     }
 

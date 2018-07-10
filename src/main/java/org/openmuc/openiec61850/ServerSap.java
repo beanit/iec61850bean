@@ -17,7 +17,6 @@
 package org.openmuc.openiec61850;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -53,7 +52,6 @@ public final class ServerSap {
     ServerEventListener serverEventListener;
     private ServerAcseSap acseSap;
 
-    private final String name;
     private int port = 102;
     private int backlog = 0;
     private InetAddress bindAddr = null;
@@ -65,18 +63,6 @@ public final class ServerSap {
     boolean listening = false;
 
     final ServerModel serverModel;
-
-    public static List<ServerSap> getSapsFromSclFile(String sclFilePath) throws SclParseException {
-        SclParser sclParserObject = new SclParser();
-        sclParserObject.parse(sclFilePath);
-        return sclParserObject.getServerSaps();
-    }
-
-    public static List<ServerSap> getSapsFromSclFile(InputStream sclFileStream) throws SclParseException {
-        SclParser sclParserObject = new SclParser();
-        sclParserObject.parse(sclFileStream);
-        return sclParserObject.getServerSaps();
-    }
 
     /**
      * Creates a ServerSap.
@@ -94,13 +80,12 @@ public final class ServerSap {
      *            default
      * 
      */
-    ServerSap(int port, int backlog, InetAddress bindAddr, ServerModel serverModel, String name,
+    public ServerSap(int port, int backlog, InetAddress bindAddr, ServerModel serverModel,
             ServerSocketFactory serverSocketFactory) {
         this.port = port;
         this.backlog = backlog;
         this.bindAddr = bindAddr;
         this.serverSocketFactory = serverSocketFactory;
-        this.name = name;
         this.serverModel = serverModel;
     }
 
@@ -146,15 +131,6 @@ public final class ServerSap {
 
     public InetAddress getBindAddress() {
         return bindAddr;
-    }
-
-    /**
-     * Returns the name of the ServerSap / AccessPoint as specified in the SCL file.
-     * 
-     * @return the name.
-     */
-    public String getName() {
-        return name;
     }
 
     /**

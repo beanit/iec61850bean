@@ -17,6 +17,7 @@ import org.openmuc.openiec61850.BdaInt8U;
 import org.openmuc.openiec61850.Fc;
 import org.openmuc.openiec61850.ModelNode;
 import org.openmuc.openiec61850.SclParseException;
+import org.openmuc.openiec61850.SclParser;
 import org.openmuc.openiec61850.ServerEventListener;
 import org.openmuc.openiec61850.ServerModel;
 import org.openmuc.openiec61850.ServerSap;
@@ -212,15 +213,15 @@ public class ConsoleServer {
             System.exit(1);
         }
 
-        List<ServerSap> serverSaps = null;
+        List<ServerModel> serverModels = null;
         try {
-            serverSaps = ServerSap.getSapsFromSclFile(modelFileParam.getValue());
+            serverModels = SclParser.parse(modelFileParam.getValue());
         } catch (SclParseException e) {
             System.out.println("Error parsing SCL/ICD file: " + e.getMessage());
             return;
         }
 
-        serverSap = serverSaps.get(0);
+        serverSap = new ServerSap(102, 0, null, serverModels.get(0), null);
         serverSap.setPort(portParam.getValue());
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
