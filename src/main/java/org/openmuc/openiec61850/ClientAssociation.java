@@ -568,7 +568,7 @@ public final class ClientAssociation {
 
         if (decodedResponsePdu.getConfirmedRequestPDU() != null) {
             incomingResponses.add(decodedResponsePdu);
-            throw clientReceiver.getLastIOException();
+            throw new IOException("connection was closed", clientReceiver.getLastIOException());
         }
 
         testForInitiateErrorResponse(decodedResponsePdu);

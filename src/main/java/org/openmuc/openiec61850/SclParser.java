@@ -52,7 +52,7 @@ public class SclParser {
 
     private Document doc;
     private String iedName;
-    private List<ServerModel> serverModels = null;
+    private List<ServerModel> serverModels = new ArrayList<>();
     private boolean useResvTmsAttributes = false;
 
     private final List<LnSubDef> dataSetDefs = new ArrayList<>();
@@ -100,29 +100,37 @@ public class SclParser {
             throw new SclParseException("No IED section found!");
         }
 
-        Node nameAttribute = iedList.item(0).getAttributes().getNamedItem("name");
+        for (int z = 0; z < iedList.getLength(); z++) {
+            Node iedNode = iedList.item(z);
 
-        iedName = nameAttribute.getNodeValue();
-        if ((iedName == null) || (iedName.length() == 0)) {
-            throw new SclParseException("IED must have a name!");
-        }
+            useResvTmsAttributes = false;
 
-        NodeList iedElements = iedList.item(0).getChildNodes();
+            Node nameAttribute = iedNode.getAttributes().getNamedItem("name");
 
-        serverModels = new ArrayList<>(iedElements.getLength());
-        for (int i = 0; i < iedElements.getLength(); i++) {
-            Node element = iedElements.item(i);
-            String nodeName = element.getNodeName();
-            if ("AccessPoint".equals(nodeName)) {
-                serverModels.add(createAccessPoint(element).serverModel);
+            iedName = nameAttribute.getNodeValue();
+            if ((iedName == null) || (iedName.length() == 0)) {
+                throw new SclParseException("IED must have a name!");
             }
-            else if ("Services".equals(nodeName)) {
-                NodeList servicesElements = element.getChildNodes();
-                for (int j = 0; j < servicesElements.getLength(); j++) {
-                    if ("ReportSettings".equals(servicesElements.item(j).getNodeName())) {
-                        Node resvTmsAttribute = servicesElements.item(j).getAttributes().getNamedItem("resvTms");
-                        if (resvTmsAttribute != null) {
-                            useResvTmsAttributes = resvTmsAttribute.getNodeValue().equalsIgnoreCase("true");
+
+            NodeList iedElements = iedNode.getChildNodes();
+
+            for (int i = 0; i < iedElements.getLength(); i++) {
+                Node element = iedElements.item(i);
+                String nodeName = element.getNodeName();
+                if ("AccessPoint".equals(nodeName)) {
+                    ServerSap serverSap = createAccessPoint(element);
+                    if (serverSap != null) {
+                        serverModels.add(serverSap.serverModel);
+                    }
+                }
+                else if ("Services".equals(nodeName)) {
+                    NodeList servicesElements = element.getChildNodes();
+                    for (int j = 0; j < servicesElements.getLength(); j++) {
+                        if ("ReportSettings".equals(servicesElements.item(j).getNodeName())) {
+                            Node resvTmsAttribute = servicesElements.item(j).getAttributes().getNamedItem("resvTms");
+                            if (resvTmsAttribute != null) {
+                                useResvTmsAttributes = resvTmsAttribute.getNodeValue().equalsIgnoreCase("true");
+                            }
                         }
                     }
                 }
@@ -183,10 +191,6 @@ public class SclParser {
 
                 break;
             }
-        }
-
-        if (serverSap == null) {
-            throw new SclParseException("AccessPoint has no server!");
         }
 
         return serverSap;
