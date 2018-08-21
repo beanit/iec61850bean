@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openmuc.openiec61850.BasicDataAttribute;
+import org.openmuc.openiec61850.BdaBoolean;
 import org.openmuc.openiec61850.BdaFloat32;
 import org.openmuc.openiec61850.BdaFloat64;
 import org.openmuc.openiec61850.BdaInt16;
@@ -181,6 +182,10 @@ public class ConsoleServer {
             else if (bda instanceof BdaInt64) {
                 long value = Long.parseLong(valueString);
                 ((BdaInt64) bda).setValue(value);
+            }
+            else if (bda instanceof BdaBoolean) {
+                boolean value = Boolean.parseBoolean(valueString);
+                ((BdaBoolean) bda).setValue(value);
             }
             else {
                 throw new IllegalArgumentException();
