@@ -1,3 +1,22 @@
+v1.7.0 06-Nov-2018
+------------------
+
+- refactored SCL parser to return List<ServerModel> instead of
+  List<ServerSap> so that parser can be used more flexible by
+  applications the do not want to start a server but just parse an SCL
+  file.
+
+- SCL parser can now handle multiple IEDs defined in a single SCL file
+
+- changed jasn1 dependency to to jasn1-iec61850mod because at least
+  one known IEC 61850 device expects boolean true values to be coded
+  as 0x01 instead of the default BER, CER and DER code of 0xFF.
+
+- fixed shutting down server's thread pool correctly
+
+- fixed a concurrency bug
+
+
 v1.6.0 26-Jun-2018
 ------------------
 
