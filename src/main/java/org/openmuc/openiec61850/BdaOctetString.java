@@ -25,7 +25,7 @@ import org.openmuc.openiec61850.internal.mms.asn1.TypeDescription;
 
 public final class BdaOctetString extends BasicDataAttribute {
 
-    private byte[] value;
+    volatile private byte[] value;
     private final int maxLength;
 
     public BdaOctetString(ObjectReference objectReference, Fc fc, String sAddr, int maxLength, boolean dchg,

@@ -568,7 +568,7 @@ public final class ClientAssociation {
 
         if (decodedResponsePdu.getConfirmedRequestPDU() != null) {
             incomingResponses.add(decodedResponsePdu);
-            throw clientReceiver.getLastIOException();
+            throw new IOException("connection was closed", clientReceiver.getLastIOException());
         }
 
         testForInitiateErrorResponse(decodedResponsePdu);
@@ -692,22 +692,13 @@ public final class ClientAssociation {
     }
 
     /**
-     * Parses the given SCL File and returns the server model that is described by it. This function can be used instead
-     * of <code>retrieveModel</code> in order to get the server model that is needed to call the other ACSI services.
-     *
-     * @param sclFilePath
-     *            the path to the SCL file that is to be parsed.
-     * @return The ServerNode that is the root node of the complete server model.
-     * @throws SclParseException
-     *             if any kind of fatal error occurs in the parsing process.
+     * Set the server model instead of retrieving it from the server device.
+     * 
+     * @param model
+     *            the server model
      */
-    public ServerModel getModelFromSclFile(String sclFilePath) throws SclParseException {
-        List<ServerSap> serverSaps = ServerSap.getSapsFromSclFile(sclFilePath);
-        if (serverSaps == null || serverSaps.size() == 0) {
-            throw new SclParseException("No AccessPoint found in SCL file.");
-        }
-        serverModel = serverSaps.get(0).serverModel;
-        return serverModel;
+    public void setServerModel(ServerModel model) {
+        this.serverModel = model;
     }
 
     /**
@@ -2008,6 +1999,10 @@ public final class ClientAssociation {
         ((BdaTimestamp) oper.getChild("T")).setDate(new Date(System.currentTimeMillis()));
 
         setDataValues(oper);
+    }
+
+    public boolean isOpen() {
+        return !closed;
     }
 
     /**

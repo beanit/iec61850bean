@@ -26,7 +26,7 @@ import org.openmuc.openiec61850.internal.mms.asn1.UtcTime;
 
 public final class BdaTimestamp extends BasicDataAttribute {
 
-    private byte[] value;
+    volatile private byte[] value;
 
     public BdaTimestamp(ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
         super(objectReference, fc, sAddr, dchg, dupd);

@@ -17,6 +17,7 @@ import org.openmuc.openiec61850.FcModelNode;
 import org.openmuc.openiec61850.ModelNode;
 import org.openmuc.openiec61850.Report;
 import org.openmuc.openiec61850.SclParseException;
+import org.openmuc.openiec61850.SclParser;
 import org.openmuc.openiec61850.ServerModel;
 import org.openmuc.openiec61850.ServiceError;
 import org.openmuc.openiec61850.Urcb;
@@ -374,11 +375,13 @@ public class ConsoleClient {
             System.out.println("reading model from file...");
 
             try {
-                serverModel = association.getModelFromSclFile(modelFileParam.getValue());
+                serverModel = SclParser.parse(modelFileParam.getValue()).get(0);
             } catch (SclParseException e1) {
                 System.out.println("Error parsing SCL file: " + e1.getMessage());
                 return;
             }
+
+            association.setServerModel(serverModel);
 
             System.out.println("successfully read model");
 

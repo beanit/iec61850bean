@@ -23,7 +23,7 @@ import org.openmuc.openiec61850.internal.mms.asn1.TypeDescription;
 
 abstract public class BdaBitString extends BasicDataAttribute {
 
-    byte[] value;
+    volatile byte[] value;
     final int maxNumBits;
 
     public BdaBitString(ObjectReference objectReference, Fc fc, String sAddr, int maxNumBits, boolean dchg,

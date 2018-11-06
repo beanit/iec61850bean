@@ -2,7 +2,7 @@ package org.openmuc.openiec61850.integrationtests;
 
 import org.junit.Test;
 import org.openmuc.openiec61850.SclParseException;
-import org.openmuc.openiec61850.ServerSap;
+import org.openmuc.openiec61850.SclParser;
 
 public class SclTests {
 
@@ -12,8 +12,8 @@ public class SclTests {
     @Test
     public void testClientServerCom() throws SclParseException {
 
-        ServerSap.getSapsFromSclFile(SCL_FILE_PATH_1);
-        ServerSap.getSapsFromSclFile(SCL_FILE_PATH_2);
+        SclParser.parse(SCL_FILE_PATH_1);
+        SclParser.parse(SCL_FILE_PATH_2);
     }
 
 }

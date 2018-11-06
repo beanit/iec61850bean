@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openmuc.openiec61850.BasicDataAttribute;
+import org.openmuc.openiec61850.BdaBoolean;
 import org.openmuc.openiec61850.BdaFloat32;
 import org.openmuc.openiec61850.BdaFloat64;
 import org.openmuc.openiec61850.BdaInt16;
@@ -17,6 +18,7 @@ import org.openmuc.openiec61850.BdaInt8U;
 import org.openmuc.openiec61850.Fc;
 import org.openmuc.openiec61850.ModelNode;
 import org.openmuc.openiec61850.SclParseException;
+import org.openmuc.openiec61850.SclParser;
 import org.openmuc.openiec61850.ServerEventListener;
 import org.openmuc.openiec61850.ServerModel;
 import org.openmuc.openiec61850.ServerSap;
@@ -88,9 +90,7 @@ public class ConsoleServer {
 
                     break;
                 case WRITE_VALUE_KEY:
-                    System.out.println("** Reading model from file.");
-
-                    System.out.println("Enter reference to read (e.g. myld/MYLN0.do.da.bda): ");
+                    System.out.println("Enter reference to write (e.g. myld/MYLN0.do.da.bda): ");
                     String reference = actionProcessor.getReader().readLine();
                     System.out.println("Enter functional constraint of referenced node: ");
                     String fcString = actionProcessor.getReader().readLine();
@@ -181,6 +181,10 @@ public class ConsoleServer {
                 long value = Long.parseLong(valueString);
                 ((BdaInt64) bda).setValue(value);
             }
+            else if (bda instanceof BdaBoolean) {
+                boolean value = Boolean.parseBoolean(valueString);
+                ((BdaBoolean) bda).setValue(value);
+            }
             else {
                 throw new IllegalArgumentException();
             }
@@ -212,15 +216,15 @@ public class ConsoleServer {
             System.exit(1);
         }
 
-        List<ServerSap> serverSaps = null;
+        List<ServerModel> serverModels = null;
         try {
-            serverSaps = ServerSap.getSapsFromSclFile(modelFileParam.getValue());
+            serverModels = SclParser.parse(modelFileParam.getValue());
         } catch (SclParseException e) {
             System.out.println("Error parsing SCL/ICD file: " + e.getMessage());
             return;
         }
 
-        serverSap = serverSaps.get(0);
+        serverSap = new ServerSap(102, 0, null, serverModels.get(0), null);
         serverSap.setPort(portParam.getValue());
 
         Runtime.getRuntime().addShutdownHook(new Thread() {

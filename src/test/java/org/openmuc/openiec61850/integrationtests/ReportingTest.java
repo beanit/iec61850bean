@@ -22,6 +22,7 @@ import org.openmuc.openiec61850.Fc;
 import org.openmuc.openiec61850.FcModelNode;
 import org.openmuc.openiec61850.Report;
 import org.openmuc.openiec61850.SclParseException;
+import org.openmuc.openiec61850.SclParser;
 import org.openmuc.openiec61850.ServerEventListener;
 import org.openmuc.openiec61850.ServerModel;
 import org.openmuc.openiec61850.ServerSap;
@@ -57,14 +58,8 @@ public class ReportingTest implements ClientEventListener {
     }
 
     private void startServer() throws SclParseException, IOException {
-        final List<ServerSap> sapsFromSclFile = ServerSap.getSapsFromSclFile(ICD_FILE);
-        if (sapsFromSclFile.isEmpty()) {
-            throw new IllegalArgumentException("Could not create server sap from '" + ICD_FILE + "'.");
-        }
 
-        this.serverSap = sapsFromSclFile.get(0);
-
-        this.serverSap.setPort(PORT);
+        serverSap = new ServerSap(PORT, 0, null, SclParser.parse(ICD_FILE).get(0), null);
 
         this.serverSap.startListening(new ServerEventListener() {
 

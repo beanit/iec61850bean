@@ -40,6 +40,7 @@ import org.openmuc.jasn1.ber.types.string.BerVisibleString;
 import org.openmuc.josistack.AcseAssociation;
 import org.openmuc.josistack.ByteBufferInputStream;
 import org.openmuc.josistack.DecodingException;
+import org.openmuc.openiec61850.internal.NamedDefaultThreadFactory;
 import org.openmuc.openiec61850.internal.mms.asn1.AccessResult;
 import org.openmuc.openiec61850.internal.mms.asn1.ConfirmedErrorPDU;
 import org.openmuc.openiec61850.internal.mms.asn1.ConfirmedRequestPDU;
@@ -118,7 +119,7 @@ final class ServerAssociation {
     public ServerAssociation(ServerSap serverSap) {
         this.serverSap = serverSap;
         serverModel = serverSap.serverModel;
-        executor = Executors.newScheduledThreadPool(2);
+        executor = Executors.newScheduledThreadPool(2, new NamedDefaultThreadFactory("openiec61850-server-connection"));
     }
 
     public void handleNewAssociation(AcseAssociation acseAssociation, ByteBuffer associationRequest) {
@@ -1635,6 +1636,7 @@ final class ServerAssociation {
 
     void close() {
         cleanUpConnection();
+        executor.shutdown();
         if (acseAssociation != null) {
             acseAssociation.disconnect();
         }

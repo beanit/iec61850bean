@@ -31,6 +31,7 @@ import org.openmuc.openiec61850.FcModelNode;
 import org.openmuc.openiec61850.ModelNode;
 import org.openmuc.openiec61850.Report;
 import org.openmuc.openiec61850.SclParseException;
+import org.openmuc.openiec61850.SclParser;
 import org.openmuc.openiec61850.ServerEventListener;
 import org.openmuc.openiec61850.ServerModel;
 import org.openmuc.openiec61850.ServerSap;
@@ -77,7 +78,8 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
         clientAssociation = clientSap.associate(InetAddress.getByName(host), port, null, this);
 
         // ServerModel serverModel = clientAssociation.retrieveModel();
-        ServerModel serverModel = clientAssociation.getModelFromSclFile("src/test/resources/openiec61850sample01.icd");
+        ServerModel serverModel = SclParser.parse("src/test/resources/openiec61850sample01.icd").get(0);
+        clientAssociation.setServerModel(serverModel);
 
         getAllBdas(serverModel);
 
@@ -366,10 +368,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
 
     private void runServer(String sclFilePath, int port) throws SclParseException, IOException {
 
-        List<ServerSap> serverSaps = null;
-        serverSaps = ServerSap.getSapsFromSclFile(sclFilePath);
-
-        serverSap = serverSaps.get(0);
+        serverSap = new ServerSap(port, 0, null, SclParser.parse(sclFilePath).get(0), null);
         serverSap.setPort(port);
         serverSap.startListening(this);
         serversServerModel = serverSap.getModelCopy();
