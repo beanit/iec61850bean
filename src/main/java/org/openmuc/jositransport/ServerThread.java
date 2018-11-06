@@ -16,6 +16,8 @@
  */
 package org.openmuc.jositransport;
 
+import org.openmuc.openiec61850.internal.NamedDefaultThreadFactory;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -88,7 +90,7 @@ final class ServerThread extends Thread {
     @Override
     public void run() {
 
-        ExecutorService executor = Executors.newCachedThreadPool();
+        ExecutorService executor = Executors.newCachedThreadPool(new NamedDefaultThreadFactory("openiec61850-osi-server"));
         try {
 
             Socket clientSocket = null;
