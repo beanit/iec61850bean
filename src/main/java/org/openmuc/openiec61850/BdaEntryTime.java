@@ -30,7 +30,7 @@ import org.openmuc.openiec61850.internal.mms.asn1.TypeDescription;
  */
 public final class BdaEntryTime extends BasicDataAttribute {
 
-    private byte[] value;
+    volatile private byte[] value;
 
     public BdaEntryTime(ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
         super(objectReference, fc, sAddr, dchg, dupd);

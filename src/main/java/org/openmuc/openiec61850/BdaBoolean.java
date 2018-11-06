@@ -23,7 +23,7 @@ import org.openmuc.openiec61850.internal.mms.asn1.TypeDescription;
 
 public final class BdaBoolean extends BasicDataAttribute {
 
-    private boolean value;
+    volatile private boolean value;
 
     public BdaBoolean(ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
         super(objectReference, fc, sAddr, dchg, dupd);

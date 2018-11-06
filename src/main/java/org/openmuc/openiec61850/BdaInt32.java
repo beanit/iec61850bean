@@ -23,7 +23,7 @@ import org.openmuc.openiec61850.internal.mms.asn1.Unsigned8;
 
 public final class BdaInt32 extends BasicDataAttribute {
 
-    private int value;
+    volatile private int value;
 
     public BdaInt32(ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
         super(objectReference, fc, sAddr, dchg, dupd);

@@ -25,7 +25,7 @@ import org.openmuc.openiec61850.internal.mms.asn1.Unsigned8;
 
 public final class BdaFloat64 extends BasicDataAttribute {
 
-    private byte[] value = new byte[] { 11, 0, 0, 0, 0, 0, 0, 0, 0 };
+    volatile private byte[] value = new byte[] { 11, 0, 0, 0, 0, 0, 0, 0, 0 };
 
     public BdaFloat64(ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
         super(objectReference, fc, sAddr, dchg, dupd);
