@@ -90,9 +90,7 @@ public class ConsoleServer {
 
                     break;
                 case WRITE_VALUE_KEY:
-                    System.out.println("** Reading model from file.");
-
-                    System.out.println("Enter reference to read (e.g. myld/MYLN0.do.da.bda): ");
+                    System.out.println("Enter reference to write (e.g. myld/MYLN0.do.da.bda): ");
                     String reference = actionProcessor.getReader().readLine();
                     System.out.println("Enter functional constraint of referenced node: ");
                     String fcString = actionProcessor.getReader().readLine();
