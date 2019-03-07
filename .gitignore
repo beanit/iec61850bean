@@ -1,26 +1,8 @@
-\#*
-.\#*
-*~
-target/
-bin/
-build/
-tmp/
-*.class
+# Gradle
 .gradle/
-.svn/
-.settings/
-.project
-.classpath
-.metadata/
-.externalToolBuilders/
+build/
 gradle.properties
-doc/userguide/*.html
-doc/userguide/*.pdf
-*.hprof
-gradle-app.setting
-.factorypath
-.apt_generated/
-#created by openiec61850 clientgui:
-lastconnection.properties
+
+# IntelliJ IDEA
 .idea
 out/
