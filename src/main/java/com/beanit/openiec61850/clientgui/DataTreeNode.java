@@ -20,17 +20,17 @@ import javax.swing.tree.TreeNode;
 
 public interface DataTreeNode {
 
-  public abstract BasicDataBind<?> getData();
+  BasicDataBind<?> getData();
 
-  public abstract void reset(ClientAssociation association) throws ServiceError, IOException;
+  void reset(ClientAssociation association) throws ServiceError, IOException;
 
-  public abstract void writeValues(ClientAssociation association) throws ServiceError, IOException;
+  void writeValues(ClientAssociation association) throws ServiceError, IOException;
 
-  public abstract int getChildCount();
+  int getChildCount();
 
-  public abstract TreeNode getChildAt(int index);
+  TreeNode getChildAt(int index);
 
-  public abstract boolean writable();
+  boolean writable();
 
-  public abstract boolean readable();
+  boolean readable();
 }

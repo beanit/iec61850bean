@@ -18,7 +18,7 @@ import java.nio.ByteBuffer;
 
 public interface AcseAssociationListener {
 
-  public void connectionIndication(AcseAssociation acseAssociation, ByteBuffer data);
+  void connectionIndication(AcseAssociation acseAssociation, ByteBuffer data);
 
-  public void serverStoppedListeningIndication(IOException e);
+  void serverStoppedListeningIndication(IOException e);
 }

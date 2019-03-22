@@ -153,7 +153,7 @@ final class DataDefinitionResParser {
       for (int i = 0; i < numArrayElements; i++) {
         arrayChildren.add(
             getModelNodesFromTypeSpecification(
-                new ObjectReference(ref + "(" + Integer.toString(i) + ")"),
+                new ObjectReference(ref + "(" + i + ")"),
                 fc,
                 mmsTypeSpec.getTypeDescription().getArray().getElementType()));
       }

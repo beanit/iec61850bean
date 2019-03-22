@@ -80,7 +80,7 @@ configure(javaProjects) {
 
     jar {
         manifest {
-            version = project.version.replace("-", ".");
+            version = project.version.replace("-", ".")
         }
     }
     cobertura {
@@ -232,30 +232,30 @@ task javadocAll(type: Javadoc) {
 
 task writeSettings {
     doLast {
-        Writer out = new OutputStreamWriter(new FileOutputStream("build/settings.gradle"));
-        out.write("include ");
-        boolean first = true;
+        Writer out = new OutputStreamWriter(new FileOutputStream("build/settings.gradle"))
+        out.write("include ")
+        boolean first = true
         for (Project myproject : distributionProjects) {
             if (!myproject.getProjectDir().equals(getProjectDir())) {
                 if (first == true) {
-                    first = false;
+                    first = false
                 } else {
-                    out.write ", ";
+                    out.write ", "
                 }
                 out.write '"' + myproject.name + '"'
             }
         }
-        out.write "\n\n";
+        out.write "\n\n"
 
         for (Project myproject : distributionProjects) {
             if (myproject.getProjectDir().equals(getProjectDir())) {
-                continue;
+                continue
             }
             println myproject.name
-            out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int) (getProjectDir().toString().size() + 1)) + '")\n';
+            out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int) (getProjectDir().toString().size() + 1)) + '")\n'
         }
 
-        out.close();
+        out.close()
     }
 }
 

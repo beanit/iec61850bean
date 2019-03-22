@@ -107,17 +107,11 @@ public abstract class FcModelNode extends ModelNode {
   }
 
   boolean isSelected() {
-    if (selected == null) {
-      return false;
-    }
-    return true;
+    return selected != null;
   }
 
   boolean isSelectedBy(ServerAssociation association) {
-    if (selected == association) {
-      return true;
-    }
-    return false;
+    return selected == association;
   }
 
   VariableDefs.SEQUENCE getMmsVariableDef() {

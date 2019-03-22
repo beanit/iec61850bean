@@ -220,7 +220,7 @@ public final class BdaQuality extends BdaBitString {
     QUESTIONABLE(3);
     private final int value;
 
-    private Validity(int value) {
+    Validity(int value) {
       this.value = value;
     }
 

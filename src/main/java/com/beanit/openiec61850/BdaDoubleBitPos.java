@@ -83,7 +83,7 @@ public final class BdaDoubleBitPos extends BdaBitString {
     BAD_STATE(3);
     private final int value;
 
-    private DoubleBitPos(int value) {
+    DoubleBitPos(int value) {
       this.value = value;
     }
 

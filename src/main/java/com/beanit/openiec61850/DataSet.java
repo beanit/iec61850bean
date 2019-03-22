@@ -127,7 +127,7 @@ public final class DataSet implements Iterable<FcModelNode> {
     int slash = dataSetReference.indexOf('/');
     String domainID = dataSetReference.substring(0, slash);
     String itemID =
-        dataSetReference.substring(slash + 1, dataSetReference.length()).replace('.', '$');
+        dataSetReference.substring(slash + 1).replace('.', '$');
 
     ObjectName.DomainSpecific domainSpecificObjectName = new ObjectName.DomainSpecific();
     domainSpecificObjectName.setDomainID(new Identifier(domainID.getBytes()));

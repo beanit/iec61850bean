@@ -17,7 +17,7 @@ import java.io.IOException;
 
 public interface TConnectionListener {
 
-  public void connectionIndication(TConnection tConnection);
+  void connectionIndication(TConnection tConnection);
 
   /**
    * This function is only called when an IOException in ServerSocket.accept() occurred which was
@@ -25,5 +25,5 @@ public interface TConnectionListener {
    *
    * @param e The IOException caught form ServerSocket.accept()
    */
-  public void serverStoppedListeningIndication(IOException e);
+  void serverStoppedListeningIndication(IOException e);
 }

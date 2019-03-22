@@ -31,7 +31,7 @@ public interface ClientEventListener {
    *
    * @param report the report that arrived.
    */
-  public void newReport(Report report);
+  void newReport(Report report);
 
   /**
    * Invoked when an IOException occurred for the association. An IOException implies that the
@@ -40,5 +40,5 @@ public interface ClientEventListener {
    *
    * @param e the exception that occured.
    */
-  public void associationClosed(IOException e);
+  void associationClosed(IOException e);
 }

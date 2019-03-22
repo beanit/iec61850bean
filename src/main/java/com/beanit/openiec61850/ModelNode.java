@@ -69,7 +69,7 @@ public abstract class ModelNode implements Iterable<ModelNode> {
     if (children == null) {
       return null;
     }
-    return (Collection<ModelNode>) ((Collection<?>) children.values());
+    return (Collection<ModelNode>) children.values();
   }
 
   protected Iterator<Iterator<? extends ModelNode>> getIterators() {

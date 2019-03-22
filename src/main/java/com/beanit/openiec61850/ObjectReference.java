@@ -112,7 +112,7 @@ public final class ObjectReference implements Iterable<String> {
     int lastDelim = -1;
     int nextDelim = objectReference.indexOf('/');
     if (nextDelim == -1) {
-      nodeNames.add(objectReference.substring(lastDelim + 1, objectReference.length()));
+      nodeNames.add(objectReference.substring(lastDelim + 1));
       return;
     }
 
@@ -143,7 +143,7 @@ public final class ObjectReference implements Iterable<String> {
       }
 
       if (dotIndex == openingbracketIndex && dotIndex == closingbracketIndex) {
-        nodeNames.add(objectReference.substring(lastDelim + 1, objectReference.length()));
+        nodeNames.add(objectReference.substring(lastDelim + 1));
         return;
       }
 

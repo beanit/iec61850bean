@@ -29,7 +29,7 @@ public interface ServerEventListener {
    * @return a list of service errors indicating errors writing the corresponding basic data
    *     attributes.
    */
-  public List<ServiceError> write(List<BasicDataAttribute> bdas);
+  List<ServiceError> write(List<BasicDataAttribute> bdas);
 
   void serverStoppedListening(ServerSap serverSAP);
 }

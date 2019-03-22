@@ -840,9 +840,7 @@ public final class ClientAssociation {
     }
 
     boolean moreFollows =
-        (fileDirectoryRes.getMoreFollows() == null)
-            ? false
-            : fileDirectoryRes.getMoreFollows().value;
+        (fileDirectoryRes.getMoreFollows() != null) && fileDirectoryRes.getMoreFollows().value;
 
     return moreFollows;
   }
@@ -1304,7 +1302,7 @@ public final class ClientAssociation {
     } else if (!existingDs.isDeletable()) {
       return;
     } else {
-      serverModel.removeDataSet(dsObjRef.toString());
+      serverModel.removeDataSet(dsObjRef);
       serverModel.addDataSet(dataSet);
     }
   }
@@ -1873,10 +1871,7 @@ public final class ClientAssociation {
 
     getDataValues(sbo);
 
-    if (sbo.getValue().length == 0) {
-      return false;
-    }
-    return true;
+    return sbo.getValue().length != 0;
   }
 
   /**

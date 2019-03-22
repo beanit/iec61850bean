@@ -78,7 +78,7 @@ public final class BdaTapCommand extends BdaBitString {
     RESERVED(3);
     private final int value;
 
-    private TapCommand(int value) {
+    TapCommand(int value) {
       this.value = value;
     }
 

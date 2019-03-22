@@ -100,7 +100,7 @@ public class ClientServerITest2 extends Thread implements ServerEventListener, C
 
   @Test
   public void testClientServerCom()
-      throws IOException, ServiceError, ConfigurationException, javax.naming.ConfigurationException,
+      throws IOException, ServiceError, javax.naming.ConfigurationException,
           SclParseException, InterruptedException {
 
     clientSap.setTSelRemote(new byte[] {0, 1});

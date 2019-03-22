@@ -60,12 +60,12 @@ public class ReportingTest implements ClientEventListener {
 
   @Before
   public void startServerAndClient()
-      throws SclParseException, UnknownHostException, IOException, ServiceError {
+      throws SclParseException, IOException, ServiceError {
     startServer();
     startClient();
   }
 
-  private void startClient() throws IOException, UnknownHostException, ServiceError {
+  private void startClient() throws IOException, ServiceError {
     ClientSap clientSap = new ClientSap();
     this.clientAssociation =
         clientSap.associate(InetAddress.getByName("localhost"), PORT, "", this);
