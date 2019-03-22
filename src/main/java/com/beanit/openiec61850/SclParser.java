@@ -880,9 +880,9 @@ public class SclParser {
       BdaBoolean bda = new BdaBoolean(new ObjectReference(ref), fc, sAddr, dchg, dupd);
       if (val != null) {
         if (val.equalsIgnoreCase("true") || val.equals("1")) {
-          bda.setValue(new Boolean(true));
+          bda.setValue(true);
         } else if (val.equalsIgnoreCase("false") || val.equals("0")) {
-          bda.setValue(new Boolean(false));
+          bda.setValue(false);
         } else {
           throw new SclParseException("invalid boolean configured value: " + val);
         }
@@ -1071,7 +1071,7 @@ public class SclParser {
         if (val != null) {
           for (EnumVal enumVal : enumType.getValues()) {
             if (val.equals(enumVal.getId())) {
-              bda.setValue(new Short((short) enumVal.getOrd()));
+              bda.setValue((short) enumVal.getOrd());
               return bda;
             }
           }
@@ -1083,7 +1083,7 @@ public class SclParser {
         if (val != null) {
           for (EnumVal enumVal : enumType.getValues()) {
             if (val.equals(enumVal.getId())) {
-              bda.setValue(new Byte((byte) enumVal.getOrd()));
+              bda.setValue((byte) enumVal.getOrd());
               return bda;
             }
           }

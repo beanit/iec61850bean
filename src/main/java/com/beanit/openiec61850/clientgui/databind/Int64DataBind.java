@@ -26,7 +26,7 @@ public class Int64DataBind extends TextFieldDataBind<BdaInt64> {
 
   @Override
   protected void resetImpl() {
-    inputField.setText(new Long(data.getValue()).toString());
+    inputField.setText(Long.toString(data.getValue()));
   }
 
   @Override

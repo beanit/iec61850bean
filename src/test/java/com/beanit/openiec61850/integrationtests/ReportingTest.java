@@ -105,7 +105,7 @@ public class ReportingTest implements ClientEventListener {
     Assert.assertNotNull(mag);
     Assert.assertEquals(0, this.reportCounter);
 
-    mag.setFloat(new Float(3.0));
+    mag.setFloat(3.0f);
     List<BasicDataAttribute> bdas = new ArrayList<>();
     bdas.add(mag);
     this.serverSap.setValues(bdas);
@@ -161,7 +161,7 @@ public class ReportingTest implements ClientEventListener {
     Assert.assertNotNull(mag);
     Assert.assertEquals(0, this.reportCounter);
 
-    mag.setFloat(new Float(3.0));
+    mag.setFloat(3.0f);
     List<BasicDataAttribute> bdas = new ArrayList<>();
     bdas.add(mag);
     this.serverSap.setValues(bdas);

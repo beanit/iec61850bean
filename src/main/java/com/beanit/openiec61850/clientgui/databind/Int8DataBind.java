@@ -26,7 +26,7 @@ public class Int8DataBind extends TextFieldDataBind<BdaInt8> {
 
   @Override
   protected void resetImpl() {
-    inputField.setText(new Byte(data.getValue()).toString());
+    inputField.setText(Byte.toString(data.getValue()));
   }
 
   @Override
