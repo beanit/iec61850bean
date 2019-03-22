@@ -13,10 +13,10 @@
  */
 package com.beanit.openiec61850;
 
+import com.beanit.jasn1.ber.types.BerBitString;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.Integer32;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
-import org.openmuc.jasn1.ber.types.BerBitString;
 
 public abstract class BdaBitString extends BasicDataAttribute {
 

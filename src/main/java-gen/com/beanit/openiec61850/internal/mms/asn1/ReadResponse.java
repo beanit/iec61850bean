@@ -20,6 +20,7 @@ public class ReadResponse implements BerType, Serializable {
   public byte[] code = null;
   private VariableAccessSpecification variableAccessSpecification = null;
   private ListOfAccessResult listOfAccessResult = null;
+
   public ReadResponse() {}
 
   public ReadResponse(byte[] code) {

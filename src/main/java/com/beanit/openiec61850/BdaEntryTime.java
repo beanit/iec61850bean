@@ -13,10 +13,10 @@
  */
 package com.beanit.openiec61850;
 
+import com.beanit.jasn1.ber.types.BerBoolean;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.TimeOfDay;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
-import org.openmuc.jasn1.ber.types.BerBoolean;
 
 /**
  * BdaEntryTime stores time in terms of days and ms since 1984.

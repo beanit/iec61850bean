@@ -13,6 +13,11 @@
  */
 package com.beanit.josistack;
 
+import com.beanit.jasn1.ber.ReverseByteArrayOutputStream;
+import com.beanit.jasn1.ber.types.BerAny;
+import com.beanit.jasn1.ber.types.BerInteger;
+import com.beanit.jasn1.ber.types.BerObjectIdentifier;
+import com.beanit.jasn1.ber.types.string.BerGraphicString;
 import com.beanit.josistack.internal.acse.asn1.AAREApdu;
 import com.beanit.josistack.internal.acse.asn1.AARQApdu;
 import com.beanit.josistack.internal.acse.asn1.ACSEApdu;
@@ -53,11 +58,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
-import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
-import org.openmuc.jasn1.ber.types.BerAny;
-import org.openmuc.jasn1.ber.types.BerInteger;
-import org.openmuc.jasn1.ber.types.BerObjectIdentifier;
-import org.openmuc.jasn1.ber.types.string.BerGraphicString;
 
 public final class AcseAssociation {
 

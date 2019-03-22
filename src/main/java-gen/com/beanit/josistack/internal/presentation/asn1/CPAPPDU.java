@@ -17,6 +17,7 @@ public class CPAPPDU implements BerType, Serializable {
   public byte[] code = null;
   private ModeSelector modeSelector = null;
   private NormalModeParameters normalModeParameters = null;
+
   public CPAPPDU() {}
 
   public CPAPPDU(byte[] code) {

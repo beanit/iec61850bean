@@ -20,6 +20,7 @@ public class AlternateAccessSelection implements BerType, Serializable {
   private SelectAccess selectAccess = null;
 
   public AlternateAccessSelection() {}
+
   public AlternateAccessSelection(byte[] code) {
     this.code = code;
   }
@@ -137,6 +138,7 @@ public class AlternateAccessSelection implements BerType, Serializable {
     public byte[] code = null;
     private AccessSelection accessSelection = null;
     private AlternateAccess alternateAccess = null;
+
     public SelectAlternateAccess() {}
 
     public SelectAlternateAccess(byte[] code) {
@@ -280,7 +282,9 @@ public class AlternateAccessSelection implements BerType, Serializable {
       private Unsigned32 index = null;
       private IndexRange indexRange = null;
       private BerNull allElements = null;
+
       public AccessSelection() {}
+
       public AccessSelection(byte[] code) {
         this.code = code;
       }
@@ -705,7 +709,9 @@ public class AlternateAccessSelection implements BerType, Serializable {
     private Unsigned32 index = null;
     private IndexRange indexRange = null;
     private BerNull allElements = null;
+
     public SelectAccess() {}
+
     public SelectAccess(byte[] code) {
       this.code = code;
     }

@@ -21,6 +21,7 @@ public class GetNameListResponse implements BerType, Serializable {
   public byte[] code = null;
   private ListOfIdentifier listOfIdentifier = null;
   private BerBoolean moreFollows = null;
+
   public GetNameListResponse() {}
 
   public GetNameListResponse(byte[] code) {

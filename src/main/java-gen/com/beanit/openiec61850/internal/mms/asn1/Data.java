@@ -35,7 +35,9 @@ public class Data implements BerType, Serializable {
   private TimeOfDay binaryTime = null;
   private MMSString mMSString = null;
   private UtcTime utcTime = null;
+
   public Data() {}
+
   public Data(byte[] code) {
     this.code = code;
   }

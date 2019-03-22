@@ -13,6 +13,12 @@
  */
 package com.beanit.openiec61850;
 
+import com.beanit.jasn1.ber.ReverseByteArrayOutputStream;
+import com.beanit.jasn1.ber.types.BerBoolean;
+import com.beanit.jasn1.ber.types.BerInteger;
+import com.beanit.jasn1.ber.types.BerNull;
+import com.beanit.jasn1.ber.types.string.BerGraphicString;
+import com.beanit.jasn1.ber.types.string.BerVisibleString;
 import com.beanit.josistack.AcseAssociation;
 import com.beanit.josistack.ByteBufferInputStream;
 import com.beanit.josistack.ClientAcseSap;
@@ -80,12 +86,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
-import org.openmuc.jasn1.ber.types.BerBoolean;
-import org.openmuc.jasn1.ber.types.BerInteger;
-import org.openmuc.jasn1.ber.types.BerNull;
-import org.openmuc.jasn1.ber.types.string.BerGraphicString;
-import org.openmuc.jasn1.ber.types.string.BerVisibleString;
 
 /**
  * Represents an association/connection to an IEC 61850 MMS server. An instance of <code>
