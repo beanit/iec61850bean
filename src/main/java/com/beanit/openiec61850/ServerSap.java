@@ -63,6 +63,7 @@ public final class ServerSap {
    *     connect) is set to the backlog parameter. If a connection indication arrives when the queue
    *     is full, the connection is refused. Set to 0 or less for the default value.
    * @param bindAddr local IP address to bind to, pass null to bind to all
+   * @param serverModel the server model
    * @param serverSocketFactory the factory class to generate the ServerSocket. Could be used to
    *     create SSLServerSockets. null = default
    */

@@ -839,6 +839,7 @@ public final class AcseAssociation {
    * will point to the byte after the last byte of the ACSE SDU.
    *
    * @param pduBuffer buffer to write the received pdu into
+   * @return the received PDU
    * @throws DecodingException if a decoding error occurs
    * @throws IOException if a non recoverable error occurs. Afterwards the association should be
    *     closed by the user
