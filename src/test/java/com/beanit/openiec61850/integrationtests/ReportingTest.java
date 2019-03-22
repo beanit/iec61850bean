@@ -33,7 +33,6 @@ import com.beanit.openiec61850.ServiceError;
 import com.beanit.openiec61850.Urcb;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
@@ -59,8 +58,7 @@ public class ReportingTest implements ClientEventListener {
   private int reportCounter = 0;
 
   @Before
-  public void startServerAndClient()
-      throws SclParseException, IOException, ServiceError {
+  public void startServerAndClient() throws SclParseException, IOException, ServiceError {
     startServer();
     startClient();
   }

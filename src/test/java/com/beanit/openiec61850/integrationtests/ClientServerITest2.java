@@ -33,7 +33,6 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import javax.naming.ConfigurationException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -100,8 +99,8 @@ public class ClientServerITest2 extends Thread implements ServerEventListener, C
 
   @Test
   public void testClientServerCom()
-      throws IOException, ServiceError, javax.naming.ConfigurationException,
-          SclParseException, InterruptedException {
+      throws IOException, ServiceError, javax.naming.ConfigurationException, SclParseException,
+          InterruptedException {
 
     clientSap.setTSelRemote(new byte[] {0, 1});
     clientSap.setTSelLocal(new byte[] {0, 0});

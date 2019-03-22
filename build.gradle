@@ -1,60 +1,38 @@
-buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
-    dependencies {
-        classpath group: "org.asciidoctor", name: "asciidoctorj-pdf", version: "1.5.0-alpha.16"
-        classpath "biz.aQute.bnd:biz.aQute.bnd.gradle:4.0.0"
-    }
-}
-
 plugins {
-    id "org.asciidoctor.convert" version "1.5.6"
-    id "net.saliman.cobertura" version "2.5.1"
+    id("biz.aQute.bnd.builder") version "4.1.0"
+    id("com.diffplug.gradle.spotless") version "3.19.0" apply false
+    id("io.codearte.nexus-staging") version "0.20.0"
 }
 
-apply plugin: "org.asciidoctor.convert"
 apply from: "configuration.gradle"
-
-asciidoctor {
-    backends = ["pdf", "html5"]
-    attributes "stylesheet": "openmuc-asciidoc.css",
-            "toc2": "left",
-            "sampleSrc": file("src/sample/java"),
-            "source-highlighter": "coderay",
-            "pdf-stylesdir": "./",
-            "pdf-style": "pdf"
-
-    resources {
-        from("$sourceDir") {
-            include "images/**"
-        }
-    }
-}
 
 configure(allprojects) {
     version = cfgVersion
+}
+
+nexusStaging {
+    packageGroup = cfgGroup
+    username = cfgRepositoryUser
+    password = cfgRepositoryPass
+    stagingProfileId = cfgStagingProfileId
 }
 
 configure(javaProjects) {
 
     apply plugin: "java"
     apply plugin: "eclipse"
-    apply plugin: "osgi"
     apply plugin: "maven"
     apply plugin: "signing"
     apply plugin: "biz.aQute.bnd.builder"
-    apply plugin: 'net.saliman.cobertura'
-
+    apply plugin: "com.diffplug.gradle.spotless"
+    
     uploadArchives.enabled = false
 
     group = cfgGroup
 
     if (!project.properties.containsKey('cfgJavaVersion')) {
         project.ext {
-            cfgJavaVersion = '1.7'
+            cfgJavaVersion = '1.8'
         }
     }
 
@@ -67,7 +45,6 @@ configure(javaProjects) {
     }
 
     sourceSets {
-        sample
         itest {
             compileClasspath += sourceSets.main.runtimeClasspath
         }
@@ -83,20 +60,20 @@ configure(javaProjects) {
             version = project.version.replace("-", ".")
         }
     }
-    cobertura {
 
-        dependencies {
-            testCompile 'org.slf4j:slf4j-simple:1.6.1'
+    spotless {
+        java {
+            googleJavaFormat()
         }
-        coverageFormats = ['html', 'xml']
-        coverageIgnoreTrivial = false
-        coverageIgnores = ['org.slf4j.Logger.*']
-        coverageExcludes = ['.*\\.app\\..*', '.*\\.cli-app\\..*', '.*\\.sample\\..*']
-        coverageReportDir = new File("$buildDir/reports/cobertura")
-        coverageTestTasks {
-            project.tasks.withType(Test).matching { it.name == 'test' }
-        }
+    }
 
+    tasks.withType(JavaCompile) {
+        doFirst {
+            if (sourceCompatibility == '1.7' && System.env.JDK7_HOME != null) {
+                options.fork = true
+                options.bootstrapClasspath = files("$System.env.JDK7_HOME/jre/lib/rt.jar")
+            }
+        }
     }
 
     task jarAll(type: Copy) {
@@ -121,7 +98,6 @@ configure(javaProjects) {
         }
     }
 
-    build.dependsOn { asciidoctor }
     build.dependsOn { jarAll }
 
     eclipse.pathVariables([GRADLE_USER_HOME: file(gradle.gradleUserHomeDir)])
@@ -185,11 +161,10 @@ configure(repositoryProjects) {
                 }
 
                 pom.project {
-
                     //additional pom information can be found in subproject build.gradle files
 
                     packaging "jar"
-                    url "http://www.openmuc.org/"
+                    url "http://www.beanit.com/"
 
                     scm {
                         url "none"
@@ -198,8 +173,8 @@ configure(repositoryProjects) {
 
                     developers {
                         developer {
-                            id "openmuc"
-                            name "OpenMUC Team"
+                            id "beanit"
+                            name "Beanit GmbH"
                         }
                     }
                 }
@@ -229,46 +204,9 @@ task javadocAll(type: Javadoc) {
     })
 }
 
-
-task writeSettings {
-    doLast {
-        Writer out = new OutputStreamWriter(new FileOutputStream("build/settings.gradle"))
-        out.write("include ")
-        boolean first = true
-        for (Project myproject : distributionProjects) {
-            if (!myproject.getProjectDir().equals(getProjectDir())) {
-                if (first == true) {
-                    first = false
-                } else {
-                    out.write ", "
-                }
-                out.write '"' + myproject.name + '"'
-            }
-        }
-        out.write "\n\n"
-
-        for (Project myproject : distributionProjects) {
-            if (myproject.getProjectDir().equals(getProjectDir())) {
-                continue
-            }
-            println myproject.name
-            out.write 'project(":' + myproject.name + '").projectDir = file("' + myproject.getProjectDir().toString().substring((int) (getProjectDir().toString().size() + 1)) + '")\n'
-        }
-
-        out.close()
-    }
-}
-
-task buildDistProjects {
-    dependsOn(distributionProjects.build)
-}
-
 tasks.withType(Tar) {
-
-    dependsOn(writeSettings)
     dependsOn(distributionProjects.build)
     dependsOn(javadocAll)
-    dependsOn(asciidoctor)
 
     compression = Compression.GZIP
 
@@ -279,7 +217,3 @@ task(tar, type: Tar) {
     archiveName = project.name + "-" + project.version + ".tgz"
 }
 
-task(tarFull, type: Tar) {
-    dependsOn(tar)
-    archiveName = project.name + "-" + project.version + "_full.tgz"
-}

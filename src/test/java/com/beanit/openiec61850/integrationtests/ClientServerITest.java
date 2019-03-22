@@ -45,7 +45,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import javax.naming.ConfigurationException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -112,8 +111,8 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
 
   @Test
   public void testClientServerCom()
-      throws IOException, ServiceError, javax.naming.ConfigurationException,
-          SclParseException, InterruptedException {
+      throws IOException, ServiceError, javax.naming.ConfigurationException, SclParseException,
+          InterruptedException {
 
     clientSap.setTSelRemote(new byte[] {0, 1});
     clientSap.setTSelLocal(new byte[] {0, 0});
