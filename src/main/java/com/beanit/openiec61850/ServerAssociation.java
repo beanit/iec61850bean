@@ -14,13 +14,13 @@
 package com.beanit.openiec61850;
 
 import com.beanit.jasn1.ber.ReverseByteArrayOutputStream;
-import com.beanit.jasn1.ber.types.BerBoolean;
 import com.beanit.jasn1.ber.types.BerInteger;
 import com.beanit.jasn1.ber.types.BerNull;
 import com.beanit.jasn1.ber.types.string.BerVisibleString;
 import com.beanit.josistack.AcseAssociation;
 import com.beanit.josistack.ByteBufferInputStream;
 import com.beanit.josistack.DecodingException;
+import com.beanit.openiec61850.internal.BerBoolean;
 import com.beanit.openiec61850.internal.NamedDefaultThreadFactory;
 import com.beanit.openiec61850.internal.mms.asn1.AccessResult;
 import com.beanit.openiec61850.internal.mms.asn1.ConfirmedErrorPDU;

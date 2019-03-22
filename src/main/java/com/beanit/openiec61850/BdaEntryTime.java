@@ -13,7 +13,7 @@
  */
 package com.beanit.openiec61850;
 
-import com.beanit.jasn1.ber.types.BerBoolean;
+import com.beanit.openiec61850.internal.BerBoolean;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.TimeOfDay;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;

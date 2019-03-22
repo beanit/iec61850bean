@@ -25,7 +25,7 @@ configure(javaProjects) {
     apply plugin: "signing"
     apply plugin: "biz.aQute.bnd.builder"
     apply plugin: "com.diffplug.gradle.spotless"
-    
+
     uploadArchives.enabled = false
 
     group = cfgGroup
