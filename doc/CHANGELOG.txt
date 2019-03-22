@@ -1,10 +1,18 @@
+- library now published on maven central in the com.beanit namespace
+
+- changed package names from org.openmuc.* to com.beanit.*
+
+- changed back to depend on the regular jasn1 library. Coding boolean
+  true values as 0x01 is now done by internal openiec61850 class.
+
+
 v1.7.0 06-Nov-2018
 ------------------
 
 - refactored SCL parser to return List<ServerModel> instead of
   List<ServerSap> so that parser can be used more flexible by
-  applications the do not want to start a server but just parse an SCL
-  file.
+  applications that do not want to start a server but just parse an
+  SCL file.
 
 - SCL parser can now handle multiple IEDs defined in a single SCL file
 
