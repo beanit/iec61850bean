@@ -9,13 +9,13 @@ OpenIEC61850 is a library implementing the IEC 61850 standard based on the MMS m
 
 ### Distribution
 
-After extracting the distribution tar file, the OpenIEC61850 library can be found in the folder *build/libs-all*. For license information check the *license* directory in the distribution.
+After extracting the distribution tar file, the OpenIEC61850 library can be found in the folder *build/libs-all*.
 
 #### Dependencies
 
 Besides the OpenIEC61850 library the folder *build/libs-all/* contains the following external libraries:
 
-* *jasn1* - the ASN.1 BER encoding/decoding library by beanit, License: Apache 2.0, https://www.beanit.com
+* *jasn1* - the ASN.1 BER encoding/decoding library by beanit, license: Apache 2.0, https://www.beanit.com
 
 * *slf4j-api* - a popular logging API. It is only needed if openiec61850 is used to implement a server. The client part does not log anything.  License: MIT, http://www.slf4j.org
 
@@ -26,7 +26,7 @@ Besides the OpenIEC61850 library the folder *build/libs-all/* contains the follo
 
 ### Console & GUI Applications
 
-You can execute the console client and server through the scripts found in the folder *run-scripts*.  Executing the scripts without any parameters will print help information to the screen. Note that under Unix/Linux you need root privileges if you want the server to listen on any port lower than 1000.
+You can execute the console client and server through the scripts found in the *bin* folder.  Executing the scripts without any parameters will print help information to the screen. Note that under Unix/Linux you need root privileges if you want the server to listen on any port lower than 1000.
 
 ### OSI Stack
 
@@ -81,4 +81,4 @@ You can then navigate through the model using several functions:
 
 ## Modifying and Compiling OpenIEC61850
 
-We use the Gradle build automation tool. The distribution contains a fully functional gradle build file (*build.gradle*). Thus if you changed code and want to rebuild a library you can do it easily with Gradle. Also if you want to import our software into Eclipse you can easily create Eclipse project files using Gradle.
+We use the Gradle build automation tool. The distribution contains a fully functional gradle build file (*build.gradle*). Thus if you changed code and want to rebuild a library you can do it easily with Gradle.
