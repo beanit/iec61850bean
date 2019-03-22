@@ -18,31 +18,31 @@ import org.openmuc.openiec61850.BdaType;
 
 public class Int32DataBind extends TextFieldDataBind<BdaInt32> {
 
-    private static final Int32Filter FILTER = new Int32Filter();
+  private static final Int32Filter FILTER = new Int32Filter();
 
-    public Int32DataBind(BdaInt32 data) {
-        super(data, BdaType.INT32, FILTER);
-    }
+  public Int32DataBind(BdaInt32 data) {
+    super(data, BdaType.INT32, FILTER);
+  }
 
+  @Override
+  protected void resetImpl() {
+    inputField.setText(new Integer(data.getValue()).toString());
+  }
+
+  @Override
+  protected void writeImpl() {
+    data.setValue(Integer.parseInt(inputField.getText()));
+  }
+
+  private static class Int32Filter extends AbstractFilter {
     @Override
-    protected void resetImpl() {
-        inputField.setText(new Integer(data.getValue()).toString());
+    protected boolean test(String text) {
+      try {
+        Integer.parseInt(text);
+        return true;
+      } catch (NumberFormatException e) {
+        return false;
+      }
     }
-
-    @Override
-    protected void writeImpl() {
-        data.setValue(Integer.parseInt(inputField.getText()));
-    }
-
-    private static class Int32Filter extends AbstractFilter {
-        @Override
-        protected boolean test(String text) {
-            try {
-                Integer.parseInt(text);
-                return true;
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        }
-    }
+  }
 }

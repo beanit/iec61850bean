@@ -18,32 +18,32 @@ import org.openmuc.openiec61850.BdaType;
 
 public class Float64DataBind extends TextFieldDataBind<BdaFloat64> {
 
-    private static final DoubleFilter FILTER = new DoubleFilter();
+  private static final DoubleFilter FILTER = new DoubleFilter();
 
-    public Float64DataBind(BdaFloat64 data) {
-        super(data, BdaType.FLOAT64, FILTER);
-    }
+  public Float64DataBind(BdaFloat64 data) {
+    super(data, BdaType.FLOAT64, FILTER);
+  }
 
+  @Override
+  protected void resetImpl() {
+    inputField.setText(data.getDouble().toString());
+  }
+
+  @Override
+  protected void writeImpl() {
+    double newDouble = Double.parseDouble(inputField.getText());
+    data.setDouble(newDouble);
+  }
+
+  private static class DoubleFilter extends AbstractFilter {
     @Override
-    protected void resetImpl() {
-        inputField.setText(data.getDouble().toString());
+    protected boolean test(String text) {
+      try {
+        Double.parseDouble(text);
+        return true;
+      } catch (NumberFormatException e) {
+        return false;
+      }
     }
-
-    @Override
-    protected void writeImpl() {
-        double newDouble = Double.parseDouble(inputField.getText());
-        data.setDouble(newDouble);
-    }
-
-    private static class DoubleFilter extends AbstractFilter {
-        @Override
-        protected boolean test(String text) {
-            try {
-                Double.parseDouble(text);
-                return true;
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        }
-    }
+  }
 }

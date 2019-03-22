@@ -20,70 +20,69 @@ import org.openmuc.openiec61850.internal.mms.asn1.Unsigned8;
 
 public final class BdaInt64 extends BasicDataAttribute {
 
-    volatile private long value;
+  private volatile long value;
 
-    public BdaInt64(ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
-        super(objectReference, fc, sAddr, dchg, dupd);
-        basicType = BdaType.INT64;
-        setDefault();
+  public BdaInt64(
+      ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
+    super(objectReference, fc, sAddr, dchg, dupd);
+    basicType = BdaType.INT64;
+    setDefault();
+  }
+
+  @Override
+  public void setValueFrom(BasicDataAttribute bda) {
+    value = ((BdaInt64) bda).getValue();
+  }
+
+  public long getValue() {
+    return value;
+  }
+
+  public void setValue(long value) {
+    this.value = value;
+  }
+
+  @Override
+  public void setDefault() {
+    value = 0;
+  }
+
+  @Override
+  public BdaInt64 copy() {
+    BdaInt64 copy = new BdaInt64(objectReference, fc, sAddr, dchg, dupd);
+    copy.setValue(value);
+    if (mirror == null) {
+      copy.mirror = this;
+    } else {
+      copy.mirror = mirror;
     }
+    return copy;
+  }
 
-    public void setValue(long value) {
-        this.value = value;
+  @Override
+  Data getMmsDataObj() {
+    Data data = new Data();
+    data.setInteger(new BerInteger(value));
+    return data;
+  }
+
+  @Override
+  void setValueFromMmsDataObj(Data data) throws ServiceError {
+    if (data.getInteger() == null) {
+      throw new ServiceError(ServiceError.TYPE_CONFLICT, "expected type: integer");
     }
+    value = data.getInteger().value.longValue();
+  }
 
-    @Override
-    public void setValueFrom(BasicDataAttribute bda) {
-        value = ((BdaInt64) bda).getValue();
-    }
+  @Override
+  TypeDescription getMmsTypeSpec() {
+    TypeDescription typeDescription = new TypeDescription();
+    typeDescription.setInteger(new Unsigned8(64));
+    return typeDescription;
+  }
 
-    public long getValue() {
-        return value;
-    }
-
-    @Override
-    public void setDefault() {
-        value = 0;
-    }
-
-    @Override
-    public BdaInt64 copy() {
-        BdaInt64 copy = new BdaInt64(objectReference, fc, sAddr, dchg, dupd);
-        copy.setValue(value);
-        if (mirror == null) {
-            copy.mirror = this;
-        }
-        else {
-            copy.mirror = mirror;
-        }
-        return copy;
-    }
-
-    @Override
-    Data getMmsDataObj() {
-        Data data = new Data();
-        data.setInteger(new BerInteger(value));
-        return data;
-    }
-
-    @Override
-    void setValueFromMmsDataObj(Data data) throws ServiceError {
-        if (data.getInteger() == null) {
-            throw new ServiceError(ServiceError.TYPE_CONFLICT, "expected type: integer");
-        }
-        value = data.getInteger().value.longValue();
-    }
-
-    @Override
-    TypeDescription getMmsTypeSpec() {
-        TypeDescription typeDescription = new TypeDescription();
-        typeDescription.setInteger(new Unsigned8(64));
-        return typeDescription;
-    }
-
-    @Override
-    public String toString() {
-        return getReference().toString() + ": " + value;
-    }
-
+  @Override
+  public String toString() {
+    return getReference().toString() + ": " + value;
+  }
 }

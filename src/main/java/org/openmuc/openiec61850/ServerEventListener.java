@@ -17,19 +17,19 @@ import java.util.List;
 
 public interface ServerEventListener {
 
-    /**
-     * The write callback function is called if one of more basic data attributes are written using either the
-     * setDataValue, setDataSetValues or control services. If the complete write process was successful write returns
-     * either an empty list or null. If an error occurs writing one or more attributes then a list shall be returned
-     * that is of equal size as the list of basic data attributes. The returned list's element shall be null if writing
-     * the corresponding BDA was successful and a service error otherwise.
-     * 
-     * @param bdas
-     *            the list of basic data attributes that are to be set.
-     * @return a list of service errors indicating errors writing the corresponding basic data attributes.
-     */
-    public List<ServiceError> write(List<BasicDataAttribute> bdas);
+  /**
+   * The write callback function is called if one of more basic data attributes are written using
+   * either the setDataValue, setDataSetValues or control services. If the complete write process
+   * was successful write returns either an empty list or null. If an error occurs writing one or
+   * more attributes then a list shall be returned that is of equal size as the list of basic data
+   * attributes. The returned list's element shall be null if writing the corresponding BDA was
+   * successful and a service error otherwise.
+   *
+   * @param bdas the list of basic data attributes that are to be set.
+   * @return a list of service errors indicating errors writing the corresponding basic data
+   *     attributes.
+   */
+  public List<ServiceError> write(List<BasicDataAttribute> bdas);
 
-    void serverStoppedListening(ServerSap serverSAP);
-
+  void serverStoppedListening(ServerSap serverSAP);
 }

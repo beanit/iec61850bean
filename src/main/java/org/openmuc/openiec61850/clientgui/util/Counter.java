@@ -14,21 +14,21 @@
 package org.openmuc.openiec61850.clientgui.util;
 
 public class Counter {
-    private int value;
+  private int value;
 
-    public Counter(int value) {
-        this.value = value;
-    }
+  public Counter(int value) {
+    this.value = value;
+  }
 
-    public Counter() {
-        this(0);
-    }
+  public Counter() {
+    this(0);
+  }
 
-    public void increment() {
-        value++;
-    }
+  public void increment() {
+    value++;
+  }
 
-    public int getValue() {
-        return value;
-    }
+  public int getValue() {
+    return value;
+  }
 }

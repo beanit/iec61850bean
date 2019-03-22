@@ -16,30 +16,29 @@ package org.openmuc.openiec61850;
 import java.io.IOException;
 
 /**
- * The listener interface for receiving incoming reports and association closed events. A listener is registered through
- * the {@link ClientSap#associate(java.net.InetAddress, int, String, ClientEventListener) associate} method.
+ * The listener interface for receiving incoming reports and association closed events. A listener
+ * is registered through the {@link ClientSap#associate(java.net.InetAddress, int, String,
+ * ClientEventListener) associate} method.
  *
  * @author Stefan Feuerhahn
- *
  */
 public interface ClientEventListener {
 
-    /**
-     * Invoked when a new report arrives. Note that the implementation of this method needs to be thread safe as it can
-     * be called in parallel if a new report arrives while an old one is still being processed.
-     *
-     * @param report
-     *            the report that arrived.
-     */
-    public void newReport(Report report);
+  /**
+   * Invoked when a new report arrives. Note that the implementation of this method needs to be
+   * thread safe as it can be called in parallel if a new report arrives while an old one is still
+   * being processed.
+   *
+   * @param report the report that arrived.
+   */
+  public void newReport(Report report);
 
-    /**
-     * Invoked when an IOException occurred for the association. An IOException implies that the ClientAssociation that
-     * feeds this listener was automatically closed and can no longer be used to receive reports.
-     *
-     * @param e
-     *            the exception that occured.
-     */
-    public void associationClosed(IOException e);
-
+  /**
+   * Invoked when an IOException occurred for the association. An IOException implies that the
+   * ClientAssociation that feeds this listener was automatically closed and can no longer be used
+   * to receive reports.
+   *
+   * @param e the exception that occured.
+   */
+  public void associationClosed(IOException e);
 }

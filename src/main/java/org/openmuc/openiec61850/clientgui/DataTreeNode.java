@@ -14,25 +14,23 @@
 package org.openmuc.openiec61850.clientgui;
 
 import java.io.IOException;
-
 import javax.swing.tree.TreeNode;
-
 import org.openmuc.openiec61850.ClientAssociation;
 import org.openmuc.openiec61850.ServiceError;
 
 public interface DataTreeNode {
 
-    public abstract BasicDataBind<?> getData();
+  public abstract BasicDataBind<?> getData();
 
-    public abstract void reset(ClientAssociation association) throws ServiceError, IOException;
+  public abstract void reset(ClientAssociation association) throws ServiceError, IOException;
 
-    public abstract void writeValues(ClientAssociation association) throws ServiceError, IOException;
+  public abstract void writeValues(ClientAssociation association) throws ServiceError, IOException;
 
-    public abstract int getChildCount();
+  public abstract int getChildCount();
 
-    public abstract TreeNode getChildAt(int index);
+  public abstract TreeNode getChildAt(int index);
 
-    public abstract boolean writable();
+  public abstract boolean writable();
 
-    public abstract boolean readable();
+  public abstract boolean readable();
 }

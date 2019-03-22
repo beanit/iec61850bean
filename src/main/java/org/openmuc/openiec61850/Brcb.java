@@ -18,39 +18,40 @@ import java.util.List;
 
 public class Brcb extends Rcb {
 
-    public Brcb(ObjectReference objectReference, List<FcModelNode> children) {
-        super(objectReference, Fc.BR, children);
-    }
+  public Brcb(ObjectReference objectReference, List<FcModelNode> children) {
+    super(objectReference, Fc.BR, children);
+  }
 
-    public BdaBoolean getPurgeBuf() {
-        return (BdaBoolean) children.get("PurgeBuf");
-    }
+  public BdaBoolean getPurgeBuf() {
+    return (BdaBoolean) children.get("PurgeBuf");
+  }
 
-    public BdaOctetString getEntryId() {
-        return (BdaOctetString) children.get("EntryID");
-    }
+  public BdaOctetString getEntryId() {
+    return (BdaOctetString) children.get("EntryID");
+  }
 
-    public BdaEntryTime getTimeOfEntry() {
-        return (BdaEntryTime) children.get("TimeOfEntry");
-    }
+  public BdaEntryTime getTimeOfEntry() {
+    return (BdaEntryTime) children.get("TimeOfEntry");
+  }
 
-    /**
-     * Gets the ResvTms attribute. This attribute is optional. Will return NULL if the attribute is not available.
-     * 
-     * @return the ResvTms attribute, null if not available.
-     */
-    public BdaInt16 getResvTms() {
-        return (BdaInt16) children.get("ResvTms");
-    }
+  /**
+   * Gets the ResvTms attribute. This attribute is optional. Will return NULL if the attribute is
+   * not available.
+   *
+   * @return the ResvTms attribute, null if not available.
+   */
+  public BdaInt16 getResvTms() {
+    return (BdaInt16) children.get("ResvTms");
+  }
 
-    @Override
-    public FcDataObject copy() {
-        List<FcModelNode> childCopies = new ArrayList<>(children.size());
-        for (ModelNode childNode : children.values()) {
-            childCopies.add((FcModelNode) childNode.copy());
-        }
-        Brcb brcb = new Brcb(objectReference, childCopies);
-        brcb.dataSet = dataSet;
-        return brcb;
+  @Override
+  public FcDataObject copy() {
+    List<FcModelNode> childCopies = new ArrayList<>(children.size());
+    for (ModelNode childNode : children.values()) {
+      childCopies.add((FcModelNode) childNode.copy());
     }
+    Brcb brcb = new Brcb(objectReference, childCopies);
+    brcb.dataSet = dataSet;
+    return brcb;
+  }
 }

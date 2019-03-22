@@ -15,43 +15,39 @@ package org.openmuc.openiec61850.internal.scl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.openmuc.openiec61850.SclParseException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public final class EnumType extends AbstractType {
 
-    public List<EnumVal> values;
-    public int max = 0;
-    public int min = 0;
+  public List<EnumVal> values;
+  public int max = 0;
+  public int min = 0;
 
-    public EnumType(Node xmlNode) throws SclParseException {
-        super(xmlNode);
+  public EnumType(Node xmlNode) throws SclParseException {
+    super(xmlNode);
 
-        NodeList elements = xmlNode.getChildNodes();
+    NodeList elements = xmlNode.getChildNodes();
 
-        values = new ArrayList<>();
+    values = new ArrayList<>();
 
-        for (int i = 0; i < elements.getLength(); i++) {
-            Node node = elements.item(i);
+    for (int i = 0; i < elements.getLength(); i++) {
+      Node node = elements.item(i);
 
-            if (node.getNodeName().equals("EnumVal")) {
-                EnumVal val = new EnumVal(node);
-                if (val.getOrd() < min) {
-                    min = val.getOrd();
-                }
-                else if (val.getOrd() > max) {
-                    max = val.getOrd();
-                }
-                values.add(val);
-            }
+      if (node.getNodeName().equals("EnumVal")) {
+        EnumVal val = new EnumVal(node);
+        if (val.getOrd() < min) {
+          min = val.getOrd();
+        } else if (val.getOrd() > max) {
+          max = val.getOrd();
         }
-
+        values.add(val);
+      }
     }
+  }
 
-    public List<EnumVal> getValues() {
-        return values;
-    }
-
+  public List<EnumVal> getValues() {
+    return values;
+  }
 }

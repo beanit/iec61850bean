@@ -15,6 +15,6 @@ package org.openmuc.openiec61850.internal.scl;
 
 public final class Value {
 
-    public int sGroup;
-    public String value;
+  public int sGroup;
+  public String value;
 }

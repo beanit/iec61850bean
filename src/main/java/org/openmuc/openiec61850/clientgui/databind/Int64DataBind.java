@@ -18,31 +18,31 @@ import org.openmuc.openiec61850.BdaType;
 
 public class Int64DataBind extends TextFieldDataBind<BdaInt64> {
 
-    private static final Int64Filter FILTER = new Int64Filter();
+  private static final Int64Filter FILTER = new Int64Filter();
 
-    public Int64DataBind(BdaInt64 data) {
-        super(data, BdaType.INT64, FILTER);
-    }
+  public Int64DataBind(BdaInt64 data) {
+    super(data, BdaType.INT64, FILTER);
+  }
 
+  @Override
+  protected void resetImpl() {
+    inputField.setText(new Long(data.getValue()).toString());
+  }
+
+  @Override
+  protected void writeImpl() {
+    data.setValue(Long.parseLong(inputField.getText()));
+  }
+
+  private static class Int64Filter extends AbstractFilter {
     @Override
-    protected void resetImpl() {
-        inputField.setText(new Long(data.getValue()).toString());
+    protected boolean test(String text) {
+      try {
+        Long.parseLong(text);
+        return true;
+      } catch (NumberFormatException e) {
+        return false;
+      }
     }
-
-    @Override
-    protected void writeImpl() {
-        data.setValue(Long.parseLong(inputField.getText()));
-    }
-
-    private static class Int64Filter extends AbstractFilter {
-        @Override
-        protected boolean test(String text) {
-            try {
-                Long.parseLong(text);
-                return true;
-            } catch (NumberFormatException e) {
-                return false;
-            }
-        }
-    }
+  }
 }

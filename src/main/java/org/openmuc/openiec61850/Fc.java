@@ -15,54 +15,53 @@ package org.openmuc.openiec61850;
 
 public enum Fc {
 
-    // The following FCs are not part of this enum because they are not really
-    // FCs and only defined in part 8-1:
-    // RP (report), LG (log), BR (buffered report), GO, GS, MS, US
+  // The following FCs are not part of this enum because they are not really
+  // FCs and only defined in part 8-1:
+  // RP (report), LG (log), BR (buffered report), GO, GS, MS, US
 
-    // FCs according to IEC 61850-7-2:
-    /** Status information */
-    ST,
-    /** Measurands - analogue values */
-    MX,
-    /** Setpoint */
-    SP,
-    /** Substitution */
-    SV,
-    /** Configuration */
-    CF,
-    /** Description */
-    DC,
-    /** Setting group */
-    SG,
-    /** Setting group editable */
-    SE,
-    /** Service response / Service tracking */
-    SR,
-    /** Operate received */
-    OR,
-    /** Blocking */
-    BL,
-    /** Extended definition */
-    EX,
-    /** Control, deprecated but kept here for backward compatibility */
-    CO,
-    /** Unbuffered Reporting */
-    RP,
-    /** Buffered Reporting */
-    BR;
+  // FCs according to IEC 61850-7-2:
+  /** Status information */
+  ST,
+  /** Measurands - analogue values */
+  MX,
+  /** Setpoint */
+  SP,
+  /** Substitution */
+  SV,
+  /** Configuration */
+  CF,
+  /** Description */
+  DC,
+  /** Setting group */
+  SG,
+  /** Setting group editable */
+  SE,
+  /** Service response / Service tracking */
+  SR,
+  /** Operate received */
+  OR,
+  /** Blocking */
+  BL,
+  /** Extended definition */
+  EX,
+  /** Control, deprecated but kept here for backward compatibility */
+  CO,
+  /** Unbuffered Reporting */
+  RP,
+  /** Buffered Reporting */
+  BR;
 
-    /*
-     * * @param fc
-     * 
-     * @return
-     */
+  /*
+   * * @param fc
+   *
+   * @return
+   */
 
-    public static Fc fromString(String fc) {
-        try {
-            return Fc.valueOf(fc);
-        } catch (Exception e) {
-            return null;
-        }
+  public static Fc fromString(String fc) {
+    try {
+      return Fc.valueOf(fc);
+    } catch (Exception e) {
+      return null;
     }
-
+  }
 }

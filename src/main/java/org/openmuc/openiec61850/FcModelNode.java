@@ -16,7 +16,6 @@ package org.openmuc.openiec61850;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 import org.openmuc.openiec61850.internal.mms.asn1.AlternateAccess;
 import org.openmuc.openiec61850.internal.mms.asn1.AlternateAccessSelection;
 import org.openmuc.openiec61850.internal.mms.asn1.AlternateAccessSelection.SelectAccess;
@@ -30,218 +29,227 @@ import org.openmuc.openiec61850.internal.mms.asn1.VariableSpecification;
 
 public abstract class FcModelNode extends ModelNode {
 
-    private VariableDefs.SEQUENCE variableDef = null;
-    Fc fc;
-    private ServerAssociation selected = null;
-    private TimerTask task = null;
+  Fc fc;
+  private VariableDefs.SEQUENCE variableDef = null;
+  private ServerAssociation selected = null;
+  private TimerTask task = null;
 
-    public Fc getFc() {
-        return fc;
-    }
+  public Fc getFc() {
+    return fc;
+  }
 
-    boolean select(ServerAssociation association, Timer timer) {
-        if (selected != null) {
-            if (selected != association) {
-                return false;
-            }
-        }
-        else {
-            selected = association;
-            association.selects.add(this);
-        }
-
-        ModelNode sboTimeoutNode = association.serverModel.findModelNode(objectReference, Fc.CF).getChild("sboTimeout");
-
-        if (sboTimeoutNode == null) {
-            return true;
-        }
-
-        long sboTimeout = ((BdaInt32U) sboTimeoutNode).getValue();
-
-        if (sboTimeout == 0) {
-            return true;
-        }
-
-        class SelectResetTask extends TimerTask {
-            ServerAssociation association;
-
-            SelectResetTask(ServerAssociation association) {
-                this.association = association;
-            }
-
-            @Override
-            public void run() {
-                synchronized (association.serverModel) {
-                    if (task == this) {
-                        task = null;
-                        deselectAndRemove(association);
-                    }
-                }
-            }
-        }
-
-        if (task != null) {
-            task.cancel();
-        }
-
-        task = new SelectResetTask(association);
-        timer.schedule(task, sboTimeout);
-
-        return true;
-
-    }
-
-    void deselectAndRemove(ServerAssociation association) {
-        selected = null;
-        if (task != null) {
-            task.cancel();
-            task = null;
-        }
-        association.selects.remove(this);
-    }
-
-    void deselect() {
-        selected = null;
-        if (task != null) {
-            task.cancel();
-            task = null;
-        }
-    }
-
-    boolean isSelected() {
-        if (selected == null) {
-            return false;
-        }
-        return true;
-    }
-
-    boolean isSelectedBy(ServerAssociation association) {
-        if (selected == association) {
-            return true;
-        }
+  boolean select(ServerAssociation association, Timer timer) {
+    if (selected != null) {
+      if (selected != association) {
         return false;
+      }
+    } else {
+      selected = association;
+      association.selects.add(this);
     }
 
-    VariableDefs.SEQUENCE getMmsVariableDef() {
+    ModelNode sboTimeoutNode =
+        association.serverModel.findModelNode(objectReference, Fc.CF).getChild("sboTimeout");
 
-        if (variableDef != null) {
-            return variableDef;
+    if (sboTimeoutNode == null) {
+      return true;
+    }
+
+    long sboTimeout = ((BdaInt32U) sboTimeoutNode).getValue();
+
+    if (sboTimeout == 0) {
+      return true;
+    }
+
+    class SelectResetTask extends TimerTask {
+      ServerAssociation association;
+
+      SelectResetTask(ServerAssociation association) {
+        this.association = association;
+      }
+
+      @Override
+      public void run() {
+        synchronized (association.serverModel) {
+          if (task == this) {
+            task = null;
+            deselectAndRemove(association);
+          }
         }
+      }
+    }
 
-        AlternateAccess alternateAccess = null;
+    if (task != null) {
+      task.cancel();
+    }
 
-        StringBuilder preArrayIndexItemId = new StringBuilder(objectReference.get(1));
+    task = new SelectResetTask(association);
+    timer.schedule(task, sboTimeout);
+
+    return true;
+  }
+
+  void deselectAndRemove(ServerAssociation association) {
+    selected = null;
+    if (task != null) {
+      task.cancel();
+      task = null;
+    }
+    association.selects.remove(this);
+  }
+
+  void deselect() {
+    selected = null;
+    if (task != null) {
+      task.cancel();
+      task = null;
+    }
+  }
+
+  boolean isSelected() {
+    if (selected == null) {
+      return false;
+    }
+    return true;
+  }
+
+  boolean isSelectedBy(ServerAssociation association) {
+    if (selected == association) {
+      return true;
+    }
+    return false;
+  }
+
+  VariableDefs.SEQUENCE getMmsVariableDef() {
+
+    if (variableDef != null) {
+      return variableDef;
+    }
+
+    AlternateAccess alternateAccess = null;
+
+    StringBuilder preArrayIndexItemId = new StringBuilder(objectReference.get(1));
+    preArrayIndexItemId.append("$");
+    preArrayIndexItemId.append(fc);
+
+    int arrayIndexPosition = objectReference.getArrayIndexPosition();
+    if (arrayIndexPosition != -1) {
+
+      for (int i = 2; i < arrayIndexPosition; i++) {
         preArrayIndexItemId.append("$");
-        preArrayIndexItemId.append(fc);
+        preArrayIndexItemId.append(objectReference.get(i));
+      }
 
-        int arrayIndexPosition = objectReference.getArrayIndexPosition();
-        if (arrayIndexPosition != -1) {
+      alternateAccess = new AlternateAccess();
+      List<AlternateAccess.CHOICE> subSeqOfAlternateAccess = alternateAccess.getCHOICE();
+      Unsigned32 indexBerInteger =
+          new Unsigned32(Integer.parseInt(objectReference.get(arrayIndexPosition)));
 
-            for (int i = 2; i < arrayIndexPosition; i++) {
-                preArrayIndexItemId.append("$");
-                preArrayIndexItemId.append(objectReference.get(i));
-            }
+      if (arrayIndexPosition < (objectReference.size() - 1)) {
+        // this reference points to a sub-node of an array element
 
-            alternateAccess = new AlternateAccess();
-            List<AlternateAccess.CHOICE> subSeqOfAlternateAccess = alternateAccess.getCHOICE();
-            Unsigned32 indexBerInteger = new Unsigned32(Integer.parseInt(objectReference.get(arrayIndexPosition)));
+        StringBuilder postArrayIndexItemId =
+            new StringBuilder(objectReference.get(arrayIndexPosition + 1));
 
-            if (arrayIndexPosition < (objectReference.size() - 1)) {
-                // this reference points to a sub-node of an array element
-
-                StringBuilder postArrayIndexItemId = new StringBuilder(objectReference.get(arrayIndexPosition + 1));
-
-                for (int i = (arrayIndexPosition + 2); i < objectReference.size(); i++) {
-                    postArrayIndexItemId.append("$");
-                    postArrayIndexItemId.append(objectReference.get(i));
-                }
-
-                BasicIdentifier subIndexReference = new BasicIdentifier(postArrayIndexItemId.toString().getBytes());
-
-                AlternateAccessSelection.SelectAccess subIndexReferenceSelectAccess = new AlternateAccessSelection.SelectAccess();
-                Component component = new Component();
-                component.setBasic(subIndexReference);
-                subIndexReferenceSelectAccess.setComponent(component);
-
-                AlternateAccessSelection subIndexReferenceAlternateAccessSelection = new AlternateAccessSelection();
-                subIndexReferenceAlternateAccessSelection.setSelectAccess(subIndexReferenceSelectAccess);
-
-                AlternateAccess.CHOICE subIndexReferenceAlternateAccessSubChoice = new AlternateAccess.CHOICE();
-                subIndexReferenceAlternateAccessSubChoice.setUnnamed(subIndexReferenceAlternateAccessSelection);
-
-                AlternateAccess subIndexReferenceAlternateAccess = new AlternateAccess();
-
-                List<AlternateAccess.CHOICE> subIndexReferenceAlternateAccessSubSeqOf = subIndexReferenceAlternateAccess
-                        .getCHOICE();
-                subIndexReferenceAlternateAccessSubSeqOf.add(subIndexReferenceAlternateAccessSubChoice);
-
-                // set array index:
-
-                AlternateAccessSelection.SelectAlternateAccess.AccessSelection indexAccessSelectionChoice = new AlternateAccessSelection.SelectAlternateAccess.AccessSelection();
-                indexAccessSelectionChoice.setIndex(indexBerInteger);
-
-                AlternateAccessSelection.SelectAlternateAccess indexAndLowerReferenceSelectAlternateAccess = new AlternateAccessSelection.SelectAlternateAccess();
-                indexAndLowerReferenceSelectAlternateAccess.setAccessSelection(indexAccessSelectionChoice);
-                indexAndLowerReferenceSelectAlternateAccess.setAlternateAccess(subIndexReferenceAlternateAccess);
-
-                AlternateAccessSelection indexAndLowerReferenceAlternateAccessSelection = new AlternateAccessSelection();
-                indexAndLowerReferenceAlternateAccessSelection
-                        .setSelectAlternateAccess(indexAndLowerReferenceSelectAlternateAccess);
-
-                AlternateAccess.CHOICE indexAndLowerReferenceAlternateAccessChoice = new AlternateAccess.CHOICE();
-                indexAndLowerReferenceAlternateAccessChoice.setUnnamed(indexAndLowerReferenceAlternateAccessSelection);
-
-                subSeqOfAlternateAccess.add(indexAndLowerReferenceAlternateAccessChoice);
-
-            }
-            else {
-                SelectAccess selectAccess = new SelectAccess();
-                selectAccess.setIndex(indexBerInteger);
-
-                AlternateAccessSelection alternateAccessSelection = new AlternateAccessSelection();
-                alternateAccessSelection.setSelectAccess(selectAccess);
-
-                AlternateAccess.CHOICE alternateAccessChoice = new AlternateAccess.CHOICE();
-                alternateAccessChoice.setUnnamed(alternateAccessSelection);
-
-                subSeqOfAlternateAccess.add(alternateAccessChoice);
-            }
-
-        }
-        else {
-
-            for (int i = 2; i < objectReference.size(); i++) {
-                preArrayIndexItemId.append("$");
-                preArrayIndexItemId.append(objectReference.get(i));
-            }
+        for (int i = (arrayIndexPosition + 2); i < objectReference.size(); i++) {
+          postArrayIndexItemId.append("$");
+          postArrayIndexItemId.append(objectReference.get(i));
         }
 
-        ObjectName.DomainSpecific domainSpecificObjectName = new ObjectName.DomainSpecific();
-        domainSpecificObjectName.setDomainID(new Identifier(objectReference.get(0).getBytes()));
-        domainSpecificObjectName.setItemID(new Identifier(preArrayIndexItemId.toString().getBytes()));
+        BasicIdentifier subIndexReference =
+            new BasicIdentifier(postArrayIndexItemId.toString().getBytes());
 
-        ObjectName objectName = new ObjectName();
-        objectName.setDomainSpecific(domainSpecificObjectName);
+        AlternateAccessSelection.SelectAccess subIndexReferenceSelectAccess =
+            new AlternateAccessSelection.SelectAccess();
+        Component component = new Component();
+        component.setBasic(subIndexReference);
+        subIndexReferenceSelectAccess.setComponent(component);
 
-        VariableSpecification varSpec = new VariableSpecification();
-        varSpec.setName(objectName);
+        AlternateAccessSelection subIndexReferenceAlternateAccessSelection =
+            new AlternateAccessSelection();
+        subIndexReferenceAlternateAccessSelection.setSelectAccess(subIndexReferenceSelectAccess);
 
-        variableDef = new VariableDefs.SEQUENCE();
-        variableDef.setAlternateAccess(alternateAccess);
-        variableDef.setVariableSpecification(varSpec);
+        AlternateAccess.CHOICE subIndexReferenceAlternateAccessSubChoice =
+            new AlternateAccess.CHOICE();
+        subIndexReferenceAlternateAccessSubChoice.setUnnamed(
+            subIndexReferenceAlternateAccessSelection);
 
-        return variableDef;
+        AlternateAccess subIndexReferenceAlternateAccess = new AlternateAccess();
+
+        List<AlternateAccess.CHOICE> subIndexReferenceAlternateAccessSubSeqOf =
+            subIndexReferenceAlternateAccess.getCHOICE();
+        subIndexReferenceAlternateAccessSubSeqOf.add(subIndexReferenceAlternateAccessSubChoice);
+
+        // set array index:
+
+        AlternateAccessSelection.SelectAlternateAccess.AccessSelection indexAccessSelectionChoice =
+            new AlternateAccessSelection.SelectAlternateAccess.AccessSelection();
+        indexAccessSelectionChoice.setIndex(indexBerInteger);
+
+        AlternateAccessSelection.SelectAlternateAccess indexAndLowerReferenceSelectAlternateAccess =
+            new AlternateAccessSelection.SelectAlternateAccess();
+        indexAndLowerReferenceSelectAlternateAccess.setAccessSelection(indexAccessSelectionChoice);
+        indexAndLowerReferenceSelectAlternateAccess.setAlternateAccess(
+            subIndexReferenceAlternateAccess);
+
+        AlternateAccessSelection indexAndLowerReferenceAlternateAccessSelection =
+            new AlternateAccessSelection();
+        indexAndLowerReferenceAlternateAccessSelection.setSelectAlternateAccess(
+            indexAndLowerReferenceSelectAlternateAccess);
+
+        AlternateAccess.CHOICE indexAndLowerReferenceAlternateAccessChoice =
+            new AlternateAccess.CHOICE();
+        indexAndLowerReferenceAlternateAccessChoice.setUnnamed(
+            indexAndLowerReferenceAlternateAccessSelection);
+
+        subSeqOfAlternateAccess.add(indexAndLowerReferenceAlternateAccessChoice);
+
+      } else {
+        SelectAccess selectAccess = new SelectAccess();
+        selectAccess.setIndex(indexBerInteger);
+
+        AlternateAccessSelection alternateAccessSelection = new AlternateAccessSelection();
+        alternateAccessSelection.setSelectAccess(selectAccess);
+
+        AlternateAccess.CHOICE alternateAccessChoice = new AlternateAccess.CHOICE();
+        alternateAccessChoice.setUnnamed(alternateAccessSelection);
+
+        subSeqOfAlternateAccess.add(alternateAccessChoice);
+      }
+
+    } else {
+
+      for (int i = 2; i < objectReference.size(); i++) {
+        preArrayIndexItemId.append("$");
+        preArrayIndexItemId.append(objectReference.get(i));
+      }
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getReference().toString()).append(" [").append(fc).append("]");
-        for (ModelNode childNode : children.values()) {
-            sb.append("\n");
-            sb.append(childNode.toString());
-        }
-        return sb.toString();
-    }
+    ObjectName.DomainSpecific domainSpecificObjectName = new ObjectName.DomainSpecific();
+    domainSpecificObjectName.setDomainID(new Identifier(objectReference.get(0).getBytes()));
+    domainSpecificObjectName.setItemID(new Identifier(preArrayIndexItemId.toString().getBytes()));
 
+    ObjectName objectName = new ObjectName();
+    objectName.setDomainSpecific(domainSpecificObjectName);
+
+    VariableSpecification varSpec = new VariableSpecification();
+    varSpec.setName(objectName);
+
+    variableDef = new VariableDefs.SEQUENCE();
+    variableDef.setAlternateAccess(alternateAccess);
+    variableDef.setVariableSpecification(varSpec);
+
+    return variableDef;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append(getReference().toString()).append(" [").append(fc).append("]");
+    for (ModelNode childNode : children.values()) {
+      sb.append("\n");
+      sb.append(childNode.toString());
+    }
+    return sb.toString();
+  }
 }

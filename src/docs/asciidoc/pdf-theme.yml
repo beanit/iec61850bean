@@ -3,7 +3,7 @@ title_page:
 
 page:
   layout: portrait
-#  margin: [0.75in, 1in, 0.75in, 1in]
+  #  margin: [0.75in, 1in, 0.75in, 1in]
   size: A4
 
 base:
@@ -24,7 +24,7 @@ heading:
 
 link:
   font_color: #939393
-  
+
 outline_list:
   indent: $base_font_size * 1.5
 
@@ -35,7 +35,7 @@ header:
     center: '{document-title}'
   verso_content:
     center: '{document-title}'
-  
+
 footer:
   height: 0.75in
   line_height: 1
@@ -50,5 +50,5 @@ caption:
   font_size: 9
 
 code:
-    border_color: #cccccc
+  border_color: #cccccc
     

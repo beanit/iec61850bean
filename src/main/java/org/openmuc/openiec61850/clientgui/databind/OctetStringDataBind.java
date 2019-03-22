@@ -15,40 +15,39 @@ package org.openmuc.openiec61850.clientgui.databind;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-
 import org.openmuc.openiec61850.BdaOctetString;
 import org.openmuc.openiec61850.BdaType;
 import org.openmuc.openiec61850.clientgui.BasicDataBind;
 
 public class OctetStringDataBind extends BasicDataBind<BdaOctetString> {
 
-    public OctetStringDataBind(BdaOctetString data) {
-        super(data, BdaType.OCTET_STRING);
-    }
+  public OctetStringDataBind(BdaOctetString data) {
+    super(data, BdaType.OCTET_STRING);
+  }
 
-    @Override
-    protected JComponent init() {
-        byte[] value = data.getValue();
-        StringBuilder sb;
+  @Override
+  protected JComponent init() {
+    byte[] value = data.getValue();
+    StringBuilder sb;
 
-        sb = new StringBuilder("OctetString [");
-        for (int i = 0; i < value.length; i++) {
-            sb.append(Integer.toHexString(value[i] & 0xff));
-            if (i != value.length - 1) {
-                sb.append(", ");
-            }
-        }
-        sb.append("]");
-        return new JLabel(sb.toString());
+    sb = new StringBuilder("OctetString [");
+    for (int i = 0; i < value.length; i++) {
+      sb.append(Integer.toHexString(value[i] & 0xff));
+      if (i != value.length - 1) {
+        sb.append(", ");
+      }
     }
+    sb.append("]");
+    return new JLabel(sb.toString());
+  }
 
-    @Override
-    protected void resetImpl() {
-        // ignore for now
-    }
+  @Override
+  protected void resetImpl() {
+    // ignore for now
+  }
 
-    @Override
-    protected void writeImpl() {
-        // ignore for now
-    }
+  @Override
+  protected void writeImpl() {
+    // ignore for now
+  }
 }

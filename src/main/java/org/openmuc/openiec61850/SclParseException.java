@@ -15,14 +15,13 @@ package org.openmuc.openiec61850;
 
 public final class SclParseException extends Exception {
 
-    private static final long serialVersionUID = 8499804369026418082L;
+  private static final long serialVersionUID = 8499804369026418082L;
 
-    public SclParseException(String string) {
-        super(string);
-    }
+  public SclParseException(String string) {
+    super(string);
+  }
 
-    public SclParseException(Exception e) {
-        super(e);
-    }
-
+  public SclParseException(Exception e) {
+    super(e);
+  }
 }

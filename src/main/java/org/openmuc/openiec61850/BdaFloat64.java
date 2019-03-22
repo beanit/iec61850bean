@@ -14,7 +14,6 @@
 package org.openmuc.openiec61850;
 
 import java.nio.ByteBuffer;
-
 import org.openmuc.openiec61850.internal.mms.asn1.Data;
 import org.openmuc.openiec61850.internal.mms.asn1.FloatingPoint;
 import org.openmuc.openiec61850.internal.mms.asn1.TypeDescription;
@@ -22,105 +21,111 @@ import org.openmuc.openiec61850.internal.mms.asn1.Unsigned8;
 
 public final class BdaFloat64 extends BasicDataAttribute {
 
-    volatile private byte[] value = new byte[] { 11, 0, 0, 0, 0, 0, 0, 0, 0 };
+  private volatile byte[] value = new byte[] {11, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    public BdaFloat64(ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
-        super(objectReference, fc, sAddr, dchg, dupd);
-        basicType = BdaType.FLOAT64;
-        setDefault();
+  public BdaFloat64(
+      ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
+    super(objectReference, fc, sAddr, dchg, dupd);
+    basicType = BdaType.FLOAT64;
+    setDefault();
+  }
+
+  @Override
+  public void setValueFrom(BasicDataAttribute bda) {
+    byte[] srcValue = ((BdaFloat64) bda).getValue();
+    if (value.length != srcValue.length) {
+      value = new byte[srcValue.length];
     }
+    System.arraycopy(srcValue, 0, value, 0, srcValue.length);
+  }
 
-    public void setValue(byte[] value) {
-        if (value != null && value.length != 9) {
-            throw new IllegalArgumentException("value does not have length 9");
-        }
-        this.value = value;
+  public byte[] getValue() {
+    return value;
+  }
+
+  public void setValue(byte[] value) {
+    if (value != null && value.length != 9) {
+      throw new IllegalArgumentException("value does not have length 9");
     }
+    this.value = value;
+  }
 
-    @Override
-    public void setValueFrom(BasicDataAttribute bda) {
-        byte[] srcValue = ((BdaFloat64) bda).getValue();
-        if (value.length != srcValue.length) {
-            value = new byte[srcValue.length];
-        }
-        System.arraycopy(srcValue, 0, value, 0, srcValue.length);
+  public Double getDouble() {
+    if (value == null) {
+      return null;
     }
+    return Double.longBitsToDouble(
+        ((0xffL & (value[1])) << 56)
+            | ((0xffL & (value[2])) << 48)
+            | ((0xffL & (value[3])) << 40)
+            | ((0xffL & (value[4])) << 32)
+            | ((0xffL & (value[5])) << 24)
+            | ((0xffL & (value[6])) << 16)
+            | ((0xffL & (value[7])) << 8)
+            | ((0xffL & (value[8])) << 0));
+  }
 
-    public void setDouble(Double value) {
-        this.value = ByteBuffer.allocate(1 + 8).put((byte) 11).putDouble(value).array();
+  public void setDouble(Double value) {
+    this.value = ByteBuffer.allocate(1 + 8).put((byte) 11).putDouble(value).array();
+  }
+
+  @Override
+  public void setDefault() {
+    value = new byte[] {11, 0, 0, 0, 0, 0, 0, 0, 0};
+  }
+
+  @Override
+  public BdaFloat64 copy() {
+    BdaFloat64 copy = new BdaFloat64(objectReference, fc, sAddr, dchg, dupd);
+    byte[] valueCopy = new byte[value.length];
+    System.arraycopy(value, 0, valueCopy, 0, value.length);
+    copy.setValue(valueCopy);
+    if (mirror == null) {
+      copy.mirror = this;
+    } else {
+      copy.mirror = mirror;
     }
+    return copy;
+  }
 
-    public byte[] getValue() {
-        return value;
+  @Override
+  Data getMmsDataObj() {
+    if (value == null) {
+      return null;
     }
+    Data data = new Data();
+    data.setFloatingPoint(new FloatingPoint(value));
+    return data;
+  }
 
-    public Double getDouble() {
-        if (value == null) {
-            return null;
-        }
-        return Double.longBitsToDouble(((0xffL & (value[1])) << 56) | ((0xffL & (value[2])) << 48)
-                | ((0xffL & (value[3])) << 40) | ((0xffL & (value[4])) << 32) | ((0xffL & (value[5])) << 24)
-                | ((0xffL & (value[6])) << 16) | ((0xffL & (value[7])) << 8) | ((0xffL & (value[8])) << 0));
+  @Override
+  void setValueFromMmsDataObj(Data data) throws ServiceError {
+    if (data.getFloatingPoint() == null || data.getFloatingPoint().value.length != 9) {
+      throw new ServiceError(
+          ServiceError.TYPE_CONFLICT, "expected type: floating_point as an octet string of size 9");
     }
+    value = data.getFloatingPoint().value;
+  }
 
-    @Override
-    public void setDefault() {
-        value = new byte[] { 11, 0, 0, 0, 0, 0, 0, 0, 0 };
-    }
+  @Override
+  TypeDescription getMmsTypeSpec() {
+    TypeDescription.FloatingPoint floatingPointTypeDescription =
+        new TypeDescription.FloatingPoint();
+    floatingPointTypeDescription.setFormatWidth(new Unsigned8(64));
+    floatingPointTypeDescription.setExponentWidth(new Unsigned8(11));
 
-    @Override
-    public BdaFloat64 copy() {
-        BdaFloat64 copy = new BdaFloat64(objectReference, fc, sAddr, dchg, dupd);
-        byte[] valueCopy = new byte[value.length];
-        System.arraycopy(value, 0, valueCopy, 0, value.length);
-        copy.setValue(valueCopy);
-        if (mirror == null) {
-            copy.mirror = this;
-        }
-        else {
-            copy.mirror = mirror;
-        }
-        return copy;
-    }
+    TypeDescription typeDescription = new TypeDescription();
+    typeDescription.setFloatingPoint(floatingPointTypeDescription);
+    return typeDescription;
+  }
 
-    @Override
-    Data getMmsDataObj() {
-        if (value == null) {
-            return null;
-        }
-        Data data = new Data();
-        data.setFloatingPoint(new FloatingPoint(value));
-        return data;
-    }
+  @Override
+  public String toString() {
+    return getReference().toString() + ": " + getDouble();
+  }
 
-    @Override
-    void setValueFromMmsDataObj(Data data) throws ServiceError {
-        if (data.getFloatingPoint() == null || data.getFloatingPoint().value.length != 9) {
-            throw new ServiceError(ServiceError.TYPE_CONFLICT,
-                    "expected type: floating_point as an octet string of size 9");
-        }
-        value = data.getFloatingPoint().value;
-    }
-
-    @Override
-    TypeDescription getMmsTypeSpec() {
-        TypeDescription.FloatingPoint floatingPointTypeDescription = new TypeDescription.FloatingPoint();
-        floatingPointTypeDescription.setFormatWidth(new Unsigned8(64));
-        floatingPointTypeDescription.setExponentWidth(new Unsigned8(11));
-
-        TypeDescription typeDescription = new TypeDescription();
-        typeDescription.setFloatingPoint(floatingPointTypeDescription);
-        return typeDescription;
-    }
-
-    @Override
-    public String toString() {
-        return getReference().toString() + ": " + getDouble();
-    }
-
-    @Override
-    public String getValueString() {
-        return "" + value;
-    }
-
+  @Override
+  public String getValueString() {
+    return "" + value;
+  }
 }

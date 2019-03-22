@@ -17,14 +17,13 @@ import java.io.IOException;
 
 public interface TConnectionListener {
 
-    public void connectionIndication(TConnection tConnection);
+  public void connectionIndication(TConnection tConnection);
 
-    /**
-     * This function is only called when an IOException in ServerSocket.accept() occurred which was not forced using
-     * ServerTSAP.stopListening()
-     * 
-     * @param e
-     *            The IOException caught form ServerSocket.accept()
-     */
-    public void serverStoppedListeningIndication(IOException e);
+  /**
+   * This function is only called when an IOException in ServerSocket.accept() occurred which was
+   * not forced using ServerTSAP.stopListening()
+   *
+   * @param e The IOException caught form ServerSocket.accept()
+   */
+  public void serverStoppedListeningIndication(IOException e);
 }

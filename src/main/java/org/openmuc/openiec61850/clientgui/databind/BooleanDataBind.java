@@ -15,34 +15,33 @@ package org.openmuc.openiec61850.clientgui.databind;
 
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-
 import org.openmuc.openiec61850.BdaBoolean;
 import org.openmuc.openiec61850.BdaType;
 import org.openmuc.openiec61850.clientgui.BasicDataBind;
 
 public class BooleanDataBind extends BasicDataBind<BdaBoolean> {
 
-    private JCheckBox checkbox;
+  private JCheckBox checkbox;
 
-    public BooleanDataBind(BdaBoolean data) {
-        super(data, BdaType.BOOLEAN);
-    }
+  public BooleanDataBind(BdaBoolean data) {
+    super(data, BdaType.BOOLEAN);
+  }
 
-    @Override
-    protected JComponent init() {
-        checkbox = new JCheckBox();
-        checkbox.setBorder(null);
-        checkbox.setSelected(data.getValue());
-        return checkbox;
-    }
+  @Override
+  protected JComponent init() {
+    checkbox = new JCheckBox();
+    checkbox.setBorder(null);
+    checkbox.setSelected(data.getValue());
+    return checkbox;
+  }
 
-    @Override
-    protected void resetImpl() {
-        checkbox.setSelected(data.getValue());
-    }
+  @Override
+  protected void resetImpl() {
+    checkbox.setSelected(data.getValue());
+  }
 
-    @Override
-    protected void writeImpl() {
-        data.setValue(checkbox.isSelected());
-    }
+  @Override
+  protected void writeImpl() {
+    data.setValue(checkbox.isSelected());
+  }
 }

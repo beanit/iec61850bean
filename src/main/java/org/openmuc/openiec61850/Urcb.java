@@ -21,7 +21,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-
 import org.openmuc.jasn1.ber.types.BerBitString;
 import org.openmuc.openiec61850.internal.mms.asn1.AccessResult;
 import org.openmuc.openiec61850.internal.mms.asn1.Data;
@@ -35,360 +34,356 @@ import org.openmuc.openiec61850.internal.mms.asn1.VariableAccessSpecification;
 
 public class Urcb extends Rcb {
 
-    ServerAssociation reserved = null;
-    boolean enabled = false;
-    private Timer integrityTimer;
-    // private ScheduledFuture<?> integrityFuture = null;
-    private ScheduledFuture<?> bufTmFuture = null;
-    final HashMap<FcModelNode, BdaReasonForInclusion> membersToBeReported = new LinkedHashMap<>();
+  final HashMap<FcModelNode, BdaReasonForInclusion> membersToBeReported = new LinkedHashMap<>();
+  ServerAssociation reserved = null;
+  boolean enabled = false;
+  private Timer integrityTimer;
+  // private ScheduledFuture<?> integrityFuture = null;
+  private ScheduledFuture<?> bufTmFuture = null;
 
-    public Urcb(ObjectReference objectReference, List<FcModelNode> children) {
-        super(objectReference, Fc.RP, children);
-    }
+  public Urcb(ObjectReference objectReference, List<FcModelNode> children) {
+    super(objectReference, Fc.RP, children);
+  }
 
-    /**
-     * Reserve URCB - The attribute Resv (if set to TRUE) shall indicate that the URCB is currently exclusively reserved
-     * for the client that has set the value to TRUE. Other clients shall not be allowed to set any attribute of that
-     * URCB.
-     * 
-     * @return the Resv child
-     */
-    public BdaBoolean getResv() {
-        return (BdaBoolean) children.get("Resv");
-    }
+  /**
+   * Reserve URCB - The attribute Resv (if set to TRUE) shall indicate that the URCB is currently
+   * exclusively reserved for the client that has set the value to TRUE. Other clients shall not be
+   * allowed to set any attribute of that URCB.
+   *
+   * @return the Resv child
+   */
+  public BdaBoolean getResv() {
+    return (BdaBoolean) children.get("Resv");
+  }
 
-    void enable() {
+  void enable() {
 
-        for (FcModelNode dataSetMember : dataSet) {
-            for (BasicDataAttribute bda : dataSetMember.getBasicDataAttributes()) {
-                if (bda.dchg) {
-                    if (getTrgOps().isDataChange()) {
-                        synchronized (bda.chgRcbs) {
-                            bda.chgRcbs.add(this);
-                        }
-                    }
-                }
-                else if (bda.qchg) {
-                    if (getTrgOps().isQualityChange()) {
-                        synchronized (bda.chgRcbs) {
-                            bda.chgRcbs.add(this);
-                        }
-                    }
-                }
-                if (bda.dupd) {
-                    if (getTrgOps().isDataUpdate()) {
-                        synchronized (bda.dupdRcbs) {
-                            bda.dupdRcbs.add(this);
-                        }
-                    }
-                }
+    for (FcModelNode dataSetMember : dataSet) {
+      for (BasicDataAttribute bda : dataSetMember.getBasicDataAttributes()) {
+        if (bda.dchg) {
+          if (getTrgOps().isDataChange()) {
+            synchronized (bda.chgRcbs) {
+              bda.chgRcbs.add(this);
             }
-        }
-
-        if (getTrgOps().isIntegrity() && !(getIntgPd().getValue() < 10l)) {
-            integrityTimer = new Timer();
-
-            integrityTimer.schedule(new TimerTask() {
-                // integrityFuture = reserved.executor.scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (Urcb.this) {
-                        if (!enabled) {
-                            return;
-                        }
-                        reserved.sendAnMmsPdu(getMmsReport(true, false));
-                    }
-                }
-                // }, getIntgPd().getValue(), getIntgPd().getValue(), TimeUnit.MILLISECONDS);
-            }, getIntgPd().getValue(), getIntgPd().getValue());
-
-        }
-
-        enabled = true;
-
-    }
-
-    void disable() {
-
-        for (FcModelNode dataSetMember : dataSet) {
-            for (BasicDataAttribute bda : dataSetMember.getBasicDataAttributes()) {
-                if (bda.dchg) {
-                    if (getTrgOps().isDataChange()) {
-                        synchronized (bda.chgRcbs) {
-                            bda.chgRcbs.remove(this);
-                        }
-                    }
-                }
-                else if (bda.qchg) {
-                    if (getTrgOps().isQualityChange()) {
-                        synchronized (bda.chgRcbs) {
-                            bda.chgRcbs.remove(this);
-                        }
-                    }
-                }
-                if (bda.dupd) {
-                    if (getTrgOps().isDataUpdate()) {
-                        synchronized (bda.dupdRcbs) {
-                            bda.dupdRcbs.remove(this);
-                        }
-                    }
-                }
+          }
+        } else if (bda.qchg) {
+          if (getTrgOps().isQualityChange()) {
+            synchronized (bda.chgRcbs) {
+              bda.chgRcbs.add(this);
             }
+          }
         }
-
-        // if (integrityFuture != null) {
-        // integrityFuture.cancel(false);
-        // }
-        if (integrityTimer != null) {
-            integrityTimer.cancel();
+        if (bda.dupd) {
+          if (getTrgOps().isDataUpdate()) {
+            synchronized (bda.dupdRcbs) {
+              bda.dupdRcbs.add(this);
+            }
+          }
         }
-
-        enabled = false;
-
+      }
     }
 
-    void generalInterrogation() {
-        reserved.executor.execute(new Runnable() {
+    if (getTrgOps().isIntegrity() && !(getIntgPd().getValue() < 10l)) {
+      integrityTimer = new Timer();
+
+      integrityTimer.schedule(
+          new TimerTask() {
+            // integrityFuture = reserved.executor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                synchronized (Urcb.this) {
-                    if (!enabled) {
-                        return;
-                    }
-                    reserved.sendAnMmsPdu(getMmsReport(false, true));
+              synchronized (Urcb.this) {
+                if (!enabled) {
+                  return;
                 }
+                reserved.sendAnMmsPdu(getMmsReport(true, false));
+              }
             }
-        });
+            // }, getIntgPd().getValue(), getIntgPd().getValue(), TimeUnit.MILLISECONDS);
+          },
+          getIntgPd().getValue(),
+          getIntgPd().getValue());
     }
 
-    private MMSpdu getMmsReport(boolean integrity, boolean gi) {
+    enabled = true;
+  }
 
-        InformationReport.ListOfAccessResult listOfAccessResult = new InformationReport.ListOfAccessResult();
+  void disable() {
 
-        List<AccessResult> accessResults = listOfAccessResult.getAccessResult();
-
-        AccessResult accessResult = new AccessResult();
-        accessResult.setSuccess(getRptId().getMmsDataObj());
-        accessResults.add(accessResult);
-
-        accessResult = new AccessResult();
-        accessResult.setSuccess(getOptFlds().getMmsDataObj());
-        accessResults.add(accessResult);
-
-        if (getOptFlds().isSequenceNumber()) {
-            accessResult = new AccessResult();
-            accessResult.setSuccess(getSqNum().getMmsDataObj());
-            accessResults.add(accessResult);
+    for (FcModelNode dataSetMember : dataSet) {
+      for (BasicDataAttribute bda : dataSetMember.getBasicDataAttributes()) {
+        if (bda.dchg) {
+          if (getTrgOps().isDataChange()) {
+            synchronized (bda.chgRcbs) {
+              bda.chgRcbs.remove(this);
+            }
+          }
+        } else if (bda.qchg) {
+          if (getTrgOps().isQualityChange()) {
+            synchronized (bda.chgRcbs) {
+              bda.chgRcbs.remove(this);
+            }
+          }
         }
-        getSqNum().setValue((short) (getSqNum().getValue() + 1));
-
-        if (getOptFlds().isReportTimestamp()) {
-            BdaEntryTime entryTime = new BdaEntryTime(null, null, null, false, false);
-            entryTime.setTimestamp(System.currentTimeMillis());
-
-            accessResult = new AccessResult();
-            accessResult.setSuccess(entryTime.getMmsDataObj());
-            accessResults.add(accessResult);
+        if (bda.dupd) {
+          if (getTrgOps().isDataUpdate()) {
+            synchronized (bda.dupdRcbs) {
+              bda.dupdRcbs.remove(this);
+            }
+          }
         }
-
-        if (getOptFlds().isDataSetName()) {
-            accessResult = new AccessResult();
-            accessResult.setSuccess(getDatSet().getMmsDataObj());
-            accessResults.add(accessResult);
-        }
-
-        if (getOptFlds().isConfigRevision()) {
-            accessResult = new AccessResult();
-            accessResult.setSuccess(getConfRev().getMmsDataObj());
-            accessResults.add(accessResult);
-        }
-
-        // segmentation not supported
-
-        List<FcModelNode> dataSetMembers = dataSet.getMembers();
-        int dataSetSize = dataSetMembers.size();
-
-        // inclusion bitstring
-        byte[] inclusionStringArray = new byte[(dataSetSize - 1) / 8 + 1];
-
-        if (integrity || gi) {
-
-            for (int i = 0; i < dataSetSize; i++) {
-                inclusionStringArray[i / 8] |= 1 << (7 - i % 8);
-            }
-            BerBitString inclusionString = new BerBitString(inclusionStringArray, dataSetSize);
-
-            Data data = new Data();
-            data.setBitString(inclusionString);
-            accessResult = new AccessResult();
-            accessResult.setSuccess(data);
-            accessResults.add(accessResult);
-
-            // data reference sending not supported for now
-
-            for (FcModelNode dataSetMember : dataSetMembers) {
-                accessResult = new AccessResult();
-                accessResult.setSuccess(dataSetMember.getMmsDataObj());
-                accessResults.add(accessResult);
-            }
-
-            BdaReasonForInclusion reasonForInclusion = new BdaReasonForInclusion(null);
-            if (integrity) {
-                reasonForInclusion.setIntegrity(true);
-            }
-            else {
-                reasonForInclusion.setGeneralInterrogation(true);
-            }
-
-            if (getOptFlds().isReasonForInclusion()) {
-                for (int i = 0; i < dataSetMembers.size(); i++) {
-                    accessResult = new AccessResult();
-                    accessResult.setSuccess(reasonForInclusion.getMmsDataObj());
-                    accessResults.add(accessResult);
-                }
-            }
-
-        }
-        else {
-
-            int index = 0;
-            for (FcModelNode dataSetMember : dataSet) {
-                if (membersToBeReported.get(dataSetMember) != null) {
-                    inclusionStringArray[index / 8] |= 1 << (7 - index % 8);
-                }
-                index++;
-            }
-            BerBitString inclusionString = new BerBitString(inclusionStringArray, dataSetSize);
-
-            Data data = new Data();
-            data.setBitString(inclusionString);
-            accessResult = new AccessResult();
-            accessResult.setSuccess(data);
-            accessResults.add(accessResult);
-
-            // data reference sending not supported for now
-
-            for (FcModelNode dataSetMember : dataSetMembers) {
-                if (membersToBeReported.get(dataSetMember) != null) {
-                    accessResult = new AccessResult();
-                    accessResult.setSuccess(dataSetMember.getMmsDataObj());
-                    accessResults.add(accessResult);
-                }
-            }
-
-            if (getOptFlds().isReasonForInclusion()) {
-                for (FcModelNode dataSetMember : dataSetMembers) {
-                    BdaReasonForInclusion reasonForInclusion = membersToBeReported.get(dataSetMember);
-                    if (reasonForInclusion != null) {
-                        accessResult = new AccessResult();
-                        accessResult.setSuccess(reasonForInclusion.getMmsDataObj());
-                        accessResults.add(accessResult);
-                    }
-                }
-            }
-
-            membersToBeReported.clear();
-            bufTmFuture = null;
-
-        }
-
-        ObjectName objectName = new ObjectName();
-        objectName.setVmdSpecific(new Identifier("RPT".getBytes()));
-
-        VariableAccessSpecification varAccSpec = new VariableAccessSpecification();
-        varAccSpec.setVariableListName(objectName);
-        // null,
-        // new ObjectName(new Identifier("RPT".getBytes()), null, null));
-
-        InformationReport infoReport = new InformationReport();
-        infoReport.setVariableAccessSpecification(varAccSpec);
-        infoReport.setListOfAccessResult(listOfAccessResult);
-        // varAccSpec,
-        // new InformationReport.ListOfAccessResult(listOfAccessResult));
-
-        UnconfirmedService unconfirmedService = new UnconfirmedService();
-        unconfirmedService.setInformationReport(infoReport);
-
-        UnconfirmedPDU unconfirmedPDU = new UnconfirmedPDU();
-        unconfirmedPDU.setService(unconfirmedService);
-
-        MMSpdu mmsPdu = new MMSpdu();
-        mmsPdu.setUnconfirmedPDU(unconfirmedPDU);
-
-        return mmsPdu;
+      }
     }
 
-    @Override
-    public FcDataObject copy() {
-        List<FcModelNode> childCopies = new ArrayList<>(children.size());
-        for (ModelNode childNode : children.values()) {
-            childCopies.add((FcModelNode) childNode.copy());
-        }
-        Urcb urcb = new Urcb(objectReference, childCopies);
-        urcb.dataSet = dataSet;
-        return urcb;
+    // if (integrityFuture != null) {
+    // integrityFuture.cancel(false);
+    // }
+    if (integrityTimer != null) {
+      integrityTimer.cancel();
     }
 
-    void report(BasicDataAttribute bda, boolean dchg, boolean qchg, boolean dupd) {
+    enabled = false;
+  }
 
-        synchronized (this) {
-
-            if (!enabled) {
+  void generalInterrogation() {
+    reserved.executor.execute(
+        new Runnable() {
+          @Override
+          public void run() {
+            synchronized (Urcb.this) {
+              if (!enabled) {
                 return;
+              }
+              reserved.sendAnMmsPdu(getMmsReport(false, true));
             }
+          }
+        });
+  }
 
-            FcModelNode memberFound = null;
-            FcModelNode fcModelNode = bda;
-            while (memberFound == null) {
-                for (FcModelNode member : dataSet) {
-                    if (member == fcModelNode) {
-                        memberFound = fcModelNode;
-                        break;
-                    }
-                }
-                if (memberFound != null) {
-                    break;
-                }
-                if (!(fcModelNode.parent instanceof FcModelNode)) {
-                    // Unable to report Basic Data Attribute because it is not part of the referenced data set
-                    return;
-                }
-                fcModelNode = (FcModelNode) fcModelNode.parent;
-            }
+  private MMSpdu getMmsReport(boolean integrity, boolean gi) {
 
-            BdaReasonForInclusion reasonForInclusion = membersToBeReported.get(fcModelNode);
-            if (reasonForInclusion == null) {
-                reasonForInclusion = new BdaReasonForInclusion(null);
-                membersToBeReported.put(fcModelNode, reasonForInclusion);
-            }
+    InformationReport.ListOfAccessResult listOfAccessResult =
+        new InformationReport.ListOfAccessResult();
 
-            if (dchg) {
-                reasonForInclusion.setDataChange(true);
-            }
-            if (dupd) {
-                reasonForInclusion.setDataUpdate(true);
-            }
-            else if (qchg) {
-                reasonForInclusion.setQualityChange(true);
-            }
+    List<AccessResult> accessResults = listOfAccessResult.getAccessResult();
 
-            // if bufTmFuture is not null then it is already scheduled and will send the combined report
-            if (bufTmFuture == null) {
-                bufTmFuture = reserved.executor.schedule(new Runnable() {
-                    @Override
-                    public void run() {
-                        synchronized (Urcb.this) {
-                            if (!enabled) {
-                                return;
-                            }
-                            reserved.sendAnMmsPdu(getMmsReport(false, false));
-                        }
-                    }
-                }, getBufTm().getValue(), TimeUnit.MILLISECONDS);
-            }
+    AccessResult accessResult = new AccessResult();
+    accessResult.setSuccess(getRptId().getMmsDataObj());
+    accessResults.add(accessResult);
 
-        }
+    accessResult = new AccessResult();
+    accessResult.setSuccess(getOptFlds().getMmsDataObj());
+    accessResults.add(accessResult);
 
+    if (getOptFlds().isSequenceNumber()) {
+      accessResult = new AccessResult();
+      accessResult.setSuccess(getSqNum().getMmsDataObj());
+      accessResults.add(accessResult);
+    }
+    getSqNum().setValue((short) (getSqNum().getValue() + 1));
+
+    if (getOptFlds().isReportTimestamp()) {
+      BdaEntryTime entryTime = new BdaEntryTime(null, null, null, false, false);
+      entryTime.setTimestamp(System.currentTimeMillis());
+
+      accessResult = new AccessResult();
+      accessResult.setSuccess(entryTime.getMmsDataObj());
+      accessResults.add(accessResult);
     }
 
+    if (getOptFlds().isDataSetName()) {
+      accessResult = new AccessResult();
+      accessResult.setSuccess(getDatSet().getMmsDataObj());
+      accessResults.add(accessResult);
+    }
+
+    if (getOptFlds().isConfigRevision()) {
+      accessResult = new AccessResult();
+      accessResult.setSuccess(getConfRev().getMmsDataObj());
+      accessResults.add(accessResult);
+    }
+
+    // segmentation not supported
+
+    List<FcModelNode> dataSetMembers = dataSet.getMembers();
+    int dataSetSize = dataSetMembers.size();
+
+    // inclusion bitstring
+    byte[] inclusionStringArray = new byte[(dataSetSize - 1) / 8 + 1];
+
+    if (integrity || gi) {
+
+      for (int i = 0; i < dataSetSize; i++) {
+        inclusionStringArray[i / 8] |= 1 << (7 - i % 8);
+      }
+      BerBitString inclusionString = new BerBitString(inclusionStringArray, dataSetSize);
+
+      Data data = new Data();
+      data.setBitString(inclusionString);
+      accessResult = new AccessResult();
+      accessResult.setSuccess(data);
+      accessResults.add(accessResult);
+
+      // data reference sending not supported for now
+
+      for (FcModelNode dataSetMember : dataSetMembers) {
+        accessResult = new AccessResult();
+        accessResult.setSuccess(dataSetMember.getMmsDataObj());
+        accessResults.add(accessResult);
+      }
+
+      BdaReasonForInclusion reasonForInclusion = new BdaReasonForInclusion(null);
+      if (integrity) {
+        reasonForInclusion.setIntegrity(true);
+      } else {
+        reasonForInclusion.setGeneralInterrogation(true);
+      }
+
+      if (getOptFlds().isReasonForInclusion()) {
+        for (int i = 0; i < dataSetMembers.size(); i++) {
+          accessResult = new AccessResult();
+          accessResult.setSuccess(reasonForInclusion.getMmsDataObj());
+          accessResults.add(accessResult);
+        }
+      }
+
+    } else {
+
+      int index = 0;
+      for (FcModelNode dataSetMember : dataSet) {
+        if (membersToBeReported.get(dataSetMember) != null) {
+          inclusionStringArray[index / 8] |= 1 << (7 - index % 8);
+        }
+        index++;
+      }
+      BerBitString inclusionString = new BerBitString(inclusionStringArray, dataSetSize);
+
+      Data data = new Data();
+      data.setBitString(inclusionString);
+      accessResult = new AccessResult();
+      accessResult.setSuccess(data);
+      accessResults.add(accessResult);
+
+      // data reference sending not supported for now
+
+      for (FcModelNode dataSetMember : dataSetMembers) {
+        if (membersToBeReported.get(dataSetMember) != null) {
+          accessResult = new AccessResult();
+          accessResult.setSuccess(dataSetMember.getMmsDataObj());
+          accessResults.add(accessResult);
+        }
+      }
+
+      if (getOptFlds().isReasonForInclusion()) {
+        for (FcModelNode dataSetMember : dataSetMembers) {
+          BdaReasonForInclusion reasonForInclusion = membersToBeReported.get(dataSetMember);
+          if (reasonForInclusion != null) {
+            accessResult = new AccessResult();
+            accessResult.setSuccess(reasonForInclusion.getMmsDataObj());
+            accessResults.add(accessResult);
+          }
+        }
+      }
+
+      membersToBeReported.clear();
+      bufTmFuture = null;
+    }
+
+    ObjectName objectName = new ObjectName();
+    objectName.setVmdSpecific(new Identifier("RPT".getBytes()));
+
+    VariableAccessSpecification varAccSpec = new VariableAccessSpecification();
+    varAccSpec.setVariableListName(objectName);
+    // null,
+    // new ObjectName(new Identifier("RPT".getBytes()), null, null));
+
+    InformationReport infoReport = new InformationReport();
+    infoReport.setVariableAccessSpecification(varAccSpec);
+    infoReport.setListOfAccessResult(listOfAccessResult);
+    // varAccSpec,
+    // new InformationReport.ListOfAccessResult(listOfAccessResult));
+
+    UnconfirmedService unconfirmedService = new UnconfirmedService();
+    unconfirmedService.setInformationReport(infoReport);
+
+    UnconfirmedPDU unconfirmedPDU = new UnconfirmedPDU();
+    unconfirmedPDU.setService(unconfirmedService);
+
+    MMSpdu mmsPdu = new MMSpdu();
+    mmsPdu.setUnconfirmedPDU(unconfirmedPDU);
+
+    return mmsPdu;
+  }
+
+  @Override
+  public FcDataObject copy() {
+    List<FcModelNode> childCopies = new ArrayList<>(children.size());
+    for (ModelNode childNode : children.values()) {
+      childCopies.add((FcModelNode) childNode.copy());
+    }
+    Urcb urcb = new Urcb(objectReference, childCopies);
+    urcb.dataSet = dataSet;
+    return urcb;
+  }
+
+  void report(BasicDataAttribute bda, boolean dchg, boolean qchg, boolean dupd) {
+
+    synchronized (this) {
+      if (!enabled) {
+        return;
+      }
+
+      FcModelNode memberFound = null;
+      FcModelNode fcModelNode = bda;
+      while (memberFound == null) {
+        for (FcModelNode member : dataSet) {
+          if (member == fcModelNode) {
+            memberFound = fcModelNode;
+            break;
+          }
+        }
+        if (memberFound != null) {
+          break;
+        }
+        if (!(fcModelNode.parent instanceof FcModelNode)) {
+          // Unable to report Basic Data Attribute because it is not part of the referenced data set
+          return;
+        }
+        fcModelNode = (FcModelNode) fcModelNode.parent;
+      }
+
+      BdaReasonForInclusion reasonForInclusion = membersToBeReported.get(fcModelNode);
+      if (reasonForInclusion == null) {
+        reasonForInclusion = new BdaReasonForInclusion(null);
+        membersToBeReported.put(fcModelNode, reasonForInclusion);
+      }
+
+      if (dchg) {
+        reasonForInclusion.setDataChange(true);
+      }
+      if (dupd) {
+        reasonForInclusion.setDataUpdate(true);
+      } else if (qchg) {
+        reasonForInclusion.setQualityChange(true);
+      }
+
+      // if bufTmFuture is not null then it is already scheduled and will send the combined report
+      if (bufTmFuture == null) {
+        bufTmFuture =
+            reserved.executor.schedule(
+                new Runnable() {
+                  @Override
+                  public void run() {
+                    synchronized (Urcb.this) {
+                      if (!enabled) {
+                        return;
+                      }
+                      reserved.sendAnMmsPdu(getMmsReport(false, false));
+                    }
+                  }
+                },
+                getBufTm().getValue(),
+                TimeUnit.MILLISECONDS);
+      }
+    }
+  }
 }

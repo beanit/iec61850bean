@@ -15,33 +15,32 @@ package org.openmuc.openiec61850.clientgui.databind;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-
 import org.openmuc.openiec61850.BdaDoubleBitPos;
 import org.openmuc.openiec61850.BdaType;
 import org.openmuc.openiec61850.clientgui.BasicDataBind;
 
 public class DoubleBitPosDataBind extends BasicDataBind<BdaDoubleBitPos> {
 
-    @SuppressWarnings("unchecked")
-    private final JComboBox valueField = new JComboBox(BdaDoubleBitPos.DoubleBitPos.values());
+  @SuppressWarnings("unchecked")
+  private final JComboBox valueField = new JComboBox(BdaDoubleBitPos.DoubleBitPos.values());
 
-    public DoubleBitPosDataBind(BdaDoubleBitPos data) {
-        super(data, BdaType.DOUBLE_BIT_POS);
-    }
+  public DoubleBitPosDataBind(BdaDoubleBitPos data) {
+    super(data, BdaType.DOUBLE_BIT_POS);
+  }
 
-    @Override
-    protected JComponent init() {
-        return valueField;
-    }
+  @Override
+  protected JComponent init() {
+    return valueField;
+  }
 
-    @Override
-    protected void resetImpl() {
-        valueField.setSelectedItem(data.getDoubleBitPos());
-    }
+  @Override
+  protected void resetImpl() {
+    valueField.setSelectedItem(data.getDoubleBitPos());
+  }
 
-    @Override
-    protected void writeImpl() {
-        // TODO uncomment once data.setTapCommand() is implemented
-        // data.setTapCommand(valueField.getSelectedItem());
-    }
+  @Override
+  protected void writeImpl() {
+    // TODO uncomment once data.setTapCommand() is implemented
+    // data.setTapCommand(valueField.getSelectedItem());
+  }
 }

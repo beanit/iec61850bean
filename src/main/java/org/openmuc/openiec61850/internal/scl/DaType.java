@@ -15,29 +15,27 @@ package org.openmuc.openiec61850.internal.scl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.openmuc.openiec61850.SclParseException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public final class DaType extends AbstractType {
 
-    // attributes not needed: iedType
+  // attributes not needed: iedType
 
-    public List<Bda> bdas = new ArrayList<>();
+  public List<Bda> bdas = new ArrayList<>();
 
-    public DaType(Node xmlNode) throws SclParseException {
+  public DaType(Node xmlNode) throws SclParseException {
 
-        super(xmlNode);
+    super(xmlNode);
 
-        NodeList elements = xmlNode.getChildNodes();
+    NodeList elements = xmlNode.getChildNodes();
 
-        for (int i = 0; i < elements.getLength(); i++) {
-            Node node = elements.item(i);
-            if (node.getNodeName().equals("BDA")) {
-                bdas.add(new Bda(node));
-            }
-        }
+    for (int i = 0; i < elements.getLength(); i++) {
+      Node node = elements.item(i);
+      if (node.getNodeName().equals("BDA")) {
+        bdas.add(new Bda(node));
+      }
     }
-
+  }
 }

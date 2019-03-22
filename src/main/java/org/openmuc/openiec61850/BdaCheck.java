@@ -13,64 +13,56 @@
  */
 package org.openmuc.openiec61850;
 
-/**
- * 
- * Check packed list according to 61850-7-2
- * 
- */
+/** Check packed list according to 61850-7-2 */
 public final class BdaCheck extends BdaBitString {
 
-    public BdaCheck(ObjectReference objectReference) {
-        super(objectReference, Fc.CO, null, 2, false, false);
-        basicType = BdaType.CHECK;
-        setDefault();
+  public BdaCheck(ObjectReference objectReference) {
+    super(objectReference, Fc.CO, null, 2, false, false);
+    basicType = BdaType.CHECK;
+    setDefault();
+  }
+
+  public boolean getSynchrocheck() {
+    return ((value[0] & 0x80) == 0x80);
+  }
+
+  public void setSynchrocheck(boolean synchrocheck) {
+    if (synchrocheck) {
+      value[0] = (byte) (value[0] | 0x80);
+    } else {
+      value[0] = (byte) (value[0] & 0x7f);
     }
+  }
 
-    public boolean getSynchrocheck() {
-        return ((value[0] & 0x80) == 0x80);
+  public boolean getInterlockCheck() {
+    return ((value[0] & 0x40) == 0x40);
+  }
+
+  public void setInterlockCheck(boolean interlockCheck) {
+    if (interlockCheck) {
+      value[0] = (byte) (value[0] | 0x40);
+    } else {
+      value[0] = (byte) (value[0] & 0xbf);
     }
+  }
 
-    public boolean getInterlockCheck() {
-        return ((value[0] & 0x40) == 0x40);
+  @Override
+  public BdaCheck copy() {
+    BdaCheck copy = new BdaCheck(objectReference);
+
+    byte[] valueCopy = new byte[value.length];
+    System.arraycopy(value, 0, valueCopy, 0, value.length);
+    copy.setValue(valueCopy);
+    if (mirror == null) {
+      copy.mirror = this;
+    } else {
+      copy.mirror = mirror;
     }
+    return copy;
+  }
 
-    public void setSynchrocheck(boolean synchrocheck) {
-        if (synchrocheck) {
-            value[0] = (byte) (value[0] | 0x80);
-        }
-        else {
-            value[0] = (byte) (value[0] & 0x7f);
-        }
-    }
-
-    public void setInterlockCheck(boolean interlockCheck) {
-        if (interlockCheck) {
-            value[0] = (byte) (value[0] | 0x40);
-        }
-        else {
-            value[0] = (byte) (value[0] & 0xbf);
-        }
-    }
-
-    @Override
-    public BdaCheck copy() {
-        BdaCheck copy = new BdaCheck(objectReference);
-
-        byte[] valueCopy = new byte[value.length];
-        System.arraycopy(value, 0, valueCopy, 0, value.length);
-        copy.setValue(valueCopy);
-        if (mirror == null) {
-            copy.mirror = this;
-        }
-        else {
-            copy.mirror = mirror;
-        }
-        return copy;
-    }
-
-    @Override
-    public String toString() {
-        return getReference().toString() + ": " + String.format("0x%x", value[0]);
-    }
-
+  @Override
+  public String toString() {
+    return getReference().toString() + ": " + String.format("0x%x", value[0]);
+  }
 }

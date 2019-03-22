@@ -15,22 +15,21 @@ package org.openmuc.josistack;
 
 public final class DecodingException extends Exception {
 
-    private static final long serialVersionUID = -4102153710148894434L;
+  private static final long serialVersionUID = -4102153710148894434L;
 
-    public DecodingException() {
-        super();
-    }
+  public DecodingException() {
+    super();
+  }
 
-    public DecodingException(String s) {
-        super(s);
-    }
+  public DecodingException(String s) {
+    super(s);
+  }
 
-    public DecodingException(Throwable cause) {
-        super(cause);
-    }
+  public DecodingException(Throwable cause) {
+    super(cause);
+  }
 
-    public DecodingException(String s, Throwable cause) {
-        super(s, cause);
-    }
-
+  public DecodingException(String s, Throwable cause) {
+    super(s, cause);
+  }
 }

@@ -15,53 +15,52 @@ package org.openmuc.openiec61850.clientgui;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-
 import org.openmuc.openiec61850.BasicDataAttribute;
 import org.openmuc.openiec61850.BdaType;
 
 public abstract class BasicDataBind<E extends BasicDataAttribute> {
-    protected final E data;
+  protected final E data;
 
-    private JComponent valueField;
+  private JComponent valueField;
 
-    public BasicDataBind(E data, BdaType type) {
-        if (data.getBasicType() != type) {
-            throw new IllegalArgumentException(data.getName() + " is no " + type);
-        }
-        this.data = data;
+  public BasicDataBind(E data, BdaType type) {
+    if (data.getBasicType() != type) {
+      throw new IllegalArgumentException(data.getName() + " is no " + type);
+    }
+    this.data = data;
+  }
+
+  public JLabel getNameLabel() {
+    return new JLabel(data.getName());
+  }
+
+  public JComponent getValueField() {
+    if (valueField == null) {
+      valueField = init();
     }
 
-    public JLabel getNameLabel() {
-        return new JLabel(data.getName());
+    return valueField;
+  }
+
+  public void reset() {
+    if (valueField == null) {
+      valueField = init();
     }
 
-    public JComponent getValueField() {
-        if (valueField == null) {
-            valueField = init();
-        }
+    resetImpl();
+  }
 
-        return valueField;
+  public void write() {
+    if (valueField == null) {
+      valueField = init();
     }
 
-    public void reset() {
-        if (valueField == null) {
-            valueField = init();
-        }
+    writeImpl();
+  }
 
-        resetImpl();
-    }
+  protected abstract JComponent init();
 
-    public void write() {
-        if (valueField == null) {
-            valueField = init();
-        }
+  protected abstract void resetImpl();
 
-        writeImpl();
-    }
-
-    protected abstract JComponent init();
-
-    protected abstract void resetImpl();
-
-    protected abstract void writeImpl();
+  protected abstract void writeImpl();
 }

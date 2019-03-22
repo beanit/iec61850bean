@@ -15,37 +15,35 @@ package org.openmuc.openiec61850.internal.scl;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.openmuc.openiec61850.SclParseException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public final class DoType extends AbstractType {
 
-    // attributes not needed: cdc, iedType
+  // attributes not needed: cdc, iedType
 
-    public List<Da> das = new ArrayList<>();
-    public List<Sdo> sdos = new ArrayList<>();
+  public List<Da> das = new ArrayList<>();
+  public List<Sdo> sdos = new ArrayList<>();
 
-    public DoType(Node xmlNode) throws SclParseException {
+  public DoType(Node xmlNode) throws SclParseException {
 
-        super(xmlNode);
+    super(xmlNode);
 
-        if (xmlNode.getAttributes().getNamedItem("cdc") == null) {
-            throw new SclParseException("Required attribute \"cdc\" not found in DOType!");
-        }
-
-        NodeList elements = xmlNode.getChildNodes();
-
-        for (int i = 0; i < elements.getLength(); i++) {
-            Node node = elements.item(i);
-            if (node.getNodeName().equals("SDO")) {
-                sdos.add(new Sdo(node));
-            }
-            if (node.getNodeName().equals("DA")) {
-                das.add(new Da(node));
-            }
-        }
+    if (xmlNode.getAttributes().getNamedItem("cdc") == null) {
+      throw new SclParseException("Required attribute \"cdc\" not found in DOType!");
     }
 
+    NodeList elements = xmlNode.getChildNodes();
+
+    for (int i = 0; i < elements.getLength(); i++) {
+      Node node = elements.item(i);
+      if (node.getNodeName().equals("SDO")) {
+        sdos.add(new Sdo(node));
+      }
+      if (node.getNodeName().equals("DA")) {
+        das.add(new Da(node));
+      }
+    }
+  }
 }

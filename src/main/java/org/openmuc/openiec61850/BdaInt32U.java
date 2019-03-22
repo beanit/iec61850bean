@@ -20,75 +20,74 @@ import org.openmuc.openiec61850.internal.mms.asn1.Unsigned8;
 
 public final class BdaInt32U extends BasicDataAttribute {
 
-    volatile private long value;
+  private volatile long value;
 
-    public BdaInt32U(ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
-        super(objectReference, fc, sAddr, dchg, dupd);
-        basicType = BdaType.INT32U;
-        setDefault();
+  public BdaInt32U(
+      ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
+    super(objectReference, fc, sAddr, dchg, dupd);
+    basicType = BdaType.INT32U;
+    setDefault();
+  }
+
+  @Override
+  public void setValueFrom(BasicDataAttribute bda) {
+    value = ((BdaInt32U) bda).getValue();
+  }
+
+  public long getValue() {
+    return value;
+  }
+
+  public void setValue(long value) {
+    this.value = value;
+  }
+
+  @Override
+  public void setDefault() {
+    value = 0;
+  }
+
+  @Override
+  public BdaInt32U copy() {
+    BdaInt32U copy = new BdaInt32U(objectReference, fc, sAddr, dchg, dupd);
+    copy.setValue(value);
+    if (mirror == null) {
+      copy.mirror = this;
+    } else {
+      copy.mirror = mirror;
     }
+    return copy;
+  }
 
-    public void setValue(long value) {
-        this.value = value;
+  @Override
+  Data getMmsDataObj() {
+    Data data = new Data();
+    data.setUnsigned(new BerInteger(value));
+    return data;
+  }
+
+  @Override
+  void setValueFromMmsDataObj(Data data) throws ServiceError {
+    if (data.getUnsigned() == null) {
+      throw new ServiceError(ServiceError.TYPE_CONFLICT, "expected type: unsigned");
     }
+    value = data.getUnsigned().value.longValue();
+  }
 
-    @Override
-    public void setValueFrom(BasicDataAttribute bda) {
-        value = ((BdaInt32U) bda).getValue();
-    }
+  @Override
+  TypeDescription getMmsTypeSpec() {
+    TypeDescription typeDescription = new TypeDescription();
+    typeDescription.setUnsigned(new Unsigned8(32));
+    return typeDescription;
+  }
 
-    public long getValue() {
-        return value;
-    }
+  @Override
+  public String toString() {
+    return getReference().toString() + ": " + value;
+  }
 
-    @Override
-    public void setDefault() {
-        value = 0;
-    }
-
-    @Override
-    public BdaInt32U copy() {
-        BdaInt32U copy = new BdaInt32U(objectReference, fc, sAddr, dchg, dupd);
-        copy.setValue(value);
-        if (mirror == null) {
-            copy.mirror = this;
-        }
-        else {
-            copy.mirror = mirror;
-        }
-        return copy;
-    }
-
-    @Override
-    Data getMmsDataObj() {
-        Data data = new Data();
-        data.setUnsigned(new BerInteger(value));
-        return data;
-    }
-
-    @Override
-    void setValueFromMmsDataObj(Data data) throws ServiceError {
-        if (data.getUnsigned() == null) {
-            throw new ServiceError(ServiceError.TYPE_CONFLICT, "expected type: unsigned");
-        }
-        value = data.getUnsigned().value.longValue();
-    }
-
-    @Override
-    TypeDescription getMmsTypeSpec() {
-        TypeDescription typeDescription = new TypeDescription();
-        typeDescription.setUnsigned(new Unsigned8(32));
-        return typeDescription;
-    }
-
-    @Override
-    public String toString() {
-        return getReference().toString() + ": " + value;
-    }
-
-    @Override
-    public String getValueString() {
-        return "" + value;
-    }
-
+  @Override
+  public String getValueString() {
+    return "" + value;
+  }
 }

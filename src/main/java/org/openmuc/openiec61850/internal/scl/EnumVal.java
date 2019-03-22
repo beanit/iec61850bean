@@ -19,37 +19,37 @@ import org.w3c.dom.Node;
 
 public final class EnumVal {
 
-    private final String id;
-    private int ord;
+  private final String id;
+  private int ord;
 
-    public EnumVal(String id, int ord) {
-        this.id = id;
-        this.ord = ord;
+  public EnumVal(String id, int ord) {
+    this.id = id;
+    this.ord = ord;
+  }
+
+  public EnumVal(Node xmlNode) throws SclParseException {
+    id = xmlNode.getTextContent();
+
+    NamedNodeMap attributes = xmlNode.getAttributes();
+
+    Node node = attributes.getNamedItem("ord");
+
+    if (node == null) {
+      throw new SclParseException("Required attribute \"ord\" not found!");
     }
 
-    public EnumVal(Node xmlNode) throws SclParseException {
-        id = xmlNode.getTextContent();
-
-        NamedNodeMap attributes = xmlNode.getAttributes();
-
-        Node node = attributes.getNamedItem("ord");
-
-        if (node == null) {
-            throw new SclParseException("Required attribute \"ord\" not found!");
-        }
-
-        try {
-            ord = Integer.parseInt(node.getNodeValue());
-        } catch (NumberFormatException e) {
-            throw new SclParseException("EnumVal contains invalid \"ord\" number.");
-        }
+    try {
+      ord = Integer.parseInt(node.getNodeValue());
+    } catch (NumberFormatException e) {
+      throw new SclParseException("EnumVal contains invalid \"ord\" number.");
     }
+  }
 
-    public String getId() {
-        return id;
-    }
+  public String getId() {
+    return id;
+  }
 
-    public int getOrd() {
-        return ord;
-    }
+  public int getOrd() {
+    return ord;
+  }
 }

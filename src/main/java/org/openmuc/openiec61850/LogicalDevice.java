@@ -19,22 +19,21 @@ import java.util.List;
 
 public final class LogicalDevice extends ModelNode {
 
-    public LogicalDevice(ObjectReference objectReference, List<LogicalNode> logicalNodes) {
-        children = new LinkedHashMap<>((int) ((logicalNodes.size() / 0.75) + 1));
-        this.objectReference = objectReference;
-        for (LogicalNode logicalNode : logicalNodes) {
-            children.put(logicalNode.getReference().getName(), logicalNode);
-            logicalNode.setParent(this);
-        }
+  public LogicalDevice(ObjectReference objectReference, List<LogicalNode> logicalNodes) {
+    children = new LinkedHashMap<>((int) ((logicalNodes.size() / 0.75) + 1));
+    this.objectReference = objectReference;
+    for (LogicalNode logicalNode : logicalNodes) {
+      children.put(logicalNode.getReference().getName(), logicalNode);
+      logicalNode.setParent(this);
     }
+  }
 
-    @Override
-    public LogicalDevice copy() {
-        List<LogicalNode> childCopies = new ArrayList<>(children.size());
-        for (ModelNode childNode : children.values()) {
-            childCopies.add((LogicalNode) childNode.copy());
-        }
-        return new LogicalDevice(objectReference, childCopies);
+  @Override
+  public LogicalDevice copy() {
+    List<LogicalNode> childCopies = new ArrayList<>(children.size());
+    for (ModelNode childNode : children.values()) {
+      childCopies.add((LogicalNode) childNode.copy());
     }
-
+    return new LogicalDevice(objectReference, childCopies);
+  }
 }

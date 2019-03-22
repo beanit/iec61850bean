@@ -15,75 +15,64 @@ package org.openmuc.openiec61850;
 
 public class ReportEntryData {
 
-    public static enum ReasonCode {
-        DCHG,
-        QCHG,
-        DUPD,
-        INTEGRITY,
-        GI,
-        APPTRIGGER
-    };
+    /** Not specified in IEC61850 but useful for data persistence */
+  private long id;;
+  /** Reference to to {@link DataSet}-member */
+  private String dataRef;
+  /** Attribute value to be reported */
+  private ModelNode value;
+  /** Trigger that caused the data to be put into the report */
+  // private TriggerConditions reasonCode;
+  private ReasonCode reasonCode;
+  /** Backreference to report */
+  private Report report;
 
-    /**
-     * Not specified in IEC61850 but useful for data persistence
-     */
-    private long id;
-    /**
-     * Reference to to {@link DataSet}-member
-     */
-    private String dataRef;
-    /**
-     * Attribute value to be reported
-     */
-    private ModelNode value;
-    /**
-     * Trigger that caused the data to be put into the report
-     */
-    // private TriggerConditions reasonCode;
-    private ReasonCode reasonCode;
-    /**
-     * Backreference to report
-     */
-    private Report report;
+  public String getDataRef() {
+    return dataRef;
+  }
 
-    public String getDataRef() {
-        return dataRef;
-    }
+  public void setDataRef(String dataRef) {
+    this.dataRef = dataRef;
+  }
 
-    public void setDataRef(String dataRef) {
-        this.dataRef = dataRef;
-    }
+  public ModelNode getValue() {
+    return value;
+  }
 
-    public ModelNode getValue() {
-        return value;
-    }
+  public void setValue(ModelNode value) {
+    this.value = value;
+  }
 
-    public void setValue(ModelNode value) {
-        this.value = value;
-    }
+  public ReasonCode getReasonCode() {
+    return reasonCode;
+  }
 
-    public ReasonCode getReasonCode() {
-        return reasonCode;
-    }
+  public void setReasonCode(ReasonCode reasonCode) {
+    this.reasonCode = reasonCode;
+  }
 
-    public void setReasonCode(ReasonCode reasonCode) {
-        this.reasonCode = reasonCode;
-    }
+  public long getId() {
+    return id;
+  }
 
-    public long getId() {
-        return id;
-    }
+  public void setId(long id) {
+    this.id = id;
+  }
 
-    public void setId(long id) {
-        this.id = id;
-    }
+  public Report getReport() {
+    return report;
+  }
 
-    public Report getReport() {
-        return report;
-    }
+  public void setReport(Report report) {
+    this.report = report;
+  }
 
-    public void setReport(Report report) {
-        this.report = report;
-    }
-
+public static enum ReasonCode {
+    DCHG,
+    QCHG,
+    DUPD,
+    INTEGRITY,
+    GI,
+    APPTRIGGER
+  }
 }

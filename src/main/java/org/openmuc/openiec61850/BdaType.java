@@ -14,33 +14,31 @@
 package org.openmuc.openiec61850;
 
 /**
- * This Enumeration includes all possible Types for IEC 61850 leave nodes ( {@link BasicDataAttribute}). This includes
- * BasicTypes and CommonACSITypes as defined in part 7-2.
- * 
+ * This Enumeration includes all possible Types for IEC 61850 leave nodes ( {@link
+ * BasicDataAttribute}). This includes BasicTypes and CommonACSITypes as defined in part 7-2.
  */
 public enum BdaType {
-
-    BOOLEAN,
-    INT8,
-    INT16,
-    INT32,
-    INT64,
-    INT128,
-    INT8U,
-    INT16U,
-    INT32U,
-    FLOAT32,
-    FLOAT64,
-    OCTET_STRING,
-    VISIBLE_STRING,
-    UNICODE_STRING,
-    TIMESTAMP,
-    ENTRY_TIME,
-    CHECK,
-    QUALITY,
-    DOUBLE_BIT_POS,
-    TAP_COMMAND,
-    TRIGGER_CONDITIONS,
-    OPTFLDS,
-    REASON_FOR_INCLUSION;
+  BOOLEAN,
+  INT8,
+  INT16,
+  INT32,
+  INT64,
+  INT128,
+  INT8U,
+  INT16U,
+  INT32U,
+  FLOAT32,
+  FLOAT64,
+  OCTET_STRING,
+  VISIBLE_STRING,
+  UNICODE_STRING,
+  TIMESTAMP,
+  ENTRY_TIME,
+  CHECK,
+  QUALITY,
+  DOUBLE_BIT_POS,
+  TAP_COMMAND,
+  TRIGGER_CONDITIONS,
+  OPTFLDS,
+  REASON_FOR_INCLUSION;
 }

@@ -14,66 +14,64 @@
 package org.openmuc.openiec61850.clientgui;
 
 import java.io.IOException;
-
 import javax.swing.tree.DefaultMutableTreeNode;
-
 import org.openmuc.openiec61850.ClientAssociation;
 import org.openmuc.openiec61850.DataSet;
 import org.openmuc.openiec61850.ServiceError;
 
 public class DataSetTreeNode extends DefaultMutableTreeNode implements DataTreeNode {
 
-    private static final long serialVersionUID = 7919716359809465616L;
+  private static final long serialVersionUID = 7919716359809465616L;
 
-    private final DataSet node;
+  private final DataSet node;
 
-    public DataSetTreeNode(String name, DataSet node) {
-        super(name);
-        this.node = node;
+  public DataSetTreeNode(String name, DataSet node) {
+    super(name);
+    this.node = node;
+  }
+
+  public DataSet getNode() {
+    return node;
+  }
+
+  @Override
+  public void reset(ClientAssociation association) throws ServiceError, IOException {
+    if (association != null) {
+      association.getDataSetValues(node);
     }
-
-    public DataSet getNode() {
-        return node;
+    for (int i = 0; i < getChildCount(); i++) {
+      if (getChildAt(i) instanceof DataObjectTreeNode) {
+        DataTreeNode child = (DataTreeNode) getChildAt(i);
+        child.reset(null);
+      }
     }
+  }
 
-    @Override
-    public void reset(ClientAssociation association) throws ServiceError, IOException {
-        if (association != null) {
-            association.getDataSetValues(node);
-        }
-        for (int i = 0; i < getChildCount(); i++) {
-            if (getChildAt(i) instanceof DataObjectTreeNode) {
-                DataTreeNode child = (DataTreeNode) getChildAt(i);
-                child.reset(null);
-            }
-        }
+  @Override
+  public void writeValues(ClientAssociation association) throws ServiceError, IOException {
+    for (int i = 0; i < getChildCount(); i++) {
+      if (getChildAt(i) instanceof DataObjectTreeNode) {
+        DataTreeNode child = (DataTreeNode) getChildAt(i);
+        child.writeValues(null);
+      }
     }
+    if (association != null) {
+      association.setDataSetValues(node);
+    }
+  }
 
-    @Override
-    public void writeValues(ClientAssociation association) throws ServiceError, IOException {
-        for (int i = 0; i < getChildCount(); i++) {
-            if (getChildAt(i) instanceof DataObjectTreeNode) {
-                DataTreeNode child = (DataTreeNode) getChildAt(i);
-                child.writeValues(null);
-            }
-        }
-        if (association != null) {
-            association.setDataSetValues(node);
-        }
-    }
+  @Override
+  public BasicDataBind<?> getData() {
+    return null;
+  }
 
-    @Override
-    public BasicDataBind<?> getData() {
-        return null;
-    }
+  @Override
+  public boolean writable() {
+    return true;
+  }
 
-    @Override
-    public boolean writable() {
-        return true;
-    }
-
-    @Override
-    public boolean readable() {
-        return true;
-    }
+  @Override
+  public boolean readable() {
+    return true;
+  }
 }

@@ -20,105 +20,109 @@ import org.openmuc.openiec61850.internal.mms.asn1.TypeDescription;
 
 public final class BdaVisibleString extends BasicDataAttribute {
 
-    private byte[] value;
-    private final int maxLength;
+  private final int maxLength;
+  private byte[] value;
 
-    public BdaVisibleString(ObjectReference objectReference, Fc fc, String sAddr, int maxLength, boolean dchg,
-            boolean dupd) {
-        super(objectReference, fc, sAddr, dchg, dupd);
-        basicType = BdaType.VISIBLE_STRING;
-        this.maxLength = maxLength;
-        setDefault();
-    }
+  public BdaVisibleString(
+      ObjectReference objectReference,
+      Fc fc,
+      String sAddr,
+      int maxLength,
+      boolean dchg,
+      boolean dupd) {
+    super(objectReference, fc, sAddr, dchg, dupd);
+    basicType = BdaType.VISIBLE_STRING;
+    this.maxLength = maxLength;
+    setDefault();
+  }
 
-    public byte[] getValue() {
-        return value;
-    }
+  public byte[] getValue() {
+    return value;
+  }
 
-    public void setValue(byte[] value) {
-        if (value == null || value.length > maxLength) {
-            throw new IllegalArgumentException(
-                    "value was null or VISIBLE_STRING value size exceeds maxLength of " + maxLength);
-        }
-        this.value = value;
+  public void setValue(byte[] value) {
+    if (value == null || value.length > maxLength) {
+      throw new IllegalArgumentException(
+          "value was null or VISIBLE_STRING value size exceeds maxLength of " + maxLength);
     }
+    this.value = value;
+  }
 
-    @Override
-    public void setValueFrom(BasicDataAttribute bda) {
-        byte[] srcValue = ((BdaVisibleString) bda).getValue();
-        if (value.length != srcValue.length) {
-            value = new byte[srcValue.length];
-        }
-        System.arraycopy(srcValue, 0, value, 0, srcValue.length);
-    }
+  public void setValue(String value) {
+    setValue(value.getBytes());
+  }
 
-    public void setValue(String value) {
-        setValue(value.getBytes());
+  @Override
+  public void setValueFrom(BasicDataAttribute bda) {
+    byte[] srcValue = ((BdaVisibleString) bda).getValue();
+    if (value.length != srcValue.length) {
+      value = new byte[srcValue.length];
     }
+    System.arraycopy(srcValue, 0, value, 0, srcValue.length);
+  }
 
-    public int getMaxLength() {
-        return maxLength;
-    }
+  public int getMaxLength() {
+    return maxLength;
+  }
 
-    public String getStringValue() {
-        return new String(value);
-    }
+  public String getStringValue() {
+    return new String(value);
+  }
 
-    @Override
-    public void setDefault() {
-        value = new byte[0];
-    }
+  @Override
+  public void setDefault() {
+    value = new byte[0];
+  }
 
-    @Override
-    public BdaVisibleString copy() {
-        BdaVisibleString copy = new BdaVisibleString(objectReference, fc, sAddr, maxLength, dchg, dupd);
-        byte[] valueCopy = new byte[value.length];
-        System.arraycopy(value, 0, valueCopy, 0, value.length);
-        copy.setValue(valueCopy);
-        if (mirror == null) {
-            copy.mirror = this;
-        }
-        else {
-            copy.mirror = mirror;
-        }
-        return copy;
+  @Override
+  public BdaVisibleString copy() {
+    BdaVisibleString copy = new BdaVisibleString(objectReference, fc, sAddr, maxLength, dchg, dupd);
+    byte[] valueCopy = new byte[value.length];
+    System.arraycopy(value, 0, valueCopy, 0, value.length);
+    copy.setValue(valueCopy);
+    if (mirror == null) {
+      copy.mirror = this;
+    } else {
+      copy.mirror = mirror;
     }
+    return copy;
+  }
 
-    @Override
-    Data getMmsDataObj() {
-        Data data = new Data();
-        data.setVisibleString(new BerVisibleString(value));
-        return data;
-    }
+  @Override
+  Data getMmsDataObj() {
+    Data data = new Data();
+    data.setVisibleString(new BerVisibleString(value));
+    return data;
+  }
 
-    @Override
-    void setValueFromMmsDataObj(Data data) throws ServiceError {
-        if (data.getVisibleString() == null) {
-            throw new ServiceError(ServiceError.TYPE_CONFLICT, "expected type: visible_string");
-        }
-        value = data.getVisibleString().value;
+  @Override
+  void setValueFromMmsDataObj(Data data) throws ServiceError {
+    if (data.getVisibleString() == null) {
+      throw new ServiceError(ServiceError.TYPE_CONFLICT, "expected type: visible_string");
     }
+    value = data.getVisibleString().value;
+  }
 
-    @Override
-    TypeDescription getMmsTypeSpec() {
-        TypeDescription typeDescription = new TypeDescription();
-        typeDescription.setVisibleString(new Integer32(maxLength * -1));
-        return typeDescription;
-    }
+  @Override
+  TypeDescription getMmsTypeSpec() {
+    TypeDescription typeDescription = new TypeDescription();
+    typeDescription.setVisibleString(new Integer32(maxLength * -1));
+    return typeDescription;
+  }
 
-    @Override
-    public String toString() {
-        if (value == null) {
-            return getReference().toString() + ": null";
-        }
-        if (value.length == 0 || value[0] == (byte) 0) {
-            return getReference().toString() + ": ''";
-        }
-        return getReference().toString() + ": " + new String(value);
+  @Override
+  public String toString() {
+    if (value == null) {
+      return getReference().toString() + ": null";
     }
+    if (value.length == 0 || value[0] == (byte) 0) {
+      return getReference().toString() + ": ''";
+    }
+    return getReference().toString() + ": " + new String(value);
+  }
 
-    @Override
-    public String getValueString() {
-        return new String(value);
-    }
+  @Override
+  public String getValueString() {
+    return new String(value);
+  }
 }

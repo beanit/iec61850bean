@@ -13,134 +13,134 @@
  */
 package org.openmuc.jositransport;
 
-import org.openmuc.openiec61850.internal.NamedDefaultThreadFactory;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.openmuc.openiec61850.internal.NamedDefaultThreadFactory;
 
 /**
- * This class extends Thread. It is started by ServerTSAP and listens on a socket for connections and hands them to the
- * ConnectionHandler class. It notifies ConnectionListener if the socket is closed.
- * 
+ * This class extends Thread. It is started by ServerTSAP and listens on a socket for connections
+ * and hands them to the ConnectionHandler class. It notifies ConnectionListener if the socket is
+ * closed.
+ *
  * @author Stefan Feuerhahn
- * 
  */
 final class ServerThread extends Thread {
 
-    private final ServerSocket serverSocket;
-    private final int maxTPduSizeParam;
-    private final int messageTimeout;
-    private final int messageFragmentTimeout;
-    private final int maxConnections;
-    private final TConnectionListener connectionListener;
+  private final ServerSocket serverSocket;
+  private final int maxTPduSizeParam;
+  private final int messageTimeout;
+  private final int messageFragmentTimeout;
+  private final int maxConnections;
+  private final TConnectionListener connectionListener;
 
-    private boolean stopServer = false;
-    private int numConnections = 0;
+  private boolean stopServer = false;
+  private int numConnections = 0;
 
-    ServerThread(ServerSocket socket, int maxTPduSizeParam, int maxConnections, int messageTimeout,
-            int messageFragmentTimeout, TConnectionListener connectionListener) {
-        serverSocket = socket;
-        this.maxTPduSizeParam = maxTPduSizeParam;
-        this.maxConnections = maxConnections;
-        this.messageTimeout = messageTimeout;
-        this.messageFragmentTimeout = messageFragmentTimeout;
-        this.connectionListener = connectionListener;
+  ServerThread(
+      ServerSocket socket,
+      int maxTPduSizeParam,
+      int maxConnections,
+      int messageTimeout,
+      int messageFragmentTimeout,
+      TConnectionListener connectionListener) {
+    serverSocket = socket;
+    this.maxTPduSizeParam = maxTPduSizeParam;
+    this.maxConnections = maxConnections;
+    this.messageTimeout = messageTimeout;
+    this.messageFragmentTimeout = messageFragmentTimeout;
+    this.connectionListener = connectionListener;
+  }
+
+  @Override
+  public void run() {
+
+    ExecutorService executor =
+        Executors.newCachedThreadPool(new NamedDefaultThreadFactory("openiec61850-osi-server"));
+    try {
+
+      Socket clientSocket = null;
+
+      while (true) {
+        try {
+          clientSocket = serverSocket.accept();
+        } catch (IOException e) {
+          if (stopServer == false) {
+            connectionListener.serverStoppedListeningIndication(e);
+          }
+          return;
+        }
+
+        boolean startConnection = false;
+
+        synchronized (this) {
+          if (numConnections < maxConnections) {
+            numConnections++;
+            startConnection = true;
+          }
+        }
+
+        if (startConnection) {
+          executor.execute(new ConnectionHandler(clientSocket, this));
+        } else {
+          // Maximum number of connections reached. Ignoring connection request.
+        }
+      }
+    } finally {
+      executor.shutdown();
     }
+  }
 
-    public final class ConnectionHandler extends Thread {
+  void connectionClosedSignal() {
+    synchronized (this) {
+      numConnections--;
+    }
+  }
 
-        private final Socket socket;
-        private final ServerThread serverThread;
+  /** Stops listening for new connections. Existing connections are not touched. */
+  void stopServer() {
+    stopServer = true;
+    if (serverSocket.isBound()) {
+      try {
+        serverSocket.close();
+      } catch (IOException e) {
+      }
+    }
+  }
 
-        ConnectionHandler(Socket socket, ServerThread serverThread) {
-            this.socket = socket;
-            this.serverThread = serverThread;
-        }
+  public final class ConnectionHandler extends Thread {
 
-        @Override
-        public void run() {
+    private final Socket socket;
+    private final ServerThread serverThread;
 
-            TConnection tConnection;
-            try {
-                tConnection = new TConnection(socket, maxTPduSizeParam, messageTimeout, messageFragmentTimeout,
-                        serverThread);
-            } catch (IOException e) {
-                synchronized (ServerThread.this) {
-                    numConnections--;
-                }
-                return;
-            }
-            try {
-                tConnection.listenForCR();
-            } catch (IOException e) {
-                tConnection.close();
-                return;
-            }
-            connectionListener.connectionIndication(tConnection);
-
-        }
+    ConnectionHandler(Socket socket, ServerThread serverThread) {
+      this.socket = socket;
+      this.serverThread = serverThread;
     }
 
     @Override
     public void run() {
 
-        ExecutorService executor = Executors.newCachedThreadPool(new NamedDefaultThreadFactory("openiec61850-osi-server"));
-        try {
-
-            Socket clientSocket = null;
-
-            while (true) {
-                try {
-                    clientSocket = serverSocket.accept();
-                } catch (IOException e) {
-                    if (stopServer == false) {
-                        connectionListener.serverStoppedListeningIndication(e);
-                    }
-                    return;
-                }
-
-                boolean startConnection = false;
-
-                synchronized (this) {
-                    if (numConnections < maxConnections) {
-                        numConnections++;
-                        startConnection = true;
-                    }
-                }
-
-                if (startConnection) {
-                    executor.execute(new ConnectionHandler(clientSocket, this));
-                }
-                else {
-                    // Maximum number of connections reached. Ignoring connection request.
-                }
-
-            }
-        } finally {
-            executor.shutdown();
+      TConnection tConnection;
+      try {
+        tConnection =
+            new TConnection(
+                socket, maxTPduSizeParam, messageTimeout, messageFragmentTimeout, serverThread);
+      } catch (IOException e) {
+        synchronized (ServerThread.this) {
+          numConnections--;
         }
+        return;
+      }
+      try {
+        tConnection.listenForCR();
+      } catch (IOException e) {
+        tConnection.close();
+        return;
+      }
+      connectionListener.connectionIndication(tConnection);
     }
-
-    void connectionClosedSignal() {
-        synchronized (this) {
-            numConnections--;
-        }
-    }
-
-    /**
-     * Stops listening for new connections. Existing connections are not touched.
-     */
-    void stopServer() {
-        stopServer = true;
-        if (serverSocket.isBound()) {
-            try {
-                serverSocket.close();
-            } catch (IOException e) {
-            }
-        }
-    }
-
+  }
 }

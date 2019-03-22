@@ -19,38 +19,38 @@ import java.nio.ByteBuffer;
 
 /**
  * Simple InputStream wrapper around a {@link ByteBuffer} object
- * 
+ *
  * @author Karsten Mueller-Bier
  */
 public final class ByteBufferInputStream extends InputStream {
 
-    private final ByteBuffer buf;
+  private final ByteBuffer buf;
 
-    public ByteBufferInputStream(ByteBuffer buf) {
-        this.buf = buf;
+  public ByteBufferInputStream(ByteBuffer buf) {
+    this.buf = buf;
+  }
+
+  @Override
+  public int read() throws IOException {
+    if (buf.hasRemaining() == false) {
+      return -1;
     }
+    return buf.get() & 0xFF;
+  }
 
-    @Override
-    public int read() throws IOException {
-        if (buf.hasRemaining() == false) {
-            return -1;
-        }
-        return buf.get() & 0xFF;
+  @Override
+  public int read(byte[] b, int off, int len) throws IOException {
+    if (buf.hasRemaining() == false) {
+      return -1;
     }
+    int size = Math.min(len, available());
 
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-        if (buf.hasRemaining() == false) {
-            return -1;
-        }
-        int size = Math.min(len, available());
+    buf.get(b, off, size);
+    return size;
+  }
 
-        buf.get(b, off, size);
-        return size;
-    }
-
-    @Override
-    public int available() throws IOException {
-        return buf.limit() - buf.position();
-    }
+  @Override
+  public int available() throws IOException {
+    return buf.limit() - buf.position();
+  }
 }
