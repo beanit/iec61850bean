@@ -36,7 +36,6 @@ import com.beanit.openiec61850.internal.cli.CliParameter;
 import com.beanit.openiec61850.internal.cli.CliParameterBuilder;
 import com.beanit.openiec61850.internal.cli.CliParseException;
 import com.beanit.openiec61850.internal.cli.CliParser;
-import com.beanit.openiec61850.internal.cli.FatalActionException;
 import com.beanit.openiec61850.internal.cli.IntCliParameter;
 import com.beanit.openiec61850.internal.cli.StringCliParameter;
 import java.io.IOException;
@@ -191,7 +190,7 @@ public class ConsoleClient {
   private static class ActionExecutor implements ActionListener {
 
     @Override
-    public void actionCalled(String actionKey) throws ActionException, FatalActionException {
+    public void actionCalled(String actionKey) throws ActionException {
       try {
         switch (actionKey) {
           case PRINT_MODEL_KEY:

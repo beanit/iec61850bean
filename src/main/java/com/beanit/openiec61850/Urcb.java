@@ -30,7 +30,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.openmuc.jasn1.ber.types.BerBitString;
+import com.beanit.jasn1.ber.types.BerBitString;
 
 public class Urcb extends Rcb {
 
