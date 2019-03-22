@@ -1,3 +1,6 @@
+v1.8.0 22-Mar-2019
+--------------------
+
 - library now published on maven central in the com.beanit namespace
 
 - changed package names from org.openmuc.* to com.beanit.*
