@@ -1,7 +1,7 @@
 #!/bin/bash
 
 JARS_LOCATION="../../build/libs-all"
-MAIN_CLASS="org.openmuc.openiec61850.app.ConsoleServer"
+MAIN_CLASS="com.beanit.openiec61850.app.ConsoleServer"
 SYSPROPS="-Dlogback.configurationFile=logback.xml"
 
 # from gradle start script:
