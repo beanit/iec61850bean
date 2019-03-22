@@ -13,23 +13,6 @@
  */
 package com.beanit.josistack;
 
-import java.io.ByteArrayInputStream;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.TimeoutException;
-import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
-import org.openmuc.jasn1.ber.types.BerAny;
-import org.openmuc.jasn1.ber.types.BerInteger;
-import org.openmuc.jasn1.ber.types.BerObjectIdentifier;
-import org.openmuc.jasn1.ber.types.string.BerGraphicString;
 import com.beanit.josistack.internal.acse.asn1.AAREApdu;
 import com.beanit.josistack.internal.acse.asn1.AARQApdu;
 import com.beanit.josistack.internal.acse.asn1.ACSEApdu;
@@ -58,6 +41,23 @@ import com.beanit.josistack.internal.presentation.asn1.RespondingPresentationSel
 import com.beanit.josistack.internal.presentation.asn1.UserData;
 import com.beanit.jositransport.ClientTSap;
 import com.beanit.jositransport.TConnection;
+import java.io.ByteArrayInputStream;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.math.BigInteger;
+import java.net.InetAddress;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeoutException;
+import org.openmuc.jasn1.ber.ReverseByteArrayOutputStream;
+import org.openmuc.jasn1.ber.types.BerAny;
+import org.openmuc.jasn1.ber.types.BerInteger;
+import org.openmuc.jasn1.ber.types.BerObjectIdentifier;
+import org.openmuc.jasn1.ber.types.string.BerGraphicString;
 
 public final class AcseAssociation {
 

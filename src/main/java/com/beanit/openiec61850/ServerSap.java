@@ -13,6 +13,8 @@
  */
 package com.beanit.openiec61850;
 
+import com.beanit.josistack.AcseAssociation;
+import com.beanit.josistack.ServerAcseSap;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -20,8 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import javax.net.ServerSocketFactory;
-import com.beanit.josistack.AcseAssociation;
-import com.beanit.josistack.ServerAcseSap;
 
 /**
  * The <code>ServerSap</code> class represents the IEC 61850 service access point for server

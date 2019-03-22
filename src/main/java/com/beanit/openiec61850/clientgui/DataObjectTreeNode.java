@@ -13,8 +13,6 @@
  */
 package com.beanit.openiec61850.clientgui;
 
-import java.io.IOException;
-import javax.swing.tree.DefaultMutableTreeNode;
 import com.beanit.openiec61850.BasicDataAttribute;
 import com.beanit.openiec61850.BdaBoolean;
 import com.beanit.openiec61850.BdaCheck;
@@ -65,6 +63,8 @@ import com.beanit.openiec61850.clientgui.databind.TimeStampDataBind;
 import com.beanit.openiec61850.clientgui.databind.TriggerConditionDataBind;
 import com.beanit.openiec61850.clientgui.databind.UnicodeStringDataBind;
 import com.beanit.openiec61850.clientgui.databind.VisibleStringDataBind;
+import java.io.IOException;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 public class DataObjectTreeNode extends DefaultMutableTreeNode implements DataTreeNode {
 

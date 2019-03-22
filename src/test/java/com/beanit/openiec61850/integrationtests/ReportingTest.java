@@ -15,15 +15,6 @@ package com.beanit.openiec61850.integrationtests;
 
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
 import com.beanit.openiec61850.BasicDataAttribute;
 import com.beanit.openiec61850.BdaFloat32;
 import com.beanit.openiec61850.ClientAssociation;
@@ -40,6 +31,15 @@ import com.beanit.openiec61850.ServerModel;
 import com.beanit.openiec61850.ServerSap;
 import com.beanit.openiec61850.ServiceError;
 import com.beanit.openiec61850.Urcb;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ReportingTest implements ClientEventListener {
 

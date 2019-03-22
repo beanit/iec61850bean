@@ -13,11 +13,11 @@
  */
 package com.beanit.openiec61850.clientgui.databind;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import com.beanit.openiec61850.BdaOctetString;
 import com.beanit.openiec61850.BdaType;
 import com.beanit.openiec61850.clientgui.BasicDataBind;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 public class OctetStringDataBind extends BasicDataBind<BdaOctetString> {
 

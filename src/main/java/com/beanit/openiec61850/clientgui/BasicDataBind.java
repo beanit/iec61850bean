@@ -13,10 +13,10 @@
  */
 package com.beanit.openiec61850.clientgui;
 
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import com.beanit.openiec61850.BasicDataAttribute;
 import com.beanit.openiec61850.BdaType;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
 
 public abstract class BasicDataBind<E extends BasicDataAttribute> {
   protected final E data;

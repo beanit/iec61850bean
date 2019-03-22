@@ -13,12 +13,12 @@
  */
 package com.beanit.openiec61850.clientgui.databind;
 
+import com.beanit.openiec61850.BdaType;
+import com.beanit.openiec61850.BdaVisibleString;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import com.beanit.openiec61850.BdaType;
-import com.beanit.openiec61850.BdaVisibleString;
 
 public class VisibleStringDataBind extends TextFieldDataBind<BdaVisibleString> {
 

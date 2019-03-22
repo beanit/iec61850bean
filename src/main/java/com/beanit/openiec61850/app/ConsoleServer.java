@@ -13,9 +13,6 @@
  */
 package com.beanit.openiec61850.app;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import com.beanit.openiec61850.BasicDataAttribute;
 import com.beanit.openiec61850.BdaBoolean;
 import com.beanit.openiec61850.BdaFloat32;
@@ -45,6 +42,9 @@ import com.beanit.openiec61850.internal.cli.CliParseException;
 import com.beanit.openiec61850.internal.cli.CliParser;
 import com.beanit.openiec61850.internal.cli.IntCliParameter;
 import com.beanit.openiec61850.internal.cli.StringCliParameter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConsoleServer {
 

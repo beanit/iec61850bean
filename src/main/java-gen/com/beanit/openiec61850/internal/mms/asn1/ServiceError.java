@@ -19,6 +19,7 @@ public class ServiceError implements Serializable {
   private ErrorClass errorClass = null;
   private BerInteger additionalCode = null;
   private BerVisibleString additionalDescription = null;
+
   public ServiceError() {}
 
   public ServiceError(byte[] code) {

@@ -17,6 +17,7 @@ public class RejectPDU implements Serializable {
   public byte[] code = null;
   private Unsigned32 originalInvokeID = null;
   private RejectReason rejectReason = null;
+
   public RejectPDU() {}
 
   public RejectPDU(byte[] code) {

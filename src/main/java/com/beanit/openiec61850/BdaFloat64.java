@@ -13,11 +13,11 @@
  */
 package com.beanit.openiec61850;
 
-import java.nio.ByteBuffer;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.FloatingPoint;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
 import com.beanit.openiec61850.internal.mms.asn1.Unsigned8;
+import java.nio.ByteBuffer;
 
 public final class BdaFloat64 extends BasicDataAttribute {
 

@@ -13,15 +13,15 @@
  */
 package com.beanit.openiec61850;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 import com.beanit.openiec61850.internal.mms.asn1.ConfirmedServiceResponse;
 import com.beanit.openiec61850.internal.mms.asn1.GetVariableAccessAttributesResponse;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription.Structure.Components;
 import com.beanit.openiec61850.internal.mms.asn1.TypeSpecification;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
 final class DataDefinitionResParser {
 

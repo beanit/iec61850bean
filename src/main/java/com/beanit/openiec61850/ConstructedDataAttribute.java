@@ -13,12 +13,12 @@
  */
 package com.beanit.openiec61850;
 
+import com.beanit.openiec61850.internal.mms.asn1.Data;
+import com.beanit.openiec61850.internal.mms.asn1.Data.Structure;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import com.beanit.openiec61850.internal.mms.asn1.Data;
-import com.beanit.openiec61850.internal.mms.asn1.Data.Structure;
 
 public final class ConstructedDataAttribute extends FcModelNode {
 

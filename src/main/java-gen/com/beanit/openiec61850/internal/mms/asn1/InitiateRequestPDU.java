@@ -19,6 +19,7 @@ public class InitiateRequestPDU implements Serializable {
   private Integer16 proposedMaxServOutstandingCalled = null;
   private Integer8 proposedDataStructureNestingLevel = null;
   private InitRequestDetail initRequestDetail = null;
+
   public InitiateRequestPDU() {}
 
   public InitiateRequestPDU(byte[] code) {

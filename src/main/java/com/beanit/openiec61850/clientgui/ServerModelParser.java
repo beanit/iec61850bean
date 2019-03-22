@@ -13,13 +13,6 @@
  */
 package com.beanit.openiec61850.clientgui;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import javax.swing.tree.TreeNode;
 import com.beanit.openiec61850.DataSet;
 import com.beanit.openiec61850.Fc;
 import com.beanit.openiec61850.FcModelNode;
@@ -27,6 +20,13 @@ import com.beanit.openiec61850.LogicalDevice;
 import com.beanit.openiec61850.LogicalNode;
 import com.beanit.openiec61850.ModelNode;
 import com.beanit.openiec61850.ServerModel;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import javax.swing.tree.TreeNode;
 
 public class ServerModelParser {
 

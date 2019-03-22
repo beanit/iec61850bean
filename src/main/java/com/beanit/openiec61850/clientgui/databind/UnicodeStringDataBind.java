@@ -13,12 +13,12 @@
  */
 package com.beanit.openiec61850.clientgui.databind;
 
+import com.beanit.openiec61850.BdaType;
+import com.beanit.openiec61850.BdaUnicodeString;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
-import com.beanit.openiec61850.BdaType;
-import com.beanit.openiec61850.BdaUnicodeString;
 
 public class UnicodeStringDataBind extends TextFieldDataBind<BdaUnicodeString> {
 

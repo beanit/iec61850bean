@@ -19,6 +19,7 @@ public class WriteResponse implements Serializable {
   private static final long serialVersionUID = 1L;
   public byte[] code = null;
   private List<CHOICE> seqOf = null;
+
   public WriteResponse() {
     seqOf = new ArrayList<>();
   }

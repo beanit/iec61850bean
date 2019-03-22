@@ -13,6 +13,9 @@
  */
 package com.beanit.openiec61850.clientgui.databind;
 
+import com.beanit.openiec61850.BdaTimestamp;
+import com.beanit.openiec61850.BdaType;
+import com.beanit.openiec61850.clientgui.BasicDataBind;
 import com.toedter.calendar.JDateChooser;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -22,9 +25,6 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
-import com.beanit.openiec61850.BdaTimestamp;
-import com.beanit.openiec61850.BdaType;
-import com.beanit.openiec61850.clientgui.BasicDataBind;
 
 public class TimeStampDataBind extends BasicDataBind<BdaTimestamp> {
 

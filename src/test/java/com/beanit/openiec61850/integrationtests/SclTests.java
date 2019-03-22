@@ -13,9 +13,9 @@
  */
 package com.beanit.openiec61850.integrationtests;
 
-import org.junit.Test;
 import com.beanit.openiec61850.SclParseException;
 import com.beanit.openiec61850.SclParser;
+import org.junit.Test;
 
 public class SclTests {
 

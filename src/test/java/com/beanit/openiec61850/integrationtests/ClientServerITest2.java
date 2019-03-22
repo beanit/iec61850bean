@@ -13,14 +13,6 @@
  */
 package com.beanit.openiec61850.integrationtests;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import javax.naming.ConfigurationException;
-import org.junit.Assert;
-import org.junit.Test;
 import com.beanit.openiec61850.BasicDataAttribute;
 import com.beanit.openiec61850.BdaReasonForInclusion;
 import com.beanit.openiec61850.ClientAssociation;
@@ -36,6 +28,14 @@ import com.beanit.openiec61850.ServerEventListener;
 import com.beanit.openiec61850.ServerModel;
 import com.beanit.openiec61850.ServerSap;
 import com.beanit.openiec61850.ServiceError;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import javax.naming.ConfigurationException;
+import org.junit.Assert;
+import org.junit.Test;
 
 public class ClientServerITest2 extends Thread implements ServerEventListener, ClientEventListener {
 

@@ -20,6 +20,7 @@ public class FileDirectoryResponse implements Serializable {
   public byte[] code = null;
   private ListOfDirectoryEntry listOfDirectoryEntry = null;
   private BerBoolean moreFollows = null;
+
   public FileDirectoryResponse() {}
 
   public FileDirectoryResponse(byte[] code) {

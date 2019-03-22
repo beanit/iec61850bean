@@ -13,11 +13,11 @@
  */
 package com.beanit.openiec61850.clientgui.databind;
 
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import com.beanit.openiec61850.BdaTapCommand;
 import com.beanit.openiec61850.BdaType;
 import com.beanit.openiec61850.clientgui.BasicDataBind;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
 
 public class TapCommandDataBind extends BasicDataBind<BdaTapCommand> {
 

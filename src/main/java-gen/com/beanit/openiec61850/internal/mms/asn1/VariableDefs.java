@@ -18,6 +18,7 @@ public class VariableDefs implements Serializable {
   private static final long serialVersionUID = 1L;
   public byte[] code = null;
   private List<SEQUENCE> seqOf = null;
+
   public VariableDefs() {
     seqOf = new ArrayList<>();
   }

@@ -13,9 +13,6 @@
  */
 package com.beanit.openiec61850;
 
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import com.beanit.openiec61850.internal.mms.asn1.AlternateAccess;
 import com.beanit.openiec61850.internal.mms.asn1.AlternateAccessSelection;
 import com.beanit.openiec61850.internal.mms.asn1.AlternateAccessSelection.SelectAccess;
@@ -26,6 +23,9 @@ import com.beanit.openiec61850.internal.mms.asn1.ObjectName;
 import com.beanit.openiec61850.internal.mms.asn1.Unsigned32;
 import com.beanit.openiec61850.internal.mms.asn1.VariableDefs;
 import com.beanit.openiec61850.internal.mms.asn1.VariableSpecification;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public abstract class FcModelNode extends ModelNode {
 

@@ -13,9 +13,9 @@
  */
 package com.beanit.openiec61850.internal.scl;
 
+import com.beanit.openiec61850.SclParseException;
 import java.util.ArrayList;
 import java.util.List;
-import com.beanit.openiec61850.SclParseException;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 

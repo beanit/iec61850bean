@@ -20,6 +20,7 @@ public class ContextList implements Serializable {
   private static final long serialVersionUID = 1L;
   public byte[] code = null;
   private List<SEQUENCE> seqOf = null;
+
   public ContextList() {
     seqOf = new ArrayList<>();
   }
@@ -147,6 +148,7 @@ public class ContextList implements Serializable {
     private PresentationContextIdentifier presentationContextIdentifier = null;
     private AbstractSyntaxName abstractSyntaxName = null;
     private TransferSyntaxNameList transferSyntaxNameList = null;
+
     public SEQUENCE() {}
 
     public SEQUENCE(byte[] code) {

@@ -13,11 +13,11 @@
  */
 package com.beanit.openiec61850;
 
-import java.util.Arrays;
-import org.openmuc.jasn1.ber.types.BerOctetString;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.Integer32;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
+import java.util.Arrays;
+import org.openmuc.jasn1.ber.types.BerOctetString;
 
 public final class BdaOctetString extends BasicDataAttribute {
 

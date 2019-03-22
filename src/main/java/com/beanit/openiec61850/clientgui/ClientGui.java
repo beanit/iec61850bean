@@ -13,6 +13,11 @@
  */
 package com.beanit.openiec61850.clientgui;
 
+import com.beanit.openiec61850.ClientAssociation;
+import com.beanit.openiec61850.ClientSap;
+import com.beanit.openiec61850.ServerModel;
+import com.beanit.openiec61850.ServiceError;
+import com.beanit.openiec61850.clientgui.util.Counter;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -44,11 +49,6 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import com.beanit.openiec61850.ClientAssociation;
-import com.beanit.openiec61850.ClientSap;
-import com.beanit.openiec61850.ServerModel;
-import com.beanit.openiec61850.ServiceError;
-import com.beanit.openiec61850.clientgui.util.Counter;
 
 public class ClientGui extends JFrame implements ActionListener, TreeSelectionListener {
 

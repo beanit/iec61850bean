@@ -13,6 +13,10 @@
  */
 package com.beanit.openiec61850;
 
+import com.beanit.openiec61850.internal.mms.asn1.AlternateAccessSelection;
+import com.beanit.openiec61850.internal.mms.asn1.ObjectName;
+import com.beanit.openiec61850.internal.mms.asn1.ObjectName.DomainSpecific;
+import com.beanit.openiec61850.internal.mms.asn1.VariableDefs;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,10 +25,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import com.beanit.openiec61850.internal.mms.asn1.AlternateAccessSelection;
-import com.beanit.openiec61850.internal.mms.asn1.ObjectName;
-import com.beanit.openiec61850.internal.mms.asn1.ObjectName.DomainSpecific;
-import com.beanit.openiec61850.internal.mms.asn1.VariableDefs;
 
 public final class ServerModel extends ModelNode {
 

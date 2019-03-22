@@ -32,7 +32,9 @@ public class TypeDescription implements Serializable {
   private BerBoolean binaryTime = null;
   private Integer32 mMSString = null;
   private BerNull utcTime = null;
+
   public TypeDescription() {}
+
   public TypeDescription(byte[] code) {
     this.code = code;
   }
@@ -615,6 +617,7 @@ public class TypeDescription implements Serializable {
     public byte[] code = null;
     private BerBoolean packed = null;
     private Components components = null;
+
     public Structure() {}
 
     public Structure(byte[] code) {
@@ -767,6 +770,7 @@ public class TypeDescription implements Serializable {
       private static final long serialVersionUID = 1L;
       public byte[] code = null;
       private List<SEQUENCE> seqOf = null;
+
       public Components() {
         seqOf = new ArrayList<>();
       }

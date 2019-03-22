@@ -13,10 +13,10 @@
  */
 package com.beanit.openiec61850;
 
-import org.openmuc.jasn1.ber.types.BerInteger;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
 import com.beanit.openiec61850.internal.mms.asn1.Unsigned8;
+import org.openmuc.jasn1.ber.types.BerInteger;
 
 public final class BdaInt8 extends BasicDataAttribute {
 

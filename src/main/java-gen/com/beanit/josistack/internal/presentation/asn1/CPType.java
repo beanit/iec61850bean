@@ -16,6 +16,7 @@ public class CPType implements Serializable {
   public byte[] code = null;
   private ModeSelector modeSelector = null;
   private NormalModeParameters normalModeParameters = null;
+
   public CPType() {}
 
   public CPType(byte[] code) {

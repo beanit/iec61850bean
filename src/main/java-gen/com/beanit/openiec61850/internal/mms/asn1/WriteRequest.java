@@ -19,6 +19,7 @@ public class WriteRequest implements Serializable {
   public byte[] code = null;
   private VariableAccessSpecification variableAccessSpecification = null;
   private ListOfData listOfData = null;
+
   public WriteRequest() {}
 
   public WriteRequest(byte[] code) {

@@ -22,6 +22,7 @@ public class Myexternal implements Serializable {
   private BerObjectIdentifier directReference = null;
   private BerInteger indirectReference = null;
   private Encoding encoding = null;
+
   public Myexternal() {}
 
   public Myexternal(byte[] code) {

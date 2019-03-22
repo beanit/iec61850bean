@@ -13,15 +13,15 @@
  */
 package com.beanit.openiec61850;
 
+import com.beanit.openiec61850.internal.mms.asn1.Data;
+import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
+import com.beanit.openiec61850.internal.mms.asn1.TypeSpecification;
+import com.beanit.openiec61850.internal.mms.asn1.Unsigned32;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import com.beanit.openiec61850.internal.mms.asn1.Data;
-import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
-import com.beanit.openiec61850.internal.mms.asn1.TypeSpecification;
-import com.beanit.openiec61850.internal.mms.asn1.Unsigned32;
 
 /**
  * An Array can contain up to n instances of one and the same DataObject, ConstructedDataAttribute,

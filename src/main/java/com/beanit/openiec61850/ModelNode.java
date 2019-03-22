@@ -13,18 +13,18 @@
  */
 package com.beanit.openiec61850;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.Identifier;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription.Structure;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription.Structure.Components;
 import com.beanit.openiec61850.internal.mms.asn1.TypeSpecification;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public abstract class ModelNode implements Iterable<ModelNode> {
 

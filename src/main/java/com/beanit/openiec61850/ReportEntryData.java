@@ -15,7 +15,7 @@ package com.beanit.openiec61850;
 
 public class ReportEntryData {
 
-    /** Not specified in IEC61850 but useful for data persistence */
+  /** Not specified in IEC61850 but useful for data persistence */
   private long id;;
   /** Reference to to {@link DataSet}-member */
   private String dataRef;
@@ -67,7 +67,7 @@ public class ReportEntryData {
     this.report = report;
   }
 
-public static enum ReasonCode {
+  public static enum ReasonCode {
     DCHG,
     QCHG,
     DUPD,

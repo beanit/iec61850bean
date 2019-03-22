@@ -19,6 +19,7 @@ public class InformationReport implements Serializable {
   public byte[] code = null;
   private VariableAccessSpecification variableAccessSpecification = null;
   private ListOfAccessResult listOfAccessResult = null;
+
   public InformationReport() {}
 
   public InformationReport(byte[] code) {

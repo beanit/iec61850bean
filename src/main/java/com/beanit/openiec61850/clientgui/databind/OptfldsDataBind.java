@@ -13,14 +13,14 @@
  */
 package com.beanit.openiec61850.clientgui.databind;
 
+import com.beanit.openiec61850.BdaOptFlds;
+import com.beanit.openiec61850.BdaType;
+import com.beanit.openiec61850.clientgui.BasicDataBind;
 import java.awt.Component;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import com.beanit.openiec61850.BdaOptFlds;
-import com.beanit.openiec61850.BdaType;
-import com.beanit.openiec61850.clientgui.BasicDataBind;
 
 public class OptfldsDataBind extends BasicDataBind<BdaOptFlds> {
 

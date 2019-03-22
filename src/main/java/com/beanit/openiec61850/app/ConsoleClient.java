@@ -13,11 +13,6 @@
  */
 package com.beanit.openiec61850.app;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
 import com.beanit.openiec61850.BdaTriggerConditions;
 import com.beanit.openiec61850.Brcb;
 import com.beanit.openiec61850.ClientAssociation;
@@ -44,6 +39,11 @@ import com.beanit.openiec61850.internal.cli.CliParser;
 import com.beanit.openiec61850.internal.cli.FatalActionException;
 import com.beanit.openiec61850.internal.cli.IntCliParameter;
 import com.beanit.openiec61850.internal.cli.StringCliParameter;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConsoleClient {
 

@@ -18,6 +18,7 @@ public class AlternateAccess implements Serializable {
   private static final long serialVersionUID = 1L;
   public byte[] code = null;
   private List<CHOICE> seqOf = null;
+
   public AlternateAccess() {
     seqOf = new ArrayList<>();
   }

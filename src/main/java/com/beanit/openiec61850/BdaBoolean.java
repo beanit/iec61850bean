@@ -13,10 +13,10 @@
  */
 package com.beanit.openiec61850;
 
-import org.openmuc.jasn1.ber.types.BerBoolean;
-import org.openmuc.jasn1.ber.types.BerNull;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
+import org.openmuc.jasn1.ber.types.BerBoolean;
+import org.openmuc.jasn1.ber.types.BerNull;
 
 public final class BdaBoolean extends BasicDataAttribute {
 

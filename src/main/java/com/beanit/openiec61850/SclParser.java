@@ -13,16 +13,6 @@
  */
 package com.beanit.openiec61850;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import javax.xml.parsers.DocumentBuilderFactory;
 import com.beanit.openiec61850.internal.scl.AbstractDataAttribute;
 import com.beanit.openiec61850.internal.scl.Bda;
 import com.beanit.openiec61850.internal.scl.Da;
@@ -35,6 +25,16 @@ import com.beanit.openiec61850.internal.scl.LnSubDef;
 import com.beanit.openiec61850.internal.scl.LnType;
 import com.beanit.openiec61850.internal.scl.Sdo;
 import com.beanit.openiec61850.internal.scl.TypeDefinitions;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;

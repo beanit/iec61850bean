@@ -13,6 +13,8 @@
  */
 package com.beanit.openiec61850;
 
+import com.beanit.openiec61850.internal.mms.asn1.Identifier;
+import com.beanit.openiec61850.internal.mms.asn1.ObjectName;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
@@ -20,8 +22,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import com.beanit.openiec61850.internal.mms.asn1.Identifier;
-import com.beanit.openiec61850.internal.mms.asn1.ObjectName;
 
 public final class DataSet implements Iterable<FcModelNode> {
 

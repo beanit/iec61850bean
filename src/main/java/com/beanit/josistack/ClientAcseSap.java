@@ -13,11 +13,11 @@
  */
 package com.beanit.josistack;
 
+import com.beanit.jositransport.ClientTSap;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import javax.net.SocketFactory;
-import com.beanit.jositransport.ClientTSap;
 
 /**
  * This class implements the Service Access Point (SAP) for the Application Control Service Element

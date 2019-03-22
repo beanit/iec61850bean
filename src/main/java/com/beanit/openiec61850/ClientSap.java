@@ -13,10 +13,10 @@
  */
 package com.beanit.openiec61850;
 
+import com.beanit.josistack.ClientAcseSap;
 import java.io.IOException;
 import java.net.InetAddress;
 import javax.net.SocketFactory;
-import com.beanit.josistack.ClientAcseSap;
 
 /**
  * The <code>ClientSap</code> class represents the IEC 61850 service access point for client

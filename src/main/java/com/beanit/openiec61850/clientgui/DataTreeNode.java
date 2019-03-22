@@ -13,10 +13,10 @@
  */
 package com.beanit.openiec61850.clientgui;
 
-import java.io.IOException;
-import javax.swing.tree.TreeNode;
 import com.beanit.openiec61850.ClientAssociation;
 import com.beanit.openiec61850.ServiceError;
+import java.io.IOException;
+import javax.swing.tree.TreeNode;
 
 public interface DataTreeNode {
 

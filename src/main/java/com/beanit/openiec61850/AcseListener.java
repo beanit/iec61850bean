@@ -13,10 +13,10 @@
  */
 package com.beanit.openiec61850;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import com.beanit.josistack.AcseAssociation;
 import com.beanit.josistack.AcseAssociationListener;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 final class AcseListener implements AcseAssociationListener {
 

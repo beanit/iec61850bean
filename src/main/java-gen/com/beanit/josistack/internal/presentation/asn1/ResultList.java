@@ -19,6 +19,7 @@ public class ResultList implements Serializable {
   private static final long serialVersionUID = 1L;
   public byte[] code = null;
   private List<SEQUENCE> seqOf = null;
+
   public ResultList() {
     seqOf = new ArrayList<>();
   }

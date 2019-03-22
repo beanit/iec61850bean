@@ -13,6 +13,9 @@
  */
 package com.beanit.openiec61850.clientgui.databind;
 
+import com.beanit.openiec61850.BasicDataAttribute;
+import com.beanit.openiec61850.BdaType;
+import com.beanit.openiec61850.clientgui.BasicDataBind;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 import javax.swing.text.AttributeSet;
@@ -20,9 +23,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
-import com.beanit.openiec61850.BasicDataAttribute;
-import com.beanit.openiec61850.BdaType;
-import com.beanit.openiec61850.clientgui.BasicDataBind;
 
 public abstract class TextFieldDataBind<E extends BasicDataAttribute> extends BasicDataBind<E> {
 

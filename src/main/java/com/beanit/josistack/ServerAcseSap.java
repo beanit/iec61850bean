@@ -13,14 +13,14 @@
  */
 package com.beanit.josistack;
 
+import com.beanit.jositransport.ServerTSap;
+import com.beanit.jositransport.TConnection;
+import com.beanit.jositransport.TConnectionListener;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeoutException;
 import javax.net.ServerSocketFactory;
-import com.beanit.jositransport.ServerTSap;
-import com.beanit.jositransport.TConnection;
-import com.beanit.jositransport.TConnectionListener;
 
 /**
  * This class implements the server Service Access Point (SAP) for the Application Control Service

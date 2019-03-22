@@ -13,11 +13,11 @@
  */
 package com.beanit.openiec61850.clientgui;
 
+import com.beanit.openiec61850.BasicDataAttribute;
+import com.beanit.openiec61850.FcModelNode;
 import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import com.beanit.openiec61850.BasicDataAttribute;
-import com.beanit.openiec61850.FcModelNode;
 
 public class DataObjectTreeCellRenderer extends DefaultTreeCellRenderer {
 

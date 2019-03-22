@@ -22,7 +22,9 @@ public class DeleteNamedVariableListRequest implements Serializable {
   private BerInteger scopeOfDelete = null;
   private ListOfVariableListName listOfVariableListName = null;
   private DomainName domainName = null;
+
   public DeleteNamedVariableListRequest() {}
+
   public DeleteNamedVariableListRequest(byte[] code) {
     this.code = code;
   }
