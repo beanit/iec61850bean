@@ -70,10 +70,10 @@ apply plugin: "signing"
 def projectName = "OpenIEC61850"
 
 dependencies {
-    compile group: "org.slf4j", name: "slf4j-api", version: "1.7.25"
-    compile group: "com.beanit", name: "jasn1", version: "1.11.0"
-    compile group: "ch.qos.logback", name: "logback-classic", version: "1.2.3"
-    compile group: "com.toedter", name: "jcalendar", version: "1.4"
+    implementation group: "com.beanit", name: "jasn1", version: "1.11.0"
+    implementation group: "com.toedter", name: "jcalendar", version: "1.4"
+    implementation group: "org.slf4j", name: "slf4j-api", version: "1.7.25"
+    runtimeOnly group: "ch.qos.logback", name: "logback-classic", version: "1.2.3"
 }
 
 jar {
