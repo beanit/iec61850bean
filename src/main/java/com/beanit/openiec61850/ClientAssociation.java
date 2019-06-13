@@ -1165,9 +1165,9 @@ public final class ClientAssociation {
 
   /**
    * This function will get the definition of all persistent DataSets from the server and update the
-   * DataSets in the ServerModel that were returned by the retrieveModel() or getModelFromSclFile()
-   * functions. It will delete DataSets that have been deleted since the last update and add any new
-   * DataSets
+   * DataSets in the ServerModel that was returned by {@code retrieveModel} or set using {@code
+   * setServerModel}. It will delete DataSets that have been deleted since the last update and add
+   * any new DataSets
    *
    * @throws ServiceError if a ServiceError is returned by the server.
    * @throws IOException if a fatal association error occurs. The association object will be closed

@@ -67,7 +67,7 @@ All nodes of the server model in OpenIEC61850 are of one of the following seven 
 
 They all implement the ModelNode interface. The nodes FcDataObject, Array, ConstructedDataAttribute and BasicDataAttribute also implement the interface called FcModelNode because they are considered functionally constraint data in the standard. Many of the services of IEC 61850 can only be applied to functionally constraint data (e.g. GetDataValues and SetDataValues).
 
-When programming a client you get a copy of the server model either through ClientAssociation.retrieveModel() or ClientAssociation.getModelFromSclFile(). When programming a server you get a copy of the server model through the ServerSap.getModelCopy() function.
+When programming a client you get a copy of the server model either through ClientAssociation.retrieveModel from the server device or through SclParser.parse from an SCL file. When using the second approach, the model has to be set in the client association using ClientAssociation.setServerModel. When programming a server you get a copy of the server model through the ServerSap.getModelCopy() function.
 
 You can then navigate through the model using several functions:
 
