@@ -76,11 +76,11 @@ dependencies {
     runtimeOnly group: "ch.qos.logback", name: "logback-classic", version: "1.2.3"
 }
 
-ext.moduleName = 'com.beanit.openiec61850'
+ext.moduleName = "com.beanit.openiec61850"
 
 jar {
     bnd("Bundle-Name": "OpenIEC61850",
-            "Bundle-SymbolicName": "com.beanit.openiec61850",
+            "Bundle-SymbolicName": moduleName,
             "-exportcontents": "!*.internal.*,*",
             "Import-Package": "com.beanit.jasn1.*,javax.net,*;resolution:=optional")
 }

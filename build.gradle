@@ -59,11 +59,13 @@ configure(javaProjects) {
         useJUnitPlatform()
     }
 
-    jar {
-        inputs.property("moduleName", moduleName)
-        manifest {
-            version = project.version.replace("-", ".")
-            attributes('Automatic-Module-Name': moduleName)
+    afterEvaluate {
+        jar {
+            inputs.property("moduleName", moduleName)
+            manifest {
+                version = project.version.replace("-", ".")
+                attributes('Automatic-Module-Name': moduleName)
+            }
         }
     }
 
