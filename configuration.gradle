@@ -10,7 +10,7 @@ project.ext {
 
     cfgSignPom = true
 
-    cfgJavaVersion = "1.7"
+    cfgJavaVersion = "8"
 
     cfgRepository = project.properties.sonatypeRepository
 
