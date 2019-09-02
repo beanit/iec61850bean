@@ -32,7 +32,7 @@ configure(javaProjects) {
 
     if (!project.properties.containsKey('cfgJavaVersion')) {
         project.ext {
-            cfgJavaVersion = '1.8'
+            cfgJavaVersion = '8'
         }
     }
 
@@ -60,8 +60,10 @@ configure(javaProjects) {
     }
 
     jar {
+        inputs.property("moduleName", moduleName)
         manifest {
             version = project.version.replace("-", ".")
+            attributes('Automatic-Module-Name': moduleName)
         }
     }
 
@@ -73,7 +75,7 @@ configure(javaProjects) {
 
     tasks.withType(JavaCompile) {
         doFirst {
-            if (sourceCompatibility == '1.7' && System.env.JDK7_HOME != null) {
+            if (sourceCompatibility == '7' && System.env.JDK7_HOME != null) {
                 options.fork = true
                 options.bootstrapClasspath = files("$System.env.JDK7_HOME/jre/lib/rt.jar")
             }
@@ -127,6 +129,7 @@ configure(javaProjects) {
         exclude "**/internal/**"
         exclude "**/java-gen/**"
         exclude "**/app/**"
+        options.links "https://docs.oracle.com/javase/$cfgJavaVersion/docs/api/"
     }
 }
 
@@ -206,6 +209,8 @@ task javadocAll(type: Javadoc) {
     classpath += files(distributionProjects.collect { project ->
         project.sourceSets.main.output
     })
+
+    options.links "https://docs.oracle.com/javase/$cfgJavaVersion/docs/api/"
 }
 
 tasks.withType(Tar) {
