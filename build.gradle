@@ -131,7 +131,11 @@ configure(javaProjects) {
         exclude "**/internal/**"
         exclude "**/java-gen/**"
         exclude "**/app/**"
-        options.links "https://docs.oracle.com/javase/$cfgJavaVersion/docs/api/"
+        if (Integer.valueOf(cfgJavaVersion) > 10) {
+            options.links "https://docs.oracle.com/en/java/javase/$cfgJavaVersion/docs/api/"
+        } else {
+            options.links "https://docs.oracle.com/javase/$cfgJavaVersion/docs/api/"
+        }
     }
 }
 
@@ -212,7 +216,11 @@ task javadocAll(type: Javadoc) {
         project.sourceSets.main.output
     })
 
-    options.links "https://docs.oracle.com/javase/$cfgJavaVersion/docs/api/"
+    if (Integer.valueOf(cfgJavaVersion) > 10) {
+        options.links "https://docs.oracle.com/en/java/javase/$cfgJavaVersion/docs/api/"
+    } else {
+        options.links "https://docs.oracle.com/javase/$cfgJavaVersion/docs/api/"
+    }
 }
 
 tasks.withType(Tar) {
