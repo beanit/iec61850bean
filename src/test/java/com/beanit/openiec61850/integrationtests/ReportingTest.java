@@ -13,7 +13,9 @@
  */
 package com.beanit.openiec61850.integrationtests;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.beanit.openiec61850.BasicDataAttribute;
 import com.beanit.openiec61850.BdaFloat32;
@@ -35,10 +37,9 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ReportingTest implements ClientEventListener {
 
@@ -57,7 +58,7 @@ public class ReportingTest implements ClientEventListener {
   private ServerModel clientModel;
   private int reportCounter = 0;
 
-  @Before
+  @BeforeEach
   public void startServerAndClient() throws SclParseException, IOException, ServiceError {
     startServer();
     startClient();
@@ -102,8 +103,8 @@ public class ReportingTest implements ClientEventListener {
 
     BdaFloat32 mag =
         (BdaFloat32) this.serverModel.findModelNode(CHANGING_SERVER_DA_REFERENCE_1, Fc.MX);
-    Assert.assertNotNull(mag);
-    Assert.assertEquals(0, this.reportCounter);
+    assertNotNull(mag);
+    assertEquals(0, this.reportCounter);
 
     mag.setFloat(3.0f);
     List<BasicDataAttribute> bdas = new ArrayList<>();
@@ -112,7 +113,7 @@ public class ReportingTest implements ClientEventListener {
 
     Thread.sleep(500);
 
-    Assert.assertEquals(1, this.reportCounter);
+    assertEquals(1, this.reportCounter);
   }
 
   @Test
@@ -135,7 +136,7 @@ public class ReportingTest implements ClientEventListener {
 
     this.clientAssociation.getRcbValues(urcb);
 
-    Assert.assertEquals(PREEXISTING_DATASET_REFERENCE, urcb.getDatSet().getStringValue());
+    assertEquals(PREEXISTING_DATASET_REFERENCE, urcb.getDatSet().getStringValue());
 
     System.out.println("dataset: " + urcb.getDatSet().getStringValue());
 
@@ -146,11 +147,11 @@ public class ReportingTest implements ClientEventListener {
         this.clientAssociation.setRcbValues(
             urcb, false, true, false, false, false, false, false, false);
 
-    Assert.assertNull(serviceErrors.get(0));
+    assertNull(serviceErrors.get(0));
 
     this.clientAssociation.getRcbValues(urcb);
 
-    Assert.assertEquals(CREATED_DATASET_REFERENCE, urcb.getDatSet().getStringValue());
+    assertEquals(CREATED_DATASET_REFERENCE, urcb.getDatSet().getStringValue());
 
     this.clientAssociation.enableReporting(urcb);
 
@@ -158,8 +159,8 @@ public class ReportingTest implements ClientEventListener {
 
     BdaFloat32 mag =
         (BdaFloat32) this.serverModel.findModelNode(CHANGING_SERVER_DA_REFERENCE_1, Fc.MX);
-    Assert.assertNotNull(mag);
-    Assert.assertEquals(0, this.reportCounter);
+    assertNotNull(mag);
+    assertEquals(0, this.reportCounter);
 
     mag.setFloat(3.0f);
     List<BasicDataAttribute> bdas = new ArrayList<>();
@@ -168,10 +169,10 @@ public class ReportingTest implements ClientEventListener {
 
     Thread.sleep(1_000);
 
-    Assert.assertEquals(1, this.reportCounter);
+    assertEquals(1, this.reportCounter);
   }
 
-  @After
+  @AfterEach
   public void disconnectAndStopServer() throws Exception {
     if (this.serverSap != null) {
       this.serverSap.stop();

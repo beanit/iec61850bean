@@ -13,6 +13,10 @@
  */
 package com.beanit.openiec61850.integrationtests;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.beanit.openiec61850.BasicDataAttribute;
 import com.beanit.openiec61850.BdaReasonForInclusion;
 import com.beanit.openiec61850.ClientAssociation;
@@ -33,8 +37,7 @@ import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClientServerITest2 extends Thread implements ServerEventListener, ClientEventListener {
 
@@ -222,19 +225,19 @@ public class ClientServerITest2 extends Thread implements ServerEventListener, C
 
     if (numReports == 1) {
       List<BdaReasonForInclusion> reasons = report.getReasonCodes();
-      Assert.assertEquals(2, reasons.size());
-      Assert.assertTrue(reasons.get(0).isGeneralInterrogation());
-      Assert.assertFalse(reasons.get(0).isDataUpdate());
+      assertEquals(2, reasons.size());
+      assertTrue(reasons.get(0).isGeneralInterrogation());
+      assertFalse(reasons.get(0).isDataUpdate());
     } else if (numReports == 2) {
       List<BdaReasonForInclusion> reasons = report.getReasonCodes();
-      Assert.assertEquals(1, reasons.size());
-      Assert.assertFalse(reasons.get(0).isGeneralInterrogation());
-      Assert.assertTrue(reasons.get(0).isDataChange());
+      assertEquals(1, reasons.size());
+      assertFalse(reasons.get(0).isGeneralInterrogation());
+      assertTrue(reasons.get(0).isDataChange());
     } else if (numReports >= 3) {
       List<BdaReasonForInclusion> reasons = report.getReasonCodes();
-      Assert.assertEquals(2, reasons.size());
-      Assert.assertTrue(reasons.get(0).isIntegrity());
-      Assert.assertTrue(reasons.get(1).isIntegrity());
+      assertEquals(2, reasons.size());
+      assertTrue(reasons.get(0).isIntegrity());
+      assertTrue(reasons.get(1).isIntegrity());
     }
 
     numSuccess++;

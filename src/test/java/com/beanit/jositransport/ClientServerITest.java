@@ -13,6 +13,8 @@
  */
 package com.beanit.jositransport;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
@@ -20,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClientServerITest {
 
@@ -382,7 +384,7 @@ public class ClientServerITest {
         0,
         subArrayOfReturnedData.length);
 
-    Arrays.equals(subArrayOfReturnedData, concat(testData, testData));
+    assertTrue(Arrays.equals(subArrayOfReturnedData, concat(testData, testData)));
 
     tConnection.disconnect();
 

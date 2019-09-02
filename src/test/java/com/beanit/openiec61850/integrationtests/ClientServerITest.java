@@ -13,6 +13,12 @@
  */
 package com.beanit.openiec61850.integrationtests;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import com.beanit.openiec61850.BasicDataAttribute;
 import com.beanit.openiec61850.BdaBoolean;
 import com.beanit.openiec61850.BdaFloat32;
@@ -45,8 +51,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ClientServerITest extends Thread implements ServerEventListener, ClientEventListener {
 
@@ -149,20 +154,20 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     namePlateVendor.setDefault();
     clientAssociation.getDataValues(namePlateVendor);
 
-    Assert.assertEquals("Fraunhofer ISE", new String(namePlateVendor.getValue()));
+    assertEquals("Fraunhofer ISE", new String(namePlateVendor.getValue()));
 
     // -------------Test DataSets-Start---------------------
 
     Collection<DataSet> dataSets = serverModel.getDataSets();
-    Assert.assertEquals(2, dataSets.size());
+    assertEquals(2, dataSets.size());
 
     DataSet dataSet1 = serverModel.getDataSet("ied1lDevice1/LLN0.dataset1");
 
-    Assert.assertEquals("ied1lDevice1/LLN0.dataset1", dataSet1.getReferenceStr());
+    assertEquals("ied1lDevice1/LLN0.dataset1", dataSet1.getReferenceStr());
 
     DataSet dataSet2 = serverModel.getDataSet("ied1lDevice1/LLN0.dataset2");
 
-    Assert.assertEquals("ied1lDevice1/LLN0.dataset2", dataSet2.getReferenceStr());
+    assertEquals("ied1lDevice1/LLN0.dataset2", dataSet2.getReferenceStr());
 
     for (FcModelNode dataSet2Member : dataSet2) {
       ((BdaInt32) dataSet2Member).setValue(9);
@@ -188,19 +193,19 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     List<ServiceError> serviceErrors = clientAssociation.getDataSetValues(nonPersistentDataSet);
 
     for (ServiceError serviceError : serviceErrors) {
-      Assert.assertNull(serviceError);
+      assertNull(serviceError);
     }
 
-    Assert.assertTrue("Fraunhofer ISE".equals(new String(namePlateVendor.getValue())));
+    assertTrue("Fraunhofer ISE".equals(new String(namePlateVendor.getValue())));
 
     clientAssociation.deleteDataSet(nonPersistentDataSet);
 
     serviceErrors = clientAssociation.getDataSetValues(nonPersistentDataSet);
 
-    Assert.assertEquals(2, serviceErrors.size());
+    assertEquals(2, serviceErrors.size());
 
     for (ServiceError serviceError : serviceErrors) {
-      Assert.assertNotNull(serviceError);
+      assertNotNull(serviceError);
     }
 
     // -------------Test DataSets-End---------------------
@@ -212,11 +217,11 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
 
     f.setFloat(3.0f);
 
-    Assert.assertEquals(f.getFloat(), 3.0f, 0.00001);
+    assertEquals(f.getFloat(), 3.0f, 0.00001);
 
     clientAssociation.getDataSetValues(dataSet1);
 
-    Assert.assertEquals(f.getFloat(), 0.0f, 0.00001);
+    assertEquals(f.getFloat(), 0.0f, 0.00001);
 
     /* Test selecting a controllable Data Object */
 
@@ -227,15 +232,15 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     BdaVisibleString sbo =
         (BdaVisibleString) serverModel.findModelNode("ied1lDevice1/CSWI1.PosA.SBO", Fc.CO);
 
-    Assert.assertNotNull(sbo);
+    assertNotNull(sbo);
 
     clientAssociation.getDataValues(sbo);
 
-    Assert.assertTrue(sbo.getStringValue().equals("success"));
+    assertTrue(sbo.getStringValue().equals("success"));
 
     clientAssociation.getDataValues(sbo);
 
-    Assert.assertEquals(sbo.getStringValue(), "success");
+    assertEquals(sbo.getStringValue(), "success");
 
     /* select with second connection */
 
@@ -246,7 +251,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
         (BdaVisibleString) serverModel2.findModelNode("ied1lDevice1/CSWI1.PosA.SBO", Fc.CO);
 
     clientAssociation2.getDataValues(sbo2);
-    Assert.assertEquals(sbo2.getStringValue(), "");
+    assertEquals(sbo2.getStringValue(), "");
 
     /* select with second connection after the sboTimeout of 1000ms should have been run out */
 
@@ -259,12 +264,12 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     }
 
     clientAssociation2.getDataValues(sbo2);
-    Assert.assertEquals(sbo2.getStringValue(), "success");
+    assertEquals(sbo2.getStringValue(), "success");
 
     /* select with first connnection after the second was quit */
 
     clientAssociation.getDataValues(sbo);
-    Assert.assertEquals(sbo.getStringValue(), "");
+    assertEquals(sbo.getStringValue(), "");
 
     clientAssociation2.close();
 
@@ -275,79 +280,79 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     }
 
     clientAssociation.getDataValues(sbo);
-    Assert.assertEquals(sbo.getStringValue(), "success");
+    assertEquals(sbo.getStringValue(), "success");
 
     FcModelNode switchPosAFcDo =
         (FcModelNode) serverModel.findModelNode("ied1lDevice1/CSWI1.PosA", Fc.CO);
 
-    Assert.assertNotNull(switchPosAFcDo);
+    assertNotNull(switchPosAFcDo);
 
     clientAssociation.operate(switchPosAFcDo);
 
     // -------------Test Reporting-Start-------------------
 
     Urcb urcb1 = serverModel.getUrcb("ied1lDevice1/LLN0.urcb101");
-    Assert.assertNotNull(urcb1);
+    assertNotNull(urcb1);
 
     Urcb urcb2 = serverModel.getUrcb("ied1lDevice1/LLN0.urcb2");
-    Assert.assertNotNull(urcb2);
+    assertNotNull(urcb2);
 
     clientAssociation.getRcbValues(urcb1);
     clientAssociation.getRcbValues(urcb2);
 
     BdaBoolean resv = (BdaBoolean) urcb1.getChild("Resv");
-    Assert.assertNotNull(resv);
+    assertNotNull(resv);
     clientAssociation.getDataValues(resv);
-    Assert.assertFalse(resv.getValue());
+    assertFalse(resv.getValue());
     clientAssociation.reserveUrcb(urcb1);
     clientAssociation.getDataValues(resv);
-    Assert.assertTrue(resv.getValue());
+    assertTrue(resv.getValue());
 
-    Assert.assertEquals("urcb1", urcb1.getRptId().getStringValue());
-    Assert.assertEquals("ied1lDevice1/LLN0.urcb2", urcb2.getRptId().getStringValue());
+    assertEquals("urcb1", urcb1.getRptId().getStringValue());
+    assertEquals("ied1lDevice1/LLN0.urcb2", urcb2.getRptId().getStringValue());
 
-    Assert.assertEquals("ied1lDevice1/LLN0$dataset1", urcb1.getDatSet().getStringValue());
-    Assert.assertEquals("ied1lDevice1/LLN0$dataset1", urcb2.getDatSet().getStringValue());
+    assertEquals("ied1lDevice1/LLN0$dataset1", urcb1.getDatSet().getStringValue());
+    assertEquals("ied1lDevice1/LLN0$dataset1", urcb2.getDatSet().getStringValue());
 
-    Assert.assertEquals(true, urcb1.getOptFlds().isDataSetName());
-    Assert.assertEquals(false, urcb1.getOptFlds().isBufferOverflow());
-    Assert.assertEquals(false, urcb1.getOptFlds().isConfigRevision());
-    Assert.assertEquals(false, urcb1.getOptFlds().isDataReference());
-    Assert.assertEquals(false, urcb1.getOptFlds().isEntryId());
-    Assert.assertEquals(true, urcb1.getOptFlds().isReasonForInclusion());
-    Assert.assertEquals(true, urcb1.getOptFlds().isReportTimestamp());
-    Assert.assertEquals(false, urcb1.getOptFlds().isSegmentation());
-    Assert.assertEquals(true, urcb1.getOptFlds().isSequenceNumber());
+    assertEquals(true, urcb1.getOptFlds().isDataSetName());
+    assertEquals(false, urcb1.getOptFlds().isBufferOverflow());
+    assertEquals(false, urcb1.getOptFlds().isConfigRevision());
+    assertEquals(false, urcb1.getOptFlds().isDataReference());
+    assertEquals(false, urcb1.getOptFlds().isEntryId());
+    assertEquals(true, urcb1.getOptFlds().isReasonForInclusion());
+    assertEquals(true, urcb1.getOptFlds().isReportTimestamp());
+    assertEquals(false, urcb1.getOptFlds().isSegmentation());
+    assertEquals(true, urcb1.getOptFlds().isSequenceNumber());
 
-    Assert.assertEquals(false, urcb2.getOptFlds().isDataSetName());
-    Assert.assertEquals(false, urcb2.getOptFlds().isBufferOverflow());
-    Assert.assertEquals(false, urcb2.getOptFlds().isConfigRevision());
-    Assert.assertEquals(false, urcb2.getOptFlds().isDataReference());
-    Assert.assertEquals(false, urcb2.getOptFlds().isEntryId());
-    Assert.assertEquals(false, urcb2.getOptFlds().isReasonForInclusion());
-    Assert.assertEquals(false, urcb2.getOptFlds().isReportTimestamp());
-    Assert.assertEquals(false, urcb2.getOptFlds().isSegmentation());
-    Assert.assertEquals(false, urcb2.getOptFlds().isSequenceNumber());
+    assertEquals(false, urcb2.getOptFlds().isDataSetName());
+    assertEquals(false, urcb2.getOptFlds().isBufferOverflow());
+    assertEquals(false, urcb2.getOptFlds().isConfigRevision());
+    assertEquals(false, urcb2.getOptFlds().isDataReference());
+    assertEquals(false, urcb2.getOptFlds().isEntryId());
+    assertEquals(false, urcb2.getOptFlds().isReasonForInclusion());
+    assertEquals(false, urcb2.getOptFlds().isReportTimestamp());
+    assertEquals(false, urcb2.getOptFlds().isSegmentation());
+    assertEquals(false, urcb2.getOptFlds().isSequenceNumber());
 
-    Assert.assertEquals(50L, urcb1.getBufTm().getValue());
+    assertEquals(50L, urcb1.getBufTm().getValue());
 
-    Assert.assertEquals(true, urcb1.getTrgOps().isDataChange());
-    Assert.assertEquals(true, urcb1.getTrgOps().isDataUpdate());
-    Assert.assertEquals(true, urcb1.getTrgOps().isGeneralInterrogation());
-    Assert.assertEquals(false, urcb1.getTrgOps().isIntegrity());
-    Assert.assertEquals(true, urcb1.getTrgOps().isQualityChange());
+    assertEquals(true, urcb1.getTrgOps().isDataChange());
+    assertEquals(true, urcb1.getTrgOps().isDataUpdate());
+    assertEquals(true, urcb1.getTrgOps().isGeneralInterrogation());
+    assertEquals(false, urcb1.getTrgOps().isIntegrity());
+    assertEquals(true, urcb1.getTrgOps().isQualityChange());
 
-    Assert.assertEquals(false, urcb2.getTrgOps().isDataChange());
-    Assert.assertEquals(false, urcb2.getTrgOps().isDataUpdate());
-    Assert.assertEquals(true, urcb2.getTrgOps().isGeneralInterrogation());
-    Assert.assertEquals(false, urcb2.getTrgOps().isIntegrity());
-    Assert.assertEquals(false, urcb2.getTrgOps().isQualityChange());
+    assertEquals(false, urcb2.getTrgOps().isDataChange());
+    assertEquals(false, urcb2.getTrgOps().isDataUpdate());
+    assertEquals(true, urcb2.getTrgOps().isGeneralInterrogation());
+    assertEquals(false, urcb2.getTrgOps().isIntegrity());
+    assertEquals(false, urcb2.getTrgOps().isQualityChange());
 
-    Assert.assertEquals(5000L, urcb1.getIntgPd().getValue());
+    assertEquals(5000L, urcb1.getIntgPd().getValue());
 
-    Assert.assertEquals(0, urcb1.getSqNum().getValue());
+    assertEquals(0, urcb1.getSqNum().getValue());
 
-    Assert.assertEquals(0L, urcb1.getConfRev().getValue());
+    assertEquals(0L, urcb1.getConfRev().getValue());
 
     urcb1.getRptId().setValue("myurcb1");
     urcb1.getTrgOps().setGeneralInterrogation(false);
@@ -360,7 +365,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
 
     clientAssociation.getRcbValues(urcb1);
 
-    Assert.assertEquals("myurcb1", urcb1.getRptId().getStringValue());
+    assertEquals("myurcb1", urcb1.getRptId().getStringValue());
 
     clientAssociation.reserveUrcb(urcb1);
     clientAssociation.cancelUrcbReservation(urcb1);
@@ -372,7 +377,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     } catch (ServiceError e) {
       thrown = true;
     }
-    Assert.assertTrue(thrown);
+    assertTrue(thrown);
 
     urcb1.getTrgOps().setGeneralInterrogation(true);
     urcb1.getTrgOps().setDataChange(true);
@@ -381,12 +386,12 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     serviceErrors =
         clientAssociation.setRcbValues(urcb1, false, false, false, false, true, true, false, false);
 
-    Assert.assertNotNull(serviceErrors.get(0));
+    assertNotNull(serviceErrors.get(0));
     clientAssociation.disableReporting(urcb1);
 
     serviceErrors =
         clientAssociation.setRcbValues(urcb1, false, false, false, false, true, true, false, false);
-    Assert.assertNull(serviceErrors.get(0));
+    assertNull(serviceErrors.get(0));
 
     clientAssociation.enableReporting(urcb1);
 
@@ -394,8 +399,8 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
 
     Thread.sleep(4000);
 
-    Assert.assertEquals(2, numReports);
-    Assert.assertEquals(2, numSuccess);
+    assertEquals(2, numReports);
+    assertEquals(2, numSuccess);
 
     clientAssociation.disableReporting(urcb1);
 
@@ -403,13 +408,13 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     serviceErrors =
         clientAssociation.setRcbValues(
             urcb1, false, false, false, false, true, false, false, false);
-    Assert.assertNull(serviceErrors.get(0));
+    assertNull(serviceErrors.get(0));
 
     clientAssociation.enableReporting(urcb1);
     Thread.sleep(6500);
 
-    Assert.assertEquals(8, numReports);
-    Assert.assertEquals(8, numSuccess);
+    assertEquals(8, numReports);
+    assertEquals(8, numSuccess);
 
     clientAssociation.disableReporting(urcb1);
 
@@ -418,7 +423,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     clientAssociation.disconnect();
 
     Thread.sleep(500);
-    Assert.assertEquals(2, numAssociationClosed);
+    assertEquals(2, numAssociationClosed);
 
     serverSap.stop();
   }
@@ -512,19 +517,19 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
 
     if (numReports == 1) {
       List<BdaReasonForInclusion> reasons = report.getReasonCodes();
-      Assert.assertEquals(2, reasons.size());
-      Assert.assertTrue(reasons.get(0).isGeneralInterrogation());
-      Assert.assertFalse(reasons.get(0).isDataUpdate());
+      assertEquals(2, reasons.size());
+      assertTrue(reasons.get(0).isGeneralInterrogation());
+      assertFalse(reasons.get(0).isDataUpdate());
     } else if (numReports == 2) {
       List<BdaReasonForInclusion> reasons = report.getReasonCodes();
-      Assert.assertEquals(1, reasons.size());
-      Assert.assertFalse(reasons.get(0).isGeneralInterrogation());
-      Assert.assertTrue(reasons.get(0).isDataChange());
+      assertEquals(1, reasons.size());
+      assertFalse(reasons.get(0).isGeneralInterrogation());
+      assertTrue(reasons.get(0).isDataChange());
     } else if (numReports >= 3) {
       List<BdaReasonForInclusion> reasons = report.getReasonCodes();
-      Assert.assertEquals(2, reasons.size());
-      Assert.assertTrue(reasons.get(0).isIntegrity());
-      Assert.assertTrue(reasons.get(1).isIntegrity());
+      assertEquals(2, reasons.size());
+      assertTrue(reasons.get(0).isIntegrity());
+      assertTrue(reasons.get(1).isIntegrity());
     }
 
     numSuccess++;

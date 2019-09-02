@@ -13,13 +13,14 @@
  */
 package com.beanit.josistack;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class SiemensClientITest {
 
@@ -277,7 +278,7 @@ public class SiemensClientITest {
 
     Thread.sleep(2000);
 
-    Assert.assertTrue(success);
+    assertTrue(success);
 
     serverAcseSAP.stopListening();
   }
