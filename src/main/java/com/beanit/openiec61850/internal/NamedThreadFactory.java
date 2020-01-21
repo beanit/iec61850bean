@@ -13,15 +13,13 @@
  */
 package com.beanit.openiec61850.internal;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class NamedDefaultThreadFactory implements ThreadFactory {
+public class NamedThreadFactory implements ThreadFactory {
 
   private final AtomicInteger threadCounter = new AtomicInteger(1);
   private final String namePrefix;
-  private ThreadFactory backingDefaultThreadFactory = Executors.defaultThreadFactory();
 
   /**
    * Creates a thread factory with the given pool name as a name prefix. Threads created will have
@@ -30,13 +28,13 @@ public class NamedDefaultThreadFactory implements ThreadFactory {
    *
    * @param poolName the thread pool name
    */
-  public NamedDefaultThreadFactory(String poolName) {
+  public NamedThreadFactory(String poolName) {
     this.namePrefix = poolName + "-thread-";
   }
 
   @Override
   public Thread newThread(Runnable r) {
-    Thread thread = backingDefaultThreadFactory.newThread(r);
+    Thread thread = new Thread(r);
     thread.setName(namePrefix + threadCounter.getAndIncrement());
     return thread;
   }

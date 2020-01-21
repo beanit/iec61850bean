@@ -21,7 +21,7 @@ import com.beanit.josistack.AcseAssociation;
 import com.beanit.josistack.ByteBufferInputStream;
 import com.beanit.josistack.DecodingException;
 import com.beanit.openiec61850.internal.BerBoolean;
-import com.beanit.openiec61850.internal.NamedDefaultThreadFactory;
+import com.beanit.openiec61850.internal.NamedThreadFactory;
 import com.beanit.openiec61850.internal.mms.asn1.AccessResult;
 import com.beanit.openiec61850.internal.mms.asn1.ConfirmedErrorPDU;
 import com.beanit.openiec61850.internal.mms.asn1.ConfirmedRequestPDU;
@@ -115,7 +115,7 @@ final class ServerAssociation {
     serverModel = serverSap.serverModel;
     executor =
         Executors.newScheduledThreadPool(
-            2, new NamedDefaultThreadFactory("openiec61850-server-connection"));
+            2, new NamedThreadFactory("openiec61850-server-connection"));
   }
 
   private static void insertMmsRef(ModelNode node, List<String> mmsRefs, String parentRef) {

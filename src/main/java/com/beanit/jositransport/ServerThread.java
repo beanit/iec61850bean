@@ -13,7 +13,7 @@
  */
 package com.beanit.jositransport;
 
-import com.beanit.openiec61850.internal.NamedDefaultThreadFactory;
+import com.beanit.openiec61850.internal.NamedThreadFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -58,7 +58,7 @@ final class ServerThread extends Thread {
   public void run() {
 
     ExecutorService executor =
-        Executors.newCachedThreadPool(new NamedDefaultThreadFactory("openiec61850-osi-server"));
+        Executors.newCachedThreadPool(new NamedThreadFactory("openiec61850-osi-server"));
     try {
 
       Socket clientSocket = null;
