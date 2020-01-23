@@ -44,15 +44,8 @@ configure(javaProjects) {
         mavenLocal()
     }
 
-    sourceSets {
-        itest {
-            compileClasspath += sourceSets.main.runtimeClasspath
-        }
-    }
-
     dependencies {
         testImplementation group: "org.junit.jupiter", name: "junit-jupiter", version: "5.5.1"
-        itestImplementation group: "org.junit.jupiter", name: "junit-jupiter", version: "5.5.1"
     }
 
     test {
