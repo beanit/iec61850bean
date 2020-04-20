@@ -151,6 +151,7 @@ configure(javaProjects) {
 
     dependencies {
         testImplementation("org.junit.jupiter:junit-jupiter:5.5.1")
+        testImplementation("com.tngtech.archunit:archunit-junit5:0.13.1")
     }
 
     tasks.test {
