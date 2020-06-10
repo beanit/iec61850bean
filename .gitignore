@@ -12,3 +12,5 @@ out/
 .project
 .classpath
 .metadata/
+**/bin/main/
+**/bin/test/

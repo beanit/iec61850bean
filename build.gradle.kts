@@ -42,6 +42,8 @@ tasks.register<Tar>("tar") {
             include("LICENSE.txt")
             include("doc/**")
             include("bin/**")
+            exclude("bin/main/")
+            exclude("bin/test/")
             include("gradle/wrapper/**")
             include("gradlew")
             include("gradlew.bat")
