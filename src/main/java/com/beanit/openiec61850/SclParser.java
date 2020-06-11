@@ -199,8 +199,8 @@ public class SclParser {
     }
 
     ServerModel serverModel = new ServerModel(logicalDevices, null);
-    
-    dataSetMap.clear();
+
+    dataSetsMap.clear();
 
     for (LnSubDef dataSetDef : dataSetDefs) {
       DataSet dataSet = createDataSet(serverModel, dataSetDef.logicalNode, dataSetDef.defXmlNode);
@@ -208,7 +208,7 @@ public class SclParser {
     }
 
     serverModel.addDataSets(dataSetsMap.values());
-    
+
     dataSetDefs.clear();
 
     return serverModel;
