@@ -13,6 +13,7 @@
  */
 package com.beanit.openiec61850;
 
+import com.beanit.openiec61850.internal.HexString;
 import java.util.List;
 
 public class Report {
@@ -168,7 +169,7 @@ public class Report {
       sb.append("\nBuffer overflow: ").append(bufOvfl);
     }
     if (entryId != null) {
-      sb.append("\nEntry ID: ").append(HexConverter.toHexString(entryId.getValue()));
+      sb.append("\nEntry ID: ").append(HexString.fromBytes(entryId.getValue()));
     }
     if (confRev != null) {
       sb.append("\nConfiguration revision: ").append(confRev.toString());

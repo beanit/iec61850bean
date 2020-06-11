@@ -14,6 +14,7 @@
 package com.beanit.openiec61850;
 
 import com.beanit.jasn1.ber.types.BerBitString;
+import com.beanit.openiec61850.internal.HexString;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.Integer32;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
@@ -97,11 +98,11 @@ public abstract class BdaBitString extends BasicDataAttribute {
 
   @Override
   public String toString() {
-    return getReference().toString() + ": " + HexConverter.toHexString(value);
+    return getReference().toString() + ": " + HexString.fromBytes(value);
   }
 
   @Override
   public String getValueString() {
-    return HexConverter.toHexString(value);
+    return HexString.fromBytes(value);
   }
 }
