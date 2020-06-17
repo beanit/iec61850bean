@@ -13,7 +13,7 @@
  */
 package com.beanit.openiec61850;
 
-import com.beanit.jasn1.ber.types.BerInteger;
+import com.beanit.asn1bean.ber.types.BerInteger;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;
 import com.beanit.openiec61850.internal.mms.asn1.Unsigned8;

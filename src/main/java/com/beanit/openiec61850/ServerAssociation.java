@@ -13,10 +13,10 @@
  */
 package com.beanit.openiec61850;
 
-import com.beanit.jasn1.ber.ReverseByteArrayOutputStream;
-import com.beanit.jasn1.ber.types.BerInteger;
-import com.beanit.jasn1.ber.types.BerNull;
-import com.beanit.jasn1.ber.types.string.BerVisibleString;
+import com.beanit.asn1bean.ber.ReverseByteArrayOutputStream;
+import com.beanit.asn1bean.ber.types.BerInteger;
+import com.beanit.asn1bean.ber.types.BerNull;
+import com.beanit.asn1bean.ber.types.string.BerVisibleString;
 import com.beanit.josistack.AcseAssociation;
 import com.beanit.josistack.ByteBufferInputStream;
 import com.beanit.josistack.DecodingException;

@@ -31,7 +31,7 @@ val javaProjects: Set<Project> = allprojects
 val distributionProjects = javaProjects
 val docProjects = javaProjects
 val repositoryProjects = javaProjects
-val cfgModuleName = "com.beanit.jasn1"
+val cfgModuleName = "com.beanit.openiec61850"
 
 tasks.register<Tar>("tar") {
     into(project.name) {
@@ -65,7 +65,7 @@ tasks.register<Tar>("tar") {
 //-----java root project configurations
 
 dependencies {
-    implementation("com.beanit:jasn1:1.11.0")
+    implementation("com.beanit:asn1bean:1.11.4-SNAPSHOT")
     implementation("com.toedter:jcalendar:1.4")
     implementation("org.slf4j:slf4j-api:1.7.25")
     runtimeOnly("ch.qos.logback:logback-classic:1.2.3")
@@ -78,7 +78,7 @@ tasks["jar"].withConvention(aQute.bnd.gradle.BundleTaskConvention::class) {
         Bundle-Name: OpenIEC61850
         Bundle-SymbolicName: ${project.extra["cfgModuleName"]}
         -exportcontents: !*.internal.*,*
-        Import-Package: com.beanit.jasn1.*,javax.net,*;resolution:=optional
+        Import-Package: com.beanit.asn1bean.*,javax.net,*;resolution:=optional
     """)
 }
 
@@ -138,6 +138,7 @@ configure(javaProjects) {
 
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 
     java {

@@ -13,7 +13,7 @@
  */
 package com.beanit.openiec61850;
 
-import com.beanit.jasn1.ber.types.string.BerVisibleString;
+import com.beanit.asn1bean.ber.types.string.BerVisibleString;
 import com.beanit.openiec61850.internal.mms.asn1.Data;
 import com.beanit.openiec61850.internal.mms.asn1.Integer32;
 import com.beanit.openiec61850.internal.mms.asn1.TypeDescription;

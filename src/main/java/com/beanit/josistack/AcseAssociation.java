@@ -13,11 +13,11 @@
  */
 package com.beanit.josistack;
 
-import com.beanit.jasn1.ber.ReverseByteArrayOutputStream;
-import com.beanit.jasn1.ber.types.BerAny;
-import com.beanit.jasn1.ber.types.BerInteger;
-import com.beanit.jasn1.ber.types.BerObjectIdentifier;
-import com.beanit.jasn1.ber.types.string.BerGraphicString;
+import com.beanit.asn1bean.ber.ReverseByteArrayOutputStream;
+import com.beanit.asn1bean.ber.types.BerAny;
+import com.beanit.asn1bean.ber.types.BerInteger;
+import com.beanit.asn1bean.ber.types.BerObjectIdentifier;
+import com.beanit.asn1bean.ber.types.string.BerGraphicString;
 import com.beanit.josistack.internal.acse.asn1.AAREApdu;
 import com.beanit.josistack.internal.acse.asn1.AARQApdu;
 import com.beanit.josistack.internal.acse.asn1.ACSEApdu;

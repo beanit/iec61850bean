@@ -13,10 +13,10 @@
  */
 package com.beanit.openiec61850.internal;
 
-import com.beanit.jasn1.ber.BerLength;
-import com.beanit.jasn1.ber.BerTag;
-import com.beanit.jasn1.ber.ReverseByteArrayOutputStream;
-import com.beanit.jasn1.ber.types.BerType;
+import com.beanit.asn1bean.ber.BerLength;
+import com.beanit.asn1bean.ber.BerTag;
+import com.beanit.asn1bean.ber.ReverseByteArrayOutputStream;
+import com.beanit.asn1bean.ber.types.BerType;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,9 +28,8 @@ public class BerBoolean implements Serializable, BerType {
   public static final BerTag tag =
       new BerTag(BerTag.UNIVERSAL_CLASS, BerTag.PRIMITIVE, BerTag.BOOLEAN_TAG);
   private static final long serialVersionUID = 1L;
-  public byte[] code = null;
-
   public boolean value;
+  private byte[] code = null;
 
   public BerBoolean() {}
 
@@ -50,9 +49,7 @@ public class BerBoolean implements Serializable, BerType {
   public int encode(OutputStream reverseOS, boolean withTag) throws IOException {
 
     if (code != null) {
-      for (int i = code.length - 1; i >= 0; i--) {
-        reverseOS.write(code[i]);
-      }
+      reverseOS.write(code);
       if (withTag) {
         return tag.encode(reverseOS) + code.length;
       }
@@ -62,7 +59,7 @@ public class BerBoolean implements Serializable, BerType {
     int codeLength = 1;
 
     if (value) {
-      reverseOS.write(0xff);
+      reverseOS.write(0x01);
     } else {
       reverseOS.write(0);
     }

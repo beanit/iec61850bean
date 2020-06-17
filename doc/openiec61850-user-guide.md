@@ -15,7 +15,7 @@ After extracting the distribution tar file, the OpenIEC61850 library can be foun
 
 Besides the OpenIEC61850 library the folder *build/libs-all/* contains the following external libraries:
 
-* *jasn1* - the ASN.1 BER encoding/decoding library by beanit, license: Apache 2.0, https://www.beanit.com
+* *asn1bean* - the ASN.1 BER encoding/decoding library by beanit, license: Apache 2.0, https://www.beanit.com
 
 * *slf4j-api* - a popular logging API. It is only needed if openiec61850 is used to implement a server. The client part does not log anything.  License: MIT, http://www.slf4j.org
 
