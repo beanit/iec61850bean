@@ -24,7 +24,7 @@ cd "$SAVED" >/dev/null
 
 CLASSPATH=$(JARS=("$APP_HOME"/"$JARS_LOCATION"/*.jar); IFS=:; echo "${JARS[*]}")
 
-for i in $@; do 
+for i in "$@"; do 
     if [[ $i == -D* ]]; then
 	    SYSPROPS="$SYSPROPS $i";
     else
