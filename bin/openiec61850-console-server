@@ -24,12 +24,14 @@ cd "$SAVED" >/dev/null
 
 CLASSPATH=$(JARS=("$APP_HOME"/"$JARS_LOCATION"/*.jar); IFS=:; echo "${JARS[*]}")
 
-for i in "$@"; do 
+PARAMS=( )
+SYSPROPS=( )
+for i in "$@"; do
     if [[ $i == -D* ]]; then
-	    SYSPROPS="$SYSPROPS $i";
+	    SYSPROPS+=( "$i" )
     else
-	    PARAMS="$PARAMS $i";
+	    PARAMS+=( "$i" )
     fi
 done
 
-java $SYSPROPS -cp $CLASSPATH $MAIN_CLASS $PARAMS
+java "${SYSPROPS[@]}" -cp "$CLASSPATH" $MAIN_CLASS "${PARAMS[@]}"
