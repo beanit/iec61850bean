@@ -20,6 +20,7 @@ public class InitiateResponsePDU implements BerType, Serializable {
   private Integer16 negotiatedMaxServOutstandingCalled = null;
   private Integer8 negotiatedDataStructureNestingLevel = null;
   private InitResponseDetail initResponseDetail = null;
+
   public InitiateResponsePDU() {}
 
   public InitiateResponsePDU(byte[] code) {

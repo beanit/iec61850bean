@@ -19,6 +19,7 @@ public class VariableDefs implements BerType, Serializable {
   private static final long serialVersionUID = 1L;
   private byte[] code = null;
   private List<SEQUENCE> seqOf = null;
+
   public VariableDefs() {
     seqOf = new ArrayList<SEQUENCE>();
   }

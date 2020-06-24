@@ -18,6 +18,7 @@ public class RejectPDU implements BerType, Serializable {
   private byte[] code = null;
   private Unsigned32 originalInvokeID = null;
   private RejectReason rejectReason = null;
+
   public RejectPDU() {}
 
   public RejectPDU(byte[] code) {

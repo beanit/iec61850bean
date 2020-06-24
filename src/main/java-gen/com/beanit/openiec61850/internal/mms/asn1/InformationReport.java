@@ -20,6 +20,7 @@ public class InformationReport implements BerType, Serializable {
   private byte[] code = null;
   private VariableAccessSpecification variableAccessSpecification = null;
   private ListOfAccessResult listOfAccessResult = null;
+
   public InformationReport() {}
 
   public InformationReport(byte[] code) {

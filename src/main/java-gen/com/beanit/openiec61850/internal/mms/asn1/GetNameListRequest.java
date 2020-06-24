@@ -19,6 +19,7 @@ public class GetNameListRequest implements BerType, Serializable {
   private ObjectClass objectClass = null;
   private ObjectScope objectScope = null;
   private Identifier continueAfter = null;
+
   public GetNameListRequest() {}
 
   public GetNameListRequest(byte[] code) {

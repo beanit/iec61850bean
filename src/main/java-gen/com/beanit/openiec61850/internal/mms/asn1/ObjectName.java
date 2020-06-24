@@ -18,6 +18,7 @@ public class ObjectName implements BerType, Serializable {
   private Identifier vmdSpecific = null;
   private DomainSpecific domainSpecific = null;
   private Identifier aaSpecific = null;
+
   public ObjectName() {}
 
   public ObjectName(byte[] code) {

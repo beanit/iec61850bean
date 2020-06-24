@@ -19,6 +19,7 @@ public class AlternateAccess implements BerType, Serializable {
   private static final long serialVersionUID = 1L;
   private byte[] code = null;
   private List<CHOICE> seqOf = null;
+
   public AlternateAccess() {
     seqOf = new ArrayList<CHOICE>();
   }

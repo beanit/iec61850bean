@@ -21,6 +21,7 @@ public class PDVList implements BerType, Serializable {
   private TransferSyntaxName transferSyntaxName = null;
   private PresentationContextIdentifier presentationContextIdentifier = null;
   private PresentationDataValues presentationDataValues = null;
+
   public PDVList() {}
 
   public PDVList(byte[] code) {

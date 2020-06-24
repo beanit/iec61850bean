@@ -19,6 +19,7 @@ public class ContextList implements BerType, Serializable {
   private static final long serialVersionUID = 1L;
   private byte[] code = null;
   private List<SEQUENCE> seqOf = null;
+
   public ContextList() {
     seqOf = new ArrayList<SEQUENCE>();
   }
@@ -155,6 +156,7 @@ public class ContextList implements BerType, Serializable {
     private PresentationContextIdentifier presentationContextIdentifier = null;
     private AbstractSyntaxName abstractSyntaxName = null;
     private TransferSyntaxNameList transferSyntaxNameList = null;
+
     public SEQUENCE() {}
 
     public SEQUENCE(byte[] code) {

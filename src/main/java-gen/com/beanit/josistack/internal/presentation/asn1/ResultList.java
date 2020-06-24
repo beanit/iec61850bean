@@ -20,6 +20,7 @@ public class ResultList implements BerType, Serializable {
   private static final long serialVersionUID = 1L;
   private byte[] code = null;
   private List<SEQUENCE> seqOf = null;
+
   public ResultList() {
     seqOf = new ArrayList<SEQUENCE>();
   }

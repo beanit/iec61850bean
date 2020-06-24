@@ -21,6 +21,7 @@ public class FileDirectoryResponse implements BerType, Serializable {
   private byte[] code = null;
   private ListOfDirectoryEntry listOfDirectoryEntry = null;
   private BerBoolean moreFollows = null;
+
   public FileDirectoryResponse() {}
 
   public FileDirectoryResponse(byte[] code) {
