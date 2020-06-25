@@ -19,10 +19,11 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class VisibleStringDataBind extends TextFieldDataBind<BdaVisibleString> {
 
-  private static final Charset ASCII = Charset.forName("US-ASCII");
+  private static final Charset ASCII = StandardCharsets.US_ASCII;
 
   public VisibleStringDataBind(BdaVisibleString data) {
     super(data, BdaType.VISIBLE_STRING, new AsciiFilter(data.getMaxLength()));
@@ -39,7 +40,7 @@ public class VisibleStringDataBind extends TextFieldDataBind<BdaVisibleString> {
   }
 
   private static class AsciiFilter extends TextFieldDataBind.AbstractFilter {
-    private final CharsetEncoder encoder = Charset.forName("US-ASCII").newEncoder();
+    private final CharsetEncoder encoder = StandardCharsets.US_ASCII.newEncoder();
     private final int maxBytes;
 
     public AsciiFilter(int maxBytes) {

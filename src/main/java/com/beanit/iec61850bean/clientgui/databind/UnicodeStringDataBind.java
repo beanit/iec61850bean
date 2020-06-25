@@ -19,10 +19,11 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetEncoder;
+import java.nio.charset.StandardCharsets;
 
 public class UnicodeStringDataBind extends TextFieldDataBind<BdaUnicodeString> {
 
-  private static final Charset UTF8 = Charset.forName("UTF-8");
+  private static final Charset UTF8 = StandardCharsets.UTF_8;
 
   public UnicodeStringDataBind(BdaUnicodeString data) {
     super(data, BdaType.UNICODE_STRING, new Utf8Filter(data.getMaxLength()));
@@ -39,7 +40,7 @@ public class UnicodeStringDataBind extends TextFieldDataBind<BdaUnicodeString> {
   }
 
   private static class Utf8Filter extends AbstractFilter {
-    private final CharsetEncoder encoder = Charset.forName("UTF-8").newEncoder();
+    private final CharsetEncoder encoder = StandardCharsets.UTF_8.newEncoder();
     private final int maxBytes;
 
     public Utf8Filter(int maxBytes) {

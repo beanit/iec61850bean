@@ -90,7 +90,7 @@ public abstract class BasicDataAttribute extends FcModelNode {
 
   @Override
   public Iterator<ModelNode> iterator() {
-    return Collections.<ModelNode>emptyList().iterator();
+    return Collections.emptyIterator();
   }
 
   public abstract void setDefault();
