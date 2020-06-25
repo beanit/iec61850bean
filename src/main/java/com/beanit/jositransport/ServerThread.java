@@ -1,5 +1,5 @@
 /*
- * Copyright 2011 The OpenIEC61850 Authors
+ * Copyright 2011 The IEC61850bean Authors
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License. You may obtain a copy of the License at
@@ -13,7 +13,7 @@
  */
 package com.beanit.jositransport;
 
-import com.beanit.openiec61850.internal.NamedThreadFactory;
+import com.beanit.iec61850bean.internal.NamedThreadFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -58,7 +58,7 @@ final class ServerThread extends Thread {
   public void run() {
 
     ExecutorService executor =
-        Executors.newCachedThreadPool(new NamedThreadFactory("openiec61850-osi-server"));
+        Executors.newCachedThreadPool(new NamedThreadFactory("iec61850bean-server"));
     try {
 
       Socket clientSocket = null;

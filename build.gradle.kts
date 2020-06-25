@@ -31,7 +31,7 @@ val javaProjects: Set<Project> = allprojects
 val distributionProjects = javaProjects
 val docProjects = javaProjects
 val repositoryProjects = javaProjects
-val cfgModuleName = "com.beanit.openiec61850"
+val cfgModuleName = "com.beanit.iec61850bean"
 
 tasks.register<Tar>("tar") {
     into(project.name) {
@@ -71,11 +71,11 @@ dependencies {
     runtimeOnly("ch.qos.logback:logback-classic:1.2.3")
 }
 
-project.extra["cfgModuleName"] = "com.beanit.openiec61850"
+project.extra["cfgModuleName"] = "com.beanit.iec61850bean"
 
 tasks["jar"].withConvention(aQute.bnd.gradle.BundleTaskConvention::class) {
     bnd("""
-        Bundle-Name: OpenIEC61850
+        Bundle-Name: IEC61850bean
         Bundle-SymbolicName: ${project.extra["cfgModuleName"]}
         -exportcontents: !*.internal.*,*
         Import-Package: com.beanit.asn1bean.*,javax.net,*;resolution:=optional
@@ -94,8 +94,8 @@ sourceSets {
 publishing {
     publications {
         maybeCreate<MavenPublication>("mavenJava").pom {
-            name.set("OpenIEC61850")
-            description.set("OpenIEC61850 is a Java library implementing the IEC 61850 MMS communication standard for clients and servers.")
+            name.set("IEC61850bean")
+            description.set("IEC61850bean is a Java library implementing the IEC 61850 MMS communication standard for clients and servers.")
 
             licenses {
                 license {
