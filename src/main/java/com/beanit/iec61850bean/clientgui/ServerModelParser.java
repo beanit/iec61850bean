@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import javax.swing.tree.TreeNode;
 
@@ -85,7 +84,7 @@ public class ServerModelParser {
       }
       childMap.get(child.getName()).add(((FcModelNode) child).getFc());
     }
-    for (Entry<String, Set<Fc>> childEntry : childMap.entrySet()) {
+    for (Map.Entry<String, Set<Fc>> childEntry : childMap.entrySet()) {
       addFunctionalConstraintObject(treeLN, node, childEntry.getKey(), childEntry.getValue());
     }
   }
@@ -95,7 +94,7 @@ public class ServerModelParser {
     parent.add(treeDS);
     Collection<FcModelNode> children = node.getMembers();
     for (ModelNode child : children) {
-      addFunctionalConstraintObject(treeDS, node, child);
+      addFunctionalConstraintObject(treeDS, child);
     }
   }
 
@@ -110,8 +109,7 @@ public class ServerModelParser {
     }
   }
 
-  private void addFunctionalConstraintObject(
-      DataSetTreeNode parent, DataSet parentNode, ModelNode node) {
+  private void addFunctionalConstraintObject(DataSetTreeNode parent, ModelNode node) {
     DataObjectTreeNode treeFCDO = new DataObjectTreeNode(node.getReference().toString(), node);
     parent.add(treeFCDO);
     if (node.getChildren() != null) {

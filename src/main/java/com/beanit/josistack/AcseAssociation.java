@@ -13,6 +13,8 @@
  */
 package com.beanit.josistack;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.beanit.asn1bean.ber.ReverseByteArrayOutputStream;
 import com.beanit.asn1bean.ber.types.BerAny;
 import com.beanit.asn1bean.ber.types.BerInteger;
@@ -55,7 +57,6 @@ import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
@@ -289,7 +290,9 @@ public final class AcseAssociation {
   public void accept(ByteBuffer payload) throws IOException {
 
     BerAny anyPayload =
-        new BerAny(Arrays.copyOfRange(payload.array(), payload.position(), payload.limit()));
+        new BerAny(
+            Arrays.copyOfRange(
+                payload.array(), payload.arrayOffset() + payload.position(), payload.limit()));
 
     Myexternal.Encoding encoding = new Myexternal.Encoding();
     encoding.setSingleASN1Type(anyPayload);
@@ -328,9 +331,9 @@ public final class AcseAssociation {
     reverseOStream.reset();
     cpaPPdu.encode(reverseOStream, true);
 
-    List<byte[]> ssduList = new LinkedList<>();
-    List<Integer> ssduOffsets = new LinkedList<>();
-    List<Integer> ssduLengths = new LinkedList<>();
+    List<byte[]> ssduList = new ArrayList<>();
+    List<Integer> ssduOffsets = new ArrayList<>();
+    List<Integer> ssduLengths = new ArrayList<>();
 
     ssduList.add(reverseOStream.buffer);
     ssduOffsets.add(reverseOStream.index + 1);
@@ -405,7 +408,7 @@ public final class AcseAssociation {
     sduAcceptHeader[idx++] = (byte) 0xc1;
 
     // Parameter length
-    sduAcceptHeader[idx++] = (byte) ssduLength;
+    sduAcceptHeader[idx] = (byte) ssduLength;
 
     ssdu.add(0, sduAcceptHeader);
     ssduOffsets.add(0, 0);
@@ -420,20 +423,6 @@ public final class AcseAssociation {
     return returnBuffer;
   }
 
-  /**
-   * Starts an Application Association by sending an association request and waiting for an
-   * association accept message
-   *
-   * @param payload payload that can be sent with the association request
-   * @param port
-   * @param address
-   * @param tSAP
-   * @param aeQualifierCalling
-   * @param aeQualifierCalled
-   * @param apTitleCalling
-   * @param apTitleCalled
-   * @throws IOException
-   */
   void startAssociation(
       ByteBuffer payload,
       InetAddress address,
@@ -450,7 +439,7 @@ public final class AcseAssociation {
       int aeQualifierCalled,
       int aeQualifierCalling)
       throws IOException {
-    if (connected == true) {
+    if (connected) {
       throw new IOException();
     }
 
@@ -466,7 +455,9 @@ public final class AcseAssociation {
 
     Myexternal.Encoding encoding = new Myexternal.Encoding();
     encoding.setSingleASN1Type(
-        new BerAny(Arrays.copyOfRange(payload.array(), payload.position(), payload.limit())));
+        new BerAny(
+            Arrays.copyOfRange(
+                payload.array(), payload.arrayOffset() + payload.position(), payload.limit())));
 
     Myexternal myExternal = new Myexternal();
     myExternal.setDirectReference(directReference);
@@ -485,7 +476,8 @@ public final class AcseAssociation {
           new ACSERequirements(new byte[] {(byte) 0x02, (byte) 0x07, (byte) 0x80});
       mechanism_name = default_mechanism_name;
       authentication_value = new AuthenticationValue();
-      authentication_value.setCharstring(new BerGraphicString(authenticationParameter.getBytes()));
+      authentication_value.setCharstring(
+          new BerGraphicString(authenticationParameter.getBytes(UTF_8)));
     }
 
     AARQApdu aarq = new AARQApdu();
@@ -521,16 +513,15 @@ public final class AcseAssociation {
     reverseOStream.reset();
     cpType.encode(reverseOStream, true);
 
-    List<byte[]> ssduList = new LinkedList<>();
-    List<Integer> ssduOffsets = new LinkedList<>();
-    List<Integer> ssduLengths = new LinkedList<>();
+    List<byte[]> ssduList = new ArrayList<>();
+    List<Integer> ssduOffsets = new ArrayList<>();
+    List<Integer> ssduLengths = new ArrayList<>();
 
     ssduList.add(reverseOStream.buffer);
     ssduOffsets.add(reverseOStream.index + 1);
     ssduLengths.add(reverseOStream.buffer.length - (reverseOStream.index + 1));
 
-    ByteBuffer res = null;
-    res =
+    ByteBuffer res =
         startSConnection(
             ssduList,
             ssduOffsets,
@@ -546,12 +537,6 @@ public final class AcseAssociation {
     associateResponseAPDU = decodePConResponse(res);
   }
 
-  /**
-   * Starts a session layer connection, sends a CONNECT (CN), waits for a ACCEPT (AC) and throws an
-   * IOException if not successful
-   *
-   * @throws IOException
-   */
   private ByteBuffer startSConnection(
       List<byte[]> ssduList,
       List<Integer> ssduOffsets,
@@ -564,7 +549,7 @@ public final class AcseAssociation {
       byte[] sSelRemote,
       byte[] sSelLocal)
       throws IOException {
-    if (connected == true) {
+    if (connected) {
       throw new IOException();
     }
 
@@ -639,7 +624,7 @@ public final class AcseAssociation {
     // Parameter type: Session user data (193)
     spduHeader[idx++] = (byte) 0xc1;
     // Parameter length
-    spduHeader[idx++] = (byte) (ssduLength & 0xff);
+    spduHeader[idx] = (byte) (ssduLength & 0xff);
     // write session user data
 
     ssduList.add(0, spduHeader);
@@ -658,7 +643,6 @@ public final class AcseAssociation {
     } catch (TimeoutException e) {
       throw new IOException("ResponseTimeout waiting for connection response.", e);
     }
-    idx = 0;
 
     // read ISO 8327-1 Header
     // SPDU Type: ACCEPT (14)
@@ -774,8 +758,8 @@ public final class AcseAssociation {
   public void send(ByteBuffer payload) throws IOException {
 
     List<byte[]> ssduList = new ArrayList<>();
-    List<Integer> ssduOffsets = new LinkedList<>();
-    List<Integer> ssduLengths = new LinkedList<>();
+    List<Integer> ssduOffsets = new ArrayList<>();
+    List<Integer> ssduLengths = new ArrayList<>();
 
     encodePresentationLayer(payload, ssduList, ssduOffsets, ssduLengths);
 
@@ -791,11 +775,13 @@ public final class AcseAssociation {
       List<Integer> ssduLengths)
       throws IOException {
     PDVList pdv_list = new PDVList();
-    pdv_list.setPresentationContextIdentifier(new PresentationContextIdentifier(3l));
+    pdv_list.setPresentationContextIdentifier(new PresentationContextIdentifier(3L));
 
     PDVList.PresentationDataValues presentationDataValues = new PDVList.PresentationDataValues();
     presentationDataValues.setSingleASN1Type(
-        new BerAny(Arrays.copyOfRange(payload.array(), payload.position(), payload.limit())));
+        new BerAny(
+            Arrays.copyOfRange(
+                payload.array(), payload.arrayOffset() + payload.position(), payload.limit())));
     pdv_list.setPresentationDataValues(presentationDataValues);
 
     FullyEncodedData fully_encoded_data = new FullyEncodedData();
@@ -814,8 +800,7 @@ public final class AcseAssociation {
   }
 
   private void encodeSessionLayer(
-      List<byte[]> ssduList, List<Integer> ssduOffsets, List<Integer> ssduLengths)
-      throws IOException {
+      List<byte[]> ssduList, List<Integer> ssduOffsets, List<Integer> ssduLengths) {
 
     byte[] spduHeader = new byte[4];
     // --write iso 8327-1 Header--
@@ -847,7 +832,7 @@ public final class AcseAssociation {
    */
   public byte[] receive(ByteBuffer pduBuffer)
       throws DecodingException, IOException, TimeoutException {
-    if (connected == false) {
+    if (!connected) {
       throw new IllegalStateException("ACSE Association not connected");
     }
     tConnection.receive(pduBuffer);
@@ -937,7 +922,7 @@ public final class AcseAssociation {
   }
 
   ByteBuffer listenForCn(ByteBuffer pduBuffer) throws IOException, TimeoutException {
-    if (connected == true) {
+    if (connected) {
       throw new IllegalStateException("ACSE Association is already connected");
     }
     int parameter;

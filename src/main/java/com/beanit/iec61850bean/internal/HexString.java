@@ -45,7 +45,7 @@ public class HexString {
    * @return the hex string
    */
   public static String fromInt(int i) {
-    byte[] bytes = new byte[] {(byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) (i)};
+    byte[] bytes = new byte[] {(byte) (i >> 24), (byte) (i >> 16), (byte) (i >> 8), (byte) i};
     return fromBytes(bytes);
   }
 
@@ -65,7 +65,7 @@ public class HexString {
           (byte) (l >> 24),
           (byte) (l >> 16),
           (byte) (l >> 8),
-          (byte) (l)
+          (byte) l
         };
     return fromBytes(bytes);
   }

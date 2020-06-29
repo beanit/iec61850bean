@@ -13,6 +13,8 @@
  */
 package com.beanit.iec61850bean;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.beanit.asn1bean.ber.ReverseByteArrayOutputStream;
 import com.beanit.asn1bean.ber.types.BerInteger;
 import com.beanit.asn1bean.ber.types.BerNull;
@@ -73,7 +75,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.concurrent.Executors;
@@ -286,7 +287,7 @@ final class ServerAssociation {
               getNameListRequest.getObjectClass().getBasicObjectClass().longValue();
           if (basicObjectClass == 9) {
             logger.debug("Got a GetServerDirectory (MMS GetNameList[DOMAIN]) request");
-            response = handleGetServerDirectoryRequest(getNameListRequest);
+            response = handleGetServerDirectoryRequest();
           } else if (basicObjectClass == 0) {
             logger.debug("Got a Get{LD|LN}Directory (MMS GetNameList[NAMED_VARIABLE]) request");
             response = handleGetDirectoryRequest(getNameListRequest);
@@ -417,7 +418,7 @@ final class ServerAssociation {
   private MMSpdu listenForMmsRequest(AcseAssociation acseAssociation) {
 
     while (true) {
-      MMSpdu mmsRequestPdu = null;
+      MMSpdu mmsRequestPdu;
       byte[] buffer;
       pduBuffer.clear();
       try {
@@ -494,7 +495,7 @@ final class ServerAssociation {
       default:
         errClass.setOthers(new BerInteger(e.getErrorCode()));
     }
-    com.beanit.iec61850bean.internal.mms.asn1.ServiceError asn1ServiceError = null;
+    com.beanit.iec61850bean.internal.mms.asn1.ServiceError asn1ServiceError;
 
     asn1ServiceError = new com.beanit.iec61850bean.internal.mms.asn1.ServiceError();
     asn1ServiceError.setErrorClass(errClass);
@@ -510,14 +511,13 @@ final class ServerAssociation {
     return mmsPdu;
   }
 
-  private GetNameListResponse handleGetServerDirectoryRequest(GetNameListRequest getNameListRequest)
-      throws ServiceError {
+  private GetNameListResponse handleGetServerDirectoryRequest() throws ServiceError {
 
     ListOfIdentifier listOfIdentifier = new ListOfIdentifier();
     List<Identifier> identifiers = listOfIdentifier.getIdentifier();
 
     for (ModelNode ld : serverModel) {
-      identifiers.add(new Identifier(ld.getName().getBytes()));
+      identifiers.add(new Identifier(ld.getName().getBytes(UTF_8)));
     }
 
     GetNameListResponse getNameListResponse = new GetNameListResponse();
@@ -564,7 +564,7 @@ final class ServerAssociation {
       insertRef = false;
     }
 
-    List<String> mmsReferences = new LinkedList<>();
+    List<String> mmsReferences = new ArrayList<>();
 
     for (ModelNode logicalNodeMn : logicalDevice) {
       LogicalNode logicalNode = (LogicalNode) logicalNodeMn;
@@ -598,9 +598,9 @@ final class ServerAssociation {
           break;
         }
 
-        Identifier identifier = null;
+        Identifier identifier;
 
-        identifier = new Identifier(mmsReference.getBytes());
+        identifier = new Identifier(mmsReference.getBytes(UTF_8));
 
         identifiers.add(identifier);
         identifierSize += mmsReference.length() + 2;
@@ -773,7 +773,7 @@ final class ServerAssociation {
 
           TypeDescription.Structure.Components.SEQUENCE structComponent =
               new TypeDescription.Structure.Components.SEQUENCE();
-          structComponent.setComponentName(new Identifier(child.getName().getBytes()));
+          structComponent.setComponentName(new Identifier(child.getName().getBytes(UTF_8)));
           structComponent.setComponentType(typeSpecification);
           doStructComponents.add(structComponent);
         }
@@ -825,7 +825,7 @@ final class ServerAssociation {
 
           TypeDescription.Structure.Components.SEQUENCE doStructComponent =
               new TypeDescription.Structure.Components.SEQUENCE();
-          doStructComponent.setComponentName(new Identifier(child.getName().getBytes()));
+          doStructComponent.setComponentName(new Identifier(child.getName().getBytes(UTF_8)));
           doStructComponent.setComponentType(typeSpecification);
 
           doStructComponents.add(doStructComponent);
@@ -842,7 +842,7 @@ final class ServerAssociation {
 
         TypeDescription.Structure.Components.SEQUENCE structCom =
             new TypeDescription.Structure.Components.SEQUENCE();
-        structCom.setComponentName(new Identifier(mmsFc.getBytes()));
+        structCom.setComponentName(new Identifier(mmsFc.getBytes(UTF_8)));
         structCom.setComponentType(typeSpecification);
 
         structComponents.add(structCom);
@@ -1513,7 +1513,7 @@ final class ServerAssociation {
             logger.info("maxMMSPduSize reached");
             break;
           }
-          identifiers.add(new Identifier(dsRef.getBytes()));
+          identifiers.add(new Identifier(dsRef.getBytes(UTF_8)));
           identifierSize += dsRef.length() + 2;
         } else {
           if (dsRef.equals(continueAfter)) {

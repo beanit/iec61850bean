@@ -51,12 +51,6 @@ public enum Fc {
   /** Buffered Reporting */
   BR;
 
-  /*
-   * * @param fc
-   *
-   * @return
-   */
-
   public static Fc fromString(String fc) {
     try {
       return Fc.valueOf(fc);

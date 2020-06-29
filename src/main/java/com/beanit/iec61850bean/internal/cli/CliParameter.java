@@ -26,17 +26,14 @@ public abstract class CliParameter {
     optional = builder.optional;
   }
 
-  /** @return the name */
   public String getName() {
     return name;
   }
 
-  /** @return the description */
   public String getDescription() {
     return description;
   }
 
-  /** @return the optional */
   public boolean isOptional() {
     return optional;
   }

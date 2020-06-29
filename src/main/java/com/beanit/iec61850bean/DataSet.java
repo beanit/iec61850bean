@@ -13,13 +13,14 @@
  */
 package com.beanit.iec61850bean;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.beanit.iec61850bean.internal.mms.asn1.Identifier;
 import com.beanit.iec61850bean.internal.mms.asn1.ObjectName;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -42,7 +43,7 @@ public final class DataSet implements Iterable<FcModelNode> {
               + dataSetReference
               + " is invalid. Must either start with @ or contain a slash.");
     }
-    this.members = new LinkedList<>();
+    this.members = new ArrayList<>();
     this.dataSetReference = dataSetReference;
     this.deletable = deletable;
 
@@ -105,7 +106,7 @@ public final class DataSet implements Iterable<FcModelNode> {
   }
 
   public List<BasicDataAttribute> getBasicDataAttributes() {
-    List<BasicDataAttribute> subBasicDataAttributes = new LinkedList<>();
+    List<BasicDataAttribute> subBasicDataAttributes = new ArrayList<>();
     for (ModelNode member : members) {
       subBasicDataAttributes.addAll(member.getBasicDataAttributes());
     }
@@ -120,7 +121,7 @@ public final class DataSet implements Iterable<FcModelNode> {
 
     if (dataSetReference.charAt(0) == '@') {
       mmsObjectName = new ObjectName();
-      mmsObjectName.setAaSpecific(new Identifier(dataSetReference.getBytes()));
+      mmsObjectName.setAaSpecific(new Identifier(dataSetReference.getBytes(UTF_8)));
       return mmsObjectName;
     }
 
@@ -129,8 +130,8 @@ public final class DataSet implements Iterable<FcModelNode> {
     String itemID = dataSetReference.substring(slash + 1).replace('.', '$');
 
     ObjectName.DomainSpecific domainSpecificObjectName = new ObjectName.DomainSpecific();
-    domainSpecificObjectName.setDomainID(new Identifier(domainID.getBytes()));
-    domainSpecificObjectName.setItemID(new Identifier(itemID.getBytes()));
+    domainSpecificObjectName.setDomainID(new Identifier(domainID.getBytes(UTF_8)));
+    domainSpecificObjectName.setItemID(new Identifier(itemID.getBytes(UTF_8)));
 
     mmsObjectName = new ObjectName();
     mmsObjectName.setDomainSpecific(domainSpecificObjectName);

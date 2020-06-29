@@ -17,7 +17,7 @@ import com.beanit.asn1bean.ber.types.BerNull;
 import com.beanit.iec61850bean.internal.mms.asn1.Data;
 import com.beanit.iec61850bean.internal.mms.asn1.TypeDescription;
 import com.beanit.iec61850bean.internal.mms.asn1.UtcTime;
-import java.util.Calendar;
+import java.time.Instant;
 import java.util.Date;
 
 public final class BdaTimestamp extends BasicDataAttribute {
@@ -65,8 +65,31 @@ public final class BdaTimestamp extends BasicDataAttribute {
     return ((0xff & value[4]) << 16 | (0xff & value[5]) << 8 | (0xff & value[6]));
   }
 
-  public void setDate(
-      Date date,
+  @Override
+  public void setValueFrom(BasicDataAttribute bda) {
+    byte[] srcValue = ((BdaTimestamp) bda).getValue();
+    if (value.length != srcValue.length) {
+      value = new byte[srcValue.length];
+    }
+    System.arraycopy(srcValue, 0, value, 0, srcValue.length);
+  }
+
+  public Instant getInstant() {
+    if (value == null || value.length == 0) {
+      return null;
+    }
+    long time =
+        getSecondsSinceEpoch() * 1000L
+            + (long) (((float) getFractionOfSecond()) / (1 << 24) * 1000 + 0.5);
+    return Instant.ofEpochMilli(time);
+  }
+
+  public void setInstant(Instant instant) {
+    setInstant(instant, true, false, false, 10);
+  }
+
+  public void setInstant(
+      Instant instant,
       boolean leapSecondsKnown,
       boolean clockFailure,
       boolean clockNotSynchronized,
@@ -75,8 +98,8 @@ public final class BdaTimestamp extends BasicDataAttribute {
       value = new byte[8];
     }
 
-    int secondsSinceEpoch = (int) (date.getTime() / 1000L);
-    int fractionOfSecond = (int) ((date.getTime() % 1000L) / 1000.0 * (1 << 24));
+    int secondsSinceEpoch = (int) (instant.toEpochMilli() / 1000L);
+    int fractionOfSecond = (int) ((instant.toEpochMilli() % 1000L) / 1000.0 * (1 << 24));
 
     int timeQuality = timeAccuracy & 0x1f;
     if (leapSecondsKnown) {
@@ -102,48 +125,6 @@ public final class BdaTimestamp extends BasicDataAttribute {
         };
   }
 
-  @Override
-  public void setValueFrom(BasicDataAttribute bda) {
-    byte[] srcValue = ((BdaTimestamp) bda).getValue();
-    if (value.length != srcValue.length) {
-      value = new byte[srcValue.length];
-    }
-    System.arraycopy(srcValue, 0, value, 0, srcValue.length);
-  }
-
-  public Date getDate() {
-    if (value == null || value.length == 0) {
-      return null;
-    }
-    long time =
-        getSecondsSinceEpoch() * 1000L
-            + (long) (((float) getFractionOfSecond()) / (1 << 24) * 1000 + 0.5);
-    return new Date(time);
-  }
-
-  public void setDate(Date date) {
-    if (value == null) {
-      value = new byte[8];
-    }
-
-    int secondsSinceEpoch = (int) (date.getTime() / 1000L);
-    int fractionOfSecond = (int) ((date.getTime() % 1000L) / 1000.0 * (1 << 24));
-
-    // 0x8a = time accuracy of 10 and LeapSecondsKnown = true, ClockFailure
-    // = false, ClockNotSynchronized = false
-    value =
-        new byte[] {
-          (byte) ((secondsSinceEpoch >> 24) & 0xff),
-          (byte) ((secondsSinceEpoch >> 16) & 0xff),
-          (byte) ((secondsSinceEpoch >> 8) & 0xff),
-          (byte) (secondsSinceEpoch & 0xff),
-          (byte) ((fractionOfSecond >> 16) & 0xff),
-          (byte) ((fractionOfSecond >> 8) & 0xff),
-          (byte) (fractionOfSecond & 0xff),
-          (byte) 0x8a
-        };
-  }
-
   public byte[] getValue() {
     return value;
   }
@@ -160,9 +141,6 @@ public final class BdaTimestamp extends BasicDataAttribute {
    * SecondSinceEpoch takes into account all leap seconds occurred. If it is FALSE then the value
    * does not take into account the leap seconds that occurred before the initialization of the time
    * source of the device.
-   *
-   * <p>Java {@link Date} and {@link Calendar} objects do handle leap seconds, so this is usually
-   * true.
    *
    * @return TRUE of the attribute LeapSecondsKnown shall indicate that the value for
    *     SecondSinceEpoch takes into account all leap seconds occurred
@@ -213,7 +191,7 @@ public final class BdaTimestamp extends BasicDataAttribute {
 
   /** Sets Timestamp to current time */
   public void setCurrentTime() {
-    setDate(new Date());
+    setInstant(Instant.now());
   }
 
   @Override
@@ -254,11 +232,11 @@ public final class BdaTimestamp extends BasicDataAttribute {
 
   @Override
   public String toString() {
-    return getReference().toString() + ": " + getDate();
+    return getReference().toString() + ": " + getInstant();
   }
 
   @Override
   public String getValueString() {
-    return getDate().toString();
+    return getInstant().toString();
   }
 }

@@ -23,7 +23,7 @@ public abstract class BasicDataBind<E extends BasicDataAttribute> {
 
   private JComponent valueField;
 
-  public BasicDataBind(E data, BdaType type) {
+  protected BasicDataBind(E data, BdaType type) {
     if (data.getBasicType() != type) {
       throw new IllegalArgumentException(data.getName() + " is no " + type);
     }

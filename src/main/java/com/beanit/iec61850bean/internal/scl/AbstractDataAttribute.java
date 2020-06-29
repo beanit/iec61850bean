@@ -28,7 +28,7 @@ public abstract class AbstractDataAttribute extends AbstractElement {
   private String type = null; /* conditional - if bType = "Enum" or "Struct" */
   private int count = 0; /* optional - number of array elements */
 
-  public AbstractDataAttribute(Node xmlNode) throws SclParseException {
+  AbstractDataAttribute(Node xmlNode) throws SclParseException {
     super(xmlNode);
 
     NamedNodeMap attributes = xmlNode.getAttributes();

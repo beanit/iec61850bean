@@ -13,17 +13,12 @@
  */
 package com.beanit.iec61850bean;
 
-import java.util.ArrayList;
-
 public final class BdaQuality extends BdaBitString {
 
   public BdaQuality(ObjectReference objectReference, Fc fc, String sAddr, boolean qchg) {
-    super(objectReference, fc, sAddr, 13, false, false);
+    super(objectReference, fc, sAddr, 13, qchg, false);
     this.qchg = qchg;
     basicType = BdaType.QUALITY;
-    if (qchg) {
-      chgRcbs = new ArrayList<>();
-    }
     setDefault();
   }
 

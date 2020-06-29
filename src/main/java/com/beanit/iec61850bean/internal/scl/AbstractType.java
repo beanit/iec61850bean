@@ -22,7 +22,7 @@ public abstract class AbstractType {
 
   // attributes not needed: desc
 
-  public AbstractType(Node xmlNode) throws SclParseException {
+  AbstractType(Node xmlNode) throws SclParseException {
     Node idNode = xmlNode.getAttributes().getNamedItem("id");
     if (idNode == null) {
       throw new SclParseException("Required attribute \"id\" not found!");

@@ -29,7 +29,7 @@ public abstract class TextFieldDataBind<E extends BasicDataAttribute> extends Ba
   private final DocumentFilter filter;
   protected JTextField inputField;
 
-  public TextFieldDataBind(E data, BdaType type, AbstractFilter filter) {
+  TextFieldDataBind(E data, BdaType type, AbstractFilter filter) {
     super(data, type);
     this.filter = filter;
   }

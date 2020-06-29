@@ -39,10 +39,10 @@ public final class ServerSap {
   final ServerModel serverModel;
   byte[] servicesSupportedCalled =
       new byte[] {(byte) 0xee, 0x1c, 0, 0, 0x04, 0x08, 0, 0, 0x79, (byte) 0xef, 0x18};
-  byte[] cbbBitString = {(byte) (0xfb), 0x00};
+  byte[] cbbBitString = {(byte) 0xfb, 0x00};
   ServerEventListener serverEventListener;
   Timer timer;
-  List<ServerAssociation> associations = new ArrayList<>();
+  final List<ServerAssociation> associations = new ArrayList<>();
   boolean listening = false;
   private int proposedMaxMmsPduSize = 65000;
   private int proposedMaxServOutstandingCalling = 5;

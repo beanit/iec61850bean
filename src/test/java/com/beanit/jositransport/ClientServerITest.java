@@ -60,7 +60,7 @@ public class ClientServerITest {
 
     ClientTSap tSAP = new ClientTSap();
     tSAP.setMaxTPDUSizeParam(7);
-    TConnection tConnection = null;
+    TConnection tConnection;
 
     tConnection = tSAP.connectTo(address, port);
 
@@ -399,7 +399,7 @@ public class ClientServerITest {
     return C;
   }
 
-  public class SampleServer implements TConnectionListener {
+  public static class SampleServer implements TConnectionListener {
 
     @Override
     public void connectionIndication(TConnection tConnection) {

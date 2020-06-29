@@ -13,8 +13,8 @@
  */
 package com.beanit.iec61850bean;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 /** ObjectReference syntax: LDName/LNName.DOName[.Name[. ...]] */
@@ -34,7 +34,11 @@ public final class ObjectReference implements Iterable<String> {
     this.objectReference = objectReference;
   }
 
-  /** @return Returns name part of the reference. */
+  /**
+   * Returns name part of the reference.
+   *
+   * @return the name
+   */
   public String getName() {
     if (nodeNames == null) {
       parseForNameList();
@@ -107,7 +111,7 @@ public final class ObjectReference implements Iterable<String> {
 
   private void parseForNameList() {
 
-    nodeNames = new LinkedList<>();
+    nodeNames = new ArrayList<>();
 
     int lastDelim = -1;
     int nextDelim = objectReference.indexOf('/');

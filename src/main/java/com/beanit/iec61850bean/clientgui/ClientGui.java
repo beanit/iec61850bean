@@ -105,8 +105,8 @@ public class ClientGui extends JFrame implements ActionListener, TreeSelectionLi
         if (in != null) {
           in.close();
         }
-      } catch (IOException e) {
-        e.printStackTrace();
+      } catch (IOException ignored) {
+        // there is nothing that can be done if closing fails
       }
     }
 
@@ -350,6 +350,7 @@ public class ClientGui extends JFrame implements ActionListener, TreeSelectionLi
           out.close();
         }
       } catch (IOException e) {
+        // nothing meaningful can be done if closing fails
       }
     }
 

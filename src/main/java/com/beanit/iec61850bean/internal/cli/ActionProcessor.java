@@ -125,6 +125,7 @@ public class ActionProcessor {
     try {
       reader.close();
     } catch (IOException ignored) {
+      // if closing fails there is nothing meaningful that can be done
     }
   }
 }

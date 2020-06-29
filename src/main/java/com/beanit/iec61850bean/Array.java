@@ -20,7 +20,6 @@ import com.beanit.iec61850bean.internal.mms.asn1.Unsigned32;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -81,7 +80,7 @@ public final class Array extends FcModelNode {
 
   @Override
   public List<BasicDataAttribute> getBasicDataAttributes() {
-    List<BasicDataAttribute> subBasicDataAttributes = new LinkedList<>();
+    List<BasicDataAttribute> subBasicDataAttributes = new ArrayList<>();
     for (ModelNode item : items) {
       subBasicDataAttributes.addAll(item.getBasicDataAttributes());
     }

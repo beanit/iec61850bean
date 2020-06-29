@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 
 public abstract class BasicDataAttribute extends FcModelNode {
@@ -34,10 +33,10 @@ public abstract class BasicDataAttribute extends FcModelNode {
   boolean qchg;
   boolean dupd;
 
-  List<Urcb> chgRcbs = null;
-  List<Urcb> dupdRcbs = null;
+  final List<Urcb> chgRcbs;
+  final List<Urcb> dupdRcbs;
 
-  BasicDataAttribute(
+  protected BasicDataAttribute(
       ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
     this.objectReference = objectReference;
     this.fc = fc;
@@ -47,9 +46,13 @@ public abstract class BasicDataAttribute extends FcModelNode {
 
     if (dchg) {
       chgRcbs = new ArrayList<>();
+    } else {
+      chgRcbs = null;
     }
     if (dupd) {
       dupdRcbs = new ArrayList<>();
+    } else {
+      dupdRcbs = null;
     }
   }
 
@@ -97,7 +100,7 @@ public abstract class BasicDataAttribute extends FcModelNode {
 
   @Override
   public List<BasicDataAttribute> getBasicDataAttributes() {
-    List<BasicDataAttribute> subBasicDataAttributes = new LinkedList<>();
+    List<BasicDataAttribute> subBasicDataAttributes = new ArrayList<>();
     subBasicDataAttributes.add(this);
     return subBasicDataAttributes;
   }

@@ -13,6 +13,7 @@
  */
 package com.beanit.jositransport;
 
+import com.beanit.iec61850bean.internal.util.SequenceNumber;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -28,9 +29,8 @@ import java.util.concurrent.TimeoutException;
 
 public final class TConnection {
 
-  // private static final Logger logger = LoggerFactory.getLogger(TConnection.class);
-
-  private static Integer connectionCounter = 0;
+  // some servers do not like srcRef 0
+  private static final SequenceNumber connectionCounter = new SequenceNumber(1, 1, 65519);
   private final Socket socket;
   private final DataOutputStream os;
   private final DataInputStream is;
@@ -59,13 +59,8 @@ public final class TConnection {
     os = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
     is = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 
-    synchronized (socket) {
-      connectionCounter++;
-      connectionCounter %= 65520;
-      if (connectionCounter == 0) {
-        connectionCounter = 1; // some servers do not like srcRef 0
-      }
-      srcRef = connectionCounter;
+    synchronized (connectionCounter) {
+      srcRef = connectionCounter.getAndIncrement();
     }
 
     this.messageTimeout = messageTimeout;
@@ -82,7 +77,7 @@ public final class TConnection {
    * According to the norm a syntax error in the CR should be followed by an ER. This implementation
    * does not send an ER because it seems unnecessary.
    *
-   * @throws IOException
+   * @throws IOException if an error occurs
    */
   void listenForCR() throws IOException {
 
@@ -234,7 +229,7 @@ public final class TConnection {
   /**
    * Starts a connection, sends a CR, waits for a CC and throws an IOException if not successful
    *
-   * @throws IOException
+   * @throws IOException if an error occurs
    */
   void startConnection() throws IOException {
 
@@ -632,7 +627,8 @@ public final class TConnection {
       os.write(0x00);
 
       os.flush();
-    } catch (IOException e) {
+    } catch (IOException ignored) {
+      // io exceptions while disconnecting can be ignored
     } finally {
       close();
     }
@@ -646,10 +642,12 @@ public final class TConnection {
         // will also close socket
         os.close();
       } catch (Exception e) {
+        // there is nothing meaningful to be done if closing fails
       }
       try {
         is.close();
       } catch (Exception e) {
+        // there is nothing meaningful to be done if closing fails
       }
       if (serverThread != null) {
         serverThread.connectionClosedSignal();

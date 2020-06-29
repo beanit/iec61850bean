@@ -41,7 +41,7 @@ public class FlagCliParameter extends CliParameter {
   }
 
   @Override
-  int parse(String[] args, int i) throws CliParseException {
+  int parse(String[] args, int i) {
     selected = true;
     return 1;
   }

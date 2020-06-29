@@ -21,7 +21,6 @@ Besides the IEC61850bean library the folder *build/libs-all/* contains the follo
 
 * *logback-core/logback-classic* - an actual logger implementation of the slf4-api. It is used by the console server application to output log information. It can be replaced by a logger of your choice that supports the slf4j API. Like slf4j it is only needed for server implementations. License: EPLv1.0 and LGPLv2.1, http://logback.qos.ch
 
-* *jcalendar* - a calendar library needed by the client GUI. You don't need this dependency if you don't use the client gui. (C)1999-2011 Kai Toedter, License: LGPLv3, http://toedter.com/jcalendar/
 
 
 ### Console & GUI Applications

@@ -13,6 +13,7 @@
  */
 package com.beanit.iec61850bean.integrationtests;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -150,12 +151,12 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
 
     namePlateVendor =
         (BdaVisibleString) serverModel.findModelNode("ied1lDevice1/LLN0.NamPlt.vendor", Fc.DC);
-    namePlateVendor.setValue("Fraunhofer ISE".getBytes());
+    namePlateVendor.setValue("beanit".getBytes(UTF_8));
     clientAssociation.setDataValues(namePlateVendor);
     namePlateVendor.setDefault();
     clientAssociation.getDataValues(namePlateVendor);
 
-    assertEquals("Fraunhofer ISE", new String(namePlateVendor.getValue()));
+    assertEquals("beanit", new String(namePlateVendor.getValue(), UTF_8));
 
     // -------------Test DataSets-Start---------------------
 
@@ -197,7 +198,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
       assertNull(serviceError);
     }
 
-    assertTrue("Fraunhofer ISE".equals(new String(namePlateVendor.getValue())));
+    assertTrue("beanit".equals(new String(namePlateVendor.getValue(), UTF_8)));
 
     clientAssociation.deleteDataSet(nonPersistentDataSet);
 
@@ -258,11 +259,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
 
     // clientAssociation.close();
 
-    try {
-      Thread.sleep(1000);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    Thread.sleep(1000);
 
     clientAssociation2.getDataValues(sbo2);
     assertEquals(sbo2.getStringValue(), "success");
@@ -274,11 +271,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
 
     clientAssociation2.close();
 
-    try {
-      Thread.sleep(100);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
-    }
+    Thread.sleep(100);
 
     clientAssociation.getDataValues(sbo);
     assertEquals(sbo.getStringValue(), "success");
@@ -448,7 +441,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
   }
 
   @Override
-  public void serverStoppedListening(ServerSap serverSAP) {
+  public void serverStoppedListening(ServerSap serverSap) {
     // TODO Auto-generated method stub
   }
 
@@ -473,7 +466,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     totWBdas.add(q);
     totWBdas.add(t);
 
-    float totWMagVal = 0.0f;
+    double totWMagVal = 0.0f;
     q.setValidity(BdaQuality.Validity.GOOD);
 
     // for (int i = 0; i < 500000; i++) {
@@ -481,7 +474,7 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     totWMagVal += 1.0;
 
     System.out.println("setting totWmag to: " + totWMagVal);
-    totWMag.setFloat(totWMagVal);
+    totWMag.setFloat((float) totWMagVal);
     t.setCurrentTime();
 
     if (q.getValidity() == Validity.GOOD) {
@@ -493,7 +486,9 @@ public class ClientServerITest extends Thread implements ServerEventListener, Cl
     try {
       Thread.sleep(4000);
     } catch (InterruptedException e) {
+      // is not interrupted
     }
+
     serverSap.setValues(totWBdas);
 
     // // Run the garbage collector

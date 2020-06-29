@@ -20,7 +20,6 @@ import com.beanit.iec61850bean.internal.mms.asn1.TypeDescription.Structure.Compo
 import com.beanit.iec61850bean.internal.mms.asn1.TypeSpecification;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 final class DataDefinitionResParser {
@@ -46,7 +45,7 @@ final class DataDefinitionResParser {
 
     Components structure = typeSpec.getStructure().getComponents();
 
-    List<FcDataObject> fcDataObjects = new LinkedList<>();
+    List<FcDataObject> fcDataObjects = new ArrayList<>();
 
     Fc fc;
     for (TypeDescription.Structure.Components.SEQUENCE fcComponent : structure.getSEQUENCE()) {

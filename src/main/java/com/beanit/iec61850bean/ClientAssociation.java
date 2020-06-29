@@ -13,6 +13,8 @@
  */
 package com.beanit.iec61850bean;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.beanit.asn1bean.ber.ReverseByteArrayOutputStream;
 import com.beanit.asn1bean.ber.types.BerInteger;
 import com.beanit.asn1bean.ber.types.BerNull;
@@ -75,12 +77,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.text.ParseException;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -429,6 +430,7 @@ public final class ClientAssociation {
         decodedResponsePdu = incomingResponses.poll(responseTimeout, TimeUnit.MILLISECONDS);
       }
     } catch (InterruptedException e) {
+      // TODO can this ever be interrupted?
     }
 
     if (decodedResponsePdu == null) {
@@ -661,7 +663,7 @@ public final class ClientAssociation {
   }
 
   private List<String> retrieveLogicalNodeNames(String ld) throws ServiceError, IOException {
-    List<String> lns = new LinkedList<>();
+    List<String> lns = new ArrayList<>();
     String continueAfterRef = "";
     do {
       ConfirmedServiceRequest serviceRequest =
@@ -669,7 +671,7 @@ public final class ClientAssociation {
       ConfirmedServiceResponse confirmedServiceResponse = encodeWriteReadDecode(serviceRequest);
       continueAfterRef = decodeGetDirectoryResponse(confirmedServiceResponse, lns);
 
-    } while (continueAfterRef != "");
+    } while (!continueAfterRef.isEmpty());
     return lns;
   }
 
@@ -684,16 +686,16 @@ public final class ClientAssociation {
       objectClass.setBasicObjectClass(new BerInteger(2));
     }
 
-    GetNameListRequest getNameListRequest = null;
+    GetNameListRequest getNameListRequest;
 
     ObjectScope objectScopeChoiceType = new ObjectScope();
-    objectScopeChoiceType.setDomainSpecific(new Identifier(ldRef.getBytes()));
+    objectScopeChoiceType.setDomainSpecific(new Identifier(ldRef.getBytes(UTF_8)));
 
     getNameListRequest = new GetNameListRequest();
     getNameListRequest.setObjectClass(objectClass);
     getNameListRequest.setObjectScope(objectScopeChoiceType);
-    if (continueAfter != "") {
-      getNameListRequest.setContinueAfter(new Identifier(continueAfter.getBytes()));
+    if (!continueAfter.isEmpty()) {
+      getNameListRequest.setContinueAfter(new Identifier(continueAfter.getBytes(UTF_8)));
     }
 
     ConfirmedServiceRequest confirmedServiceRequest = new ConfirmedServiceRequest();
@@ -756,8 +758,8 @@ public final class ClientAssociation {
   private ConfirmedServiceRequest constructGetDataDefinitionRequest(ObjectReference lnRef) {
 
     ObjectName.DomainSpecific domainSpec = new ObjectName.DomainSpecific();
-    domainSpec.setDomainID(new Identifier(lnRef.get(0).getBytes()));
-    domainSpec.setItemID(new Identifier(lnRef.get(1).getBytes()));
+    domainSpec.setDomainID(new Identifier(lnRef.get(0).getBytes(UTF_8)));
+    domainSpec.setItemID(new Identifier(lnRef.get(1).getBytes(UTF_8)));
 
     ObjectName objectName = new ObjectName();
     objectName.setDomainSpecific(domainSpec);
@@ -856,7 +858,7 @@ public final class ClientAssociation {
    */
   public List<FileInformation> getFileDirectory(String directoryName)
       throws ServiceError, IOException {
-    List<FileInformation> files = new LinkedList<>();
+    List<FileInformation> files = new ArrayList<>();
 
     boolean moreFollows = true;
 
@@ -866,7 +868,7 @@ public final class ClientAssociation {
 
       FileDirectoryRequest fileDirectoryRequest = new FileDirectoryRequest();
 
-      BerGraphicString berGraphicString = new BerGraphicString(directoryName.getBytes());
+      BerGraphicString berGraphicString = new BerGraphicString(directoryName.getBytes(UTF_8));
 
       FileName fileSpecification = new FileName();
       fileSpecification.getBerGraphicString().add(berGraphicString);
@@ -878,7 +880,7 @@ public final class ClientAssociation {
 
         continueAfterSpecification
             .getBerGraphicString()
-            .add(new BerGraphicString(continueAfter.getBytes()));
+            .add(new BerGraphicString(continueAfter.getBytes(UTF_8)));
 
         fileDirectoryRequest.setContinueAfter(continueAfterSpecification);
       }
@@ -910,7 +912,7 @@ public final class ClientAssociation {
   public void deleteFile(String filename) throws ServiceError, IOException {
     FileDeleteRequest fileDeleteRequest = new FileDeleteRequest();
 
-    fileDeleteRequest.getBerGraphicString().add(new BerGraphicString(filename.getBytes()));
+    fileDeleteRequest.getBerGraphicString().add(new BerGraphicString(filename.getBytes(UTF_8)));
 
     ConfirmedServiceRequest confirmedServiceRequest = new ConfirmedServiceRequest();
     confirmedServiceRequest.setFileDelete(fileDeleteRequest);
@@ -929,7 +931,7 @@ public final class ClientAssociation {
     FileOpenRequest fileOpenRequest = new FileOpenRequest();
 
     FileName fileSpecification = new FileName();
-    fileSpecification.getBerGraphicString().add(new BerGraphicString(filename.getBytes()));
+    fileSpecification.getBerGraphicString().add(new BerGraphicString(filename.getBytes(UTF_8)));
 
     fileOpenRequest.setFileName(fileSpecification);
     fileOpenRequest.setInitialPosition(new Unsigned32(0));
@@ -1229,7 +1231,7 @@ public final class ClientAssociation {
   private ConfirmedServiceRequest constructGetDataSetDirectoryRequest(
       Identifier dsId, LogicalDevice ld) throws ServiceError {
     ObjectName.DomainSpecific domainSpecificObjectName = new ObjectName.DomainSpecific();
-    domainSpecificObjectName.setDomainID(new Identifier(ld.getName().getBytes()));
+    domainSpecificObjectName.setDomainID(new Identifier(ld.getName().getBytes(UTF_8)));
     domainSpecificObjectName.setItemID(dsId);
 
     GetNamedVariableListAttributesRequest dataSetObj = new GetNamedVariableListAttributesRequest();
@@ -1720,7 +1722,7 @@ public final class ClientAssociation {
 
     String dataSetRef = null;
     if (optFlds.isDataSetName()) {
-      dataSetRef = (listRes.get(index++).getSuccess().getVisibleString().toString());
+      dataSetRef = listRes.get(index++).getSuccess().getVisibleString().toString();
     } else {
       for (Urcb urcb : serverModel.getUrcbs()) {
         if ((urcb.getRptId() != null && urcb.getRptId().getStringValue().equals(rptId))
@@ -1755,7 +1757,7 @@ public final class ClientAssociation {
 
     Boolean bufOvfl = null;
     if (optFlds.isBufferOverflow()) {
-      bufOvfl = (listRes.get(index++).getSuccess().getBool().value);
+      bufOvfl = listRes.get(index++).getSuccess().getBool().value;
     }
 
     BdaOctetString entryId = null;
@@ -1915,7 +1917,7 @@ public final class ClientAssociation {
     }
 
     ((BdaInt8U) oper.getChild("ctlNum")).setValue((short) 1);
-    ((BdaTimestamp) oper.getChild("T")).setDate(new Date(System.currentTimeMillis()));
+    ((BdaTimestamp) oper.getChild("T")).setInstant(Instant.now());
 
     setDataValues(oper);
   }
@@ -2008,6 +2010,7 @@ public final class ClientAssociation {
                 try {
                   incomingResponses.put(decodedResponsePdu);
                 } catch (InterruptedException e) {
+                  // TODO can this ever be interrupted?
                 }
               }
             }
@@ -2025,6 +2028,7 @@ public final class ClientAssociation {
                 try {
                   incomingResponses.put(decodedResponsePdu);
                 } catch (InterruptedException e) {
+                  // TODO can this ever be interrupted?
                 }
               }
             }
@@ -2043,6 +2047,7 @@ public final class ClientAssociation {
                 try {
                   incomingResponses.put(decodedResponsePdu);
                 } catch (InterruptedException e) {
+                  // TODO can this ever be interrupted?
                 }
               }
             }
@@ -2082,6 +2087,7 @@ public final class ClientAssociation {
           try {
             incomingResponses.put(mmsPdu);
           } catch (InterruptedException e1) {
+            // TODO can this ever be interrupted?
           }
         }
       }
@@ -2108,6 +2114,7 @@ public final class ClientAssociation {
           try {
             incomingResponses.put(mmsPdu);
           } catch (InterruptedException e1) {
+            // TODO can this ever be interrupted?
           }
         }
       }

@@ -283,7 +283,7 @@ public class SiemensClientITest {
     serverAcseSAP.stopListening();
   }
 
-  public class SampleServer implements AcseAssociationListener {
+  public static class SampleServer implements AcseAssociationListener {
 
     @Override
     public void serverStoppedListeningIndication(IOException e) {

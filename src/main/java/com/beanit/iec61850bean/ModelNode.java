@@ -13,6 +13,8 @@
  */
 package com.beanit.iec61850bean;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.beanit.iec61850bean.internal.mms.asn1.Data;
 import com.beanit.iec61850bean.internal.mms.asn1.Identifier;
 import com.beanit.iec61850bean.internal.mms.asn1.TypeDescription;
@@ -22,7 +24,6 @@ import com.beanit.iec61850bean.internal.mms.asn1.TypeSpecification;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -111,7 +112,7 @@ public abstract class ModelNode implements Iterable<ModelNode> {
    *     node.
    */
   public List<BasicDataAttribute> getBasicDataAttributes() {
-    List<BasicDataAttribute> subBasicDataAttributes = new LinkedList<>();
+    List<BasicDataAttribute> subBasicDataAttributes = new ArrayList<>();
     for (ModelNode child : children.values()) {
       subBasicDataAttributes.addAll(child.getBasicDataAttributes());
     }
@@ -160,7 +161,7 @@ public abstract class ModelNode implements Iterable<ModelNode> {
 
       TypeDescription.Structure.Components.SEQUENCE component =
           new TypeDescription.Structure.Components.SEQUENCE();
-      component.setComponentName(new Identifier(child.getName().getBytes()));
+      component.setComponentName(new Identifier(child.getName().getBytes(UTF_8)));
       component.setComponentType(typeSpecification);
 
       structComponents.add(component);

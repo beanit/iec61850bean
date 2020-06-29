@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -116,7 +115,7 @@ public final class ServerModel extends ModelNode {
 
   List<String> getDataSetNames(String ldName) {
     // TODO make thread save
-    List<String> dataSetNames = new LinkedList<>();
+    List<String> dataSetNames = new ArrayList<>();
     for (String dataSetRef : dataSets.keySet()) {
       if (dataSetRef.startsWith(ldName)) {
         dataSetNames.add(dataSetRef.substring(dataSetRef.indexOf('/') + 1).replace('.', '$'));
@@ -135,7 +134,7 @@ public final class ServerModel extends ModelNode {
   }
 
   /**
-   * @param dataSetReference
+   * @param dataSetReference the data set reference
    * @return returns the DataSet that was removed, null if no DataSet with the given reference was
    *     found or the data set is not deletable.
    */
@@ -266,9 +265,9 @@ public final class ServerModel extends ModelNode {
    * Returns the subModelNode that is referenced by the given VariableDef. Return null in case the
    * referenced ModelNode is not found.
    *
-   * @param variableDef
+   * @param variableDef the variableDef
    * @return the subModelNode that is referenced by the given VariableDef
-   * @throws ServiceError
+   * @throws ServiceError if an error occurs
    */
   FcModelNode getNodeFromVariableDef(VariableDefs.SEQUENCE variableDef) throws ServiceError {
 

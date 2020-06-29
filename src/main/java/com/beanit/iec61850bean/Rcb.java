@@ -19,7 +19,7 @@ public abstract class Rcb extends FcDataObject {
 
   DataSet dataSet;
 
-  public Rcb(ObjectReference objectReference, Fc fc, List<FcModelNode> children) {
+  protected Rcb(ObjectReference objectReference, Fc fc, List<FcModelNode> children) {
     super(objectReference, fc, children);
   }
 

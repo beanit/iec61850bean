@@ -13,6 +13,8 @@
  */
 package com.beanit.iec61850bean;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.beanit.iec61850bean.internal.mms.asn1.AlternateAccess;
 import com.beanit.iec61850bean.internal.mms.asn1.AlternateAccessSelection;
 import com.beanit.iec61850bean.internal.mms.asn1.AlternateAccessSelection.SelectAccess;
@@ -151,7 +153,7 @@ public abstract class FcModelNode extends ModelNode {
         }
 
         BasicIdentifier subIndexReference =
-            new BasicIdentifier(postArrayIndexItemId.toString().getBytes());
+            new BasicIdentifier(postArrayIndexItemId.toString().getBytes(UTF_8));
 
         AlternateAccessSelection.SelectAccess subIndexReferenceSelectAccess =
             new AlternateAccessSelection.SelectAccess();
@@ -220,8 +222,9 @@ public abstract class FcModelNode extends ModelNode {
     }
 
     ObjectName.DomainSpecific domainSpecificObjectName = new ObjectName.DomainSpecific();
-    domainSpecificObjectName.setDomainID(new Identifier(objectReference.get(0).getBytes()));
-    domainSpecificObjectName.setItemID(new Identifier(preArrayIndexItemId.toString().getBytes()));
+    domainSpecificObjectName.setDomainID(new Identifier(objectReference.get(0).getBytes(UTF_8)));
+    domainSpecificObjectName.setItemID(
+        new Identifier(preArrayIndexItemId.toString().getBytes(UTF_8)));
 
     ObjectName objectName = new ObjectName();
     objectName.setDomainSpecific(domainSpecificObjectName);

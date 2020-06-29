@@ -50,7 +50,7 @@ public final class BdaEntryTime extends BasicDataAttribute {
           (byte) (ms >> 24),
           (byte) (ms >> 16),
           (byte) (ms >> 8),
-          (byte) (ms),
+          (byte) ms,
           (byte) (days >> 8),
           (byte) days
         };

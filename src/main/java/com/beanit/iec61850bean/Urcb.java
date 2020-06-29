@@ -13,6 +13,8 @@
  */
 package com.beanit.iec61850bean;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.beanit.asn1bean.ber.types.BerBitString;
 import com.beanit.iec61850bean.internal.mms.asn1.AccessResult;
 import com.beanit.iec61850bean.internal.mms.asn1.Data;
@@ -213,7 +215,7 @@ public class Urcb extends Rcb {
     if (integrity || gi) {
 
       for (int i = 0; i < dataSetSize; i++) {
-        inclusionStringArray[i / 8] |= 1 << (7 - i % 8);
+        inclusionStringArray[i / 8] = (byte) (inclusionStringArray[i / 8] | 1 << (7 - i % 8));
       }
       BerBitString inclusionString = new BerBitString(inclusionStringArray, dataSetSize);
 
@@ -251,7 +253,8 @@ public class Urcb extends Rcb {
       int index = 0;
       for (FcModelNode dataSetMember : dataSet) {
         if (membersToBeReported.get(dataSetMember) != null) {
-          inclusionStringArray[index / 8] |= 1 << (7 - index % 8);
+          inclusionStringArray[index / 8] =
+              (byte) (inclusionStringArray[index / 8] | 1 << (7 - index % 8));
         }
         index++;
       }
@@ -289,18 +292,14 @@ public class Urcb extends Rcb {
     }
 
     ObjectName objectName = new ObjectName();
-    objectName.setVmdSpecific(new Identifier("RPT".getBytes()));
+    objectName.setVmdSpecific(new Identifier("RPT".getBytes(UTF_8)));
 
     VariableAccessSpecification varAccSpec = new VariableAccessSpecification();
     varAccSpec.setVariableListName(objectName);
-    // null,
-    // new ObjectName(new Identifier("RPT".getBytes()), null, null));
 
     InformationReport infoReport = new InformationReport();
     infoReport.setVariableAccessSpecification(varAccSpec);
     infoReport.setListOfAccessResult(listOfAccessResult);
-    // varAccSpec,
-    // new InformationReport.ListOfAccessResult(listOfAccessResult));
 
     UnconfirmedService unconfirmedService = new UnconfirmedService();
     unconfirmedService.setInformationReport(infoReport);

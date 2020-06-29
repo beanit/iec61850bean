@@ -45,8 +45,6 @@ public class ClientServerITest2 extends Thread implements ServerEventListener, C
   // Get the Java runtime
   public static Runtime runtime = Runtime.getRuntime();
   private static int numReports = 0;
-  private static int numSuccess = 0;
-  private static int numAssociationClosed = 0;
   int port = 54322;
   String host = "127.0.0.1";
   ClientSap clientSap = new ClientSap();
@@ -154,7 +152,7 @@ public class ClientServerITest2 extends Thread implements ServerEventListener, C
   }
 
   @Override
-  public void serverStoppedListening(ServerSap serverSAP) {
+  public void serverStoppedListening(ServerSap serverSap) {
     // TODO Auto-generated method stub
   }
 
@@ -239,13 +237,10 @@ public class ClientServerITest2 extends Thread implements ServerEventListener, C
       assertTrue(reasons.get(0).isIntegrity());
       assertTrue(reasons.get(1).isIntegrity());
     }
-
-    numSuccess++;
   }
 
   @Override
   public void associationClosed(IOException e) {
     System.out.println("Association closed!");
-    numAssociationClosed++;
   }
 }

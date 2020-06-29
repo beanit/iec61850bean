@@ -342,7 +342,7 @@ public class ConsoleClient {
                         System.out.print(
                             "Set the trigger options (data change, data update, quality change, interity, GI):");
                         String triggerOptionsString = actionProcessor.getReader().readLine();
-                        String[] triggerOptionsStrings = triggerOptionsString.split(",");
+                        String[] triggerOptionsStrings = triggerOptionsString.split(",", -1);
                         BdaTriggerConditions triggerOptions = urcb.getTrgOps();
                         triggerOptions.setDataChange(
                             Boolean.parseBoolean(triggerOptionsStrings[0]));

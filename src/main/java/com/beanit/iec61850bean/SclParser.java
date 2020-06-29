@@ -13,6 +13,8 @@
  */
 package com.beanit.iec61850bean;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.beanit.iec61850bean.internal.scl.AbstractDataAttribute;
 import com.beanit.iec61850bean.internal.scl.Bda;
 import com.beanit.iec61850bean.internal.scl.Da;
@@ -31,7 +33,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -175,7 +176,7 @@ public class SclParser {
         if (namedItem == null) {
           throw new SclParseException("AccessPoint has no name attribute!");
         }
-        String name = namedItem.getNodeValue();
+        // TODO save this name?
         serverSap = new ServerSap(102, 0, null, server, null);
 
         break;
@@ -590,7 +591,7 @@ public class SclParser {
               new ObjectReference(reportObjRef.toString() + ".RptID"), fc, "", 129, false, false);
       attribute = rcbNodeAttributes.getNamedItem("rptID");
       if (attribute != null) {
-        rptId.setValue(attribute.getNodeValue().getBytes());
+        rptId.setValue(attribute.getNodeValue().getBytes(UTF_8));
       } else {
         rptId.setValue(reportObjRef.toString());
       }
@@ -615,7 +616,7 @@ public class SclParser {
       if (attribute != null) {
         String nodeValue = attribute.getNodeValue();
         String dataSetName = parentRef + "$" + nodeValue;
-        datSet.setValue(dataSetName.getBytes());
+        datSet.setValue(dataSetName.getBytes(UTF_8));
       }
       children.add(datSet);
 
@@ -760,14 +761,14 @@ public class SclParser {
     Map<Fc, List<FcModelNode>> subFCDataMap = new LinkedHashMap<>();
 
     for (Fc fc : Fc.values()) {
-      subFCDataMap.put(fc, new LinkedList<FcModelNode>());
+      subFCDataMap.put(fc, new ArrayList<>());
     }
 
     for (ModelNode childNode : childNodes) {
       subFCDataMap.get(((FcModelNode) childNode).getFc()).add((FcModelNode) childNode);
     }
 
-    List<FcDataObject> fcDataObjects = new LinkedList<>();
+    List<FcDataObject> fcDataObjects = new ArrayList<>();
     ObjectReference objectReference = new ObjectReference(ref);
 
     for (Fc fc : Fc.values()) {
@@ -1002,7 +1003,7 @@ public class SclParser {
               dchg,
               dupd);
       if (val != null) {
-        bda.setValue(val.getBytes());
+        bda.setValue(val.getBytes(UTF_8));
       }
       return bda;
     } else if (bType.startsWith("Unicode")) {
@@ -1015,7 +1016,7 @@ public class SclParser {
               dchg,
               dupd);
       if (val != null) {
-        bda.setValue(val.getBytes());
+        bda.setValue(val.getBytes(UTF_8));
       }
       return bda;
     } else if (bType.startsWith("Octet")) {
@@ -1099,7 +1100,7 @@ public class SclParser {
       BdaVisibleString bda =
           new BdaVisibleString(new ObjectReference(ref), fc, sAddr, 129, dchg, dupd);
       if (val != null) {
-        bda.setValue(val.getBytes());
+        bda.setValue(val.getBytes(UTF_8));
       }
       return bda;
     } else {

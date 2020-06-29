@@ -44,22 +44,26 @@ public final class ServiceError extends Exception {
   private final int errorCode;
 
   public ServiceError(int errorCode) {
-    super("Error code=" + errorCode);
-    this.errorCode = errorCode;
+    this(errorCode, "", null);
   }
 
   public ServiceError(int errorCode, String s) {
-    super(s);
-    this.errorCode = errorCode;
+    this(errorCode, s, null);
   }
 
   public ServiceError(int errorCode, Throwable cause) {
-    super(cause);
-    this.errorCode = errorCode;
+    this(errorCode, "", cause);
   }
 
   public ServiceError(int errorCode, String s, Throwable cause) {
-    super(s, cause);
+    super(
+        "Service error: "
+            + getErrorName(errorCode)
+            + "("
+            + errorCode
+            + ")"
+            + (s.isEmpty() ? "" : (" " + s)),
+        cause);
     this.errorCode = errorCode;
   }
 
@@ -114,15 +118,5 @@ public final class ServiceError extends Exception {
 
   public int getErrorCode() {
     return errorCode;
-  }
-
-  @Override
-  public String toString() {
-    String message = getLocalizedMessage();
-    String result = getClass().getName() + ": " + getErrorName(errorCode) + "(" + errorCode + ")";
-    if (message != null) {
-      result += ": " + message;
-    }
-    return result;
   }
 }

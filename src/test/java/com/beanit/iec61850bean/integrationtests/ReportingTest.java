@@ -47,8 +47,6 @@ public class ReportingTest implements ClientEventListener {
   private static final String CREATED_DATASET_REFERENCE = "ied1lDevice1/LLN0$datasetnew";
   private static final String CHANGING_SERVER_DA_REFERENCE_1 =
       "ied1lDevice1/MMXU1.W.phsA.cVal.mag.f";
-  private static final String CHANGING_SERVER_DA_REFERENCE_2 =
-      "ied1lDevice1/DSCH1.SchdAbsTm.sptestval1";
   private static final int PORT = 54321;
   private static final String ICD_FILE = "src/test/resources/iec61850bean-sample01.icd";
   private static final String URCB1_REFERENCE = "ied1lDevice1/LLN0.urcb101";

@@ -13,6 +13,8 @@
  */
 package com.beanit.iec61850bean;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.beanit.asn1bean.ber.types.string.BerVisibleString;
 import com.beanit.iec61850bean.internal.mms.asn1.Data;
 import com.beanit.iec61850bean.internal.mms.asn1.Integer32;
@@ -49,7 +51,7 @@ public final class BdaVisibleString extends BasicDataAttribute {
   }
 
   public void setValue(String value) {
-    setValue(value.getBytes());
+    setValue(value.getBytes(UTF_8));
   }
 
   @Override
@@ -66,7 +68,7 @@ public final class BdaVisibleString extends BasicDataAttribute {
   }
 
   public String getStringValue() {
-    return new String(value);
+    return new String(value, UTF_8);
   }
 
   @Override
@@ -118,11 +120,11 @@ public final class BdaVisibleString extends BasicDataAttribute {
     if (value.length == 0 || value[0] == (byte) 0) {
       return getReference().toString() + ": ''";
     }
-    return getReference().toString() + ": " + new String(value);
+    return getReference().toString() + ": " + new String(value, UTF_8);
   }
 
   @Override
   public String getValueString() {
-    return new String(value);
+    return new String(value, UTF_8);
   }
 }

@@ -22,12 +22,12 @@ public abstract class AbstractElement {
   private String name = null;
   private String desc = null;
 
-  public AbstractElement(String name, String desc) {
+  AbstractElement(String name, String desc) {
     this.name = name;
     this.desc = desc;
   }
 
-  public AbstractElement(Node xmlNode) throws SclParseException {
+  AbstractElement(Node xmlNode) throws SclParseException {
     NamedNodeMap attributes = xmlNode.getAttributes();
 
     Node node = attributes.getNamedItem("name");

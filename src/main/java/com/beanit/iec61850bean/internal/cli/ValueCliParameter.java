@@ -15,7 +15,7 @@ package com.beanit.iec61850bean.internal.cli;
 
 abstract class ValueCliParameter extends CliParameter {
 
-  String parameterName;
+  final String parameterName;
 
   ValueCliParameter(CliParameterBuilder builder, String parameterName) {
     super(builder);

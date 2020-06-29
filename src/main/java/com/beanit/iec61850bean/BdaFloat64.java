@@ -18,6 +18,7 @@ import com.beanit.iec61850bean.internal.mms.asn1.FloatingPoint;
 import com.beanit.iec61850bean.internal.mms.asn1.TypeDescription;
 import com.beanit.iec61850bean.internal.mms.asn1.Unsigned8;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public final class BdaFloat64 extends BasicDataAttribute {
 
@@ -55,14 +56,14 @@ public final class BdaFloat64 extends BasicDataAttribute {
       return null;
     }
     return Double.longBitsToDouble(
-        ((0xffL & (value[1])) << 56)
-            | ((0xffL & (value[2])) << 48)
-            | ((0xffL & (value[3])) << 40)
-            | ((0xffL & (value[4])) << 32)
-            | ((0xffL & (value[5])) << 24)
-            | ((0xffL & (value[6])) << 16)
-            | ((0xffL & (value[7])) << 8)
-            | ((0xffL & (value[8])) << 0));
+        ((0xffL & value[1]) << 56)
+            | ((0xffL & value[2]) << 48)
+            | ((0xffL & value[3]) << 40)
+            | ((0xffL & value[4]) << 32)
+            | ((0xffL & value[5]) << 24)
+            | ((0xffL & value[6]) << 16)
+            | ((0xffL & value[7]) << 8)
+            | ((0xffL & value[8]) << 0));
   }
 
   public void setDouble(Double value) {
@@ -126,6 +127,6 @@ public final class BdaFloat64 extends BasicDataAttribute {
 
   @Override
   public String getValueString() {
-    return "" + value;
+    return "" + Arrays.toString(value);
   }
 }

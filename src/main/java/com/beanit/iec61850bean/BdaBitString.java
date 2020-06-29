@@ -24,7 +24,7 @@ public abstract class BdaBitString extends BasicDataAttribute {
   final int maxNumBits;
   volatile byte[] value;
 
-  public BdaBitString(
+  protected BdaBitString(
       ObjectReference objectReference,
       Fc fc,
       String sAddr,

@@ -186,19 +186,19 @@ public class ServerTSap {
   /**
    * Set the maxTPDUSize. The default maxTPduSize is 65531 (see RFC 1006).
    *
-   * @param maxTPduSizeParam The maximum length is equal to 2^(maxTPduSizeParam) octets. Note that
+   * @param maxTPDUSizeParam The maximum length is equal to 2^(maxTPDUSizeParam) octets. Note that
    *     the actual TSDU size that can be transfered is equal to TPduSize-3. Default is 65531 octets
-   *     (see RFC 1006), 7 &lt;= maxTPduSizeParam &lt;= 16, needs to be set before listening or
+   *     (see RFC 1006), 7 &lt;= maxTPDUSizeParam &lt;= 16, needs to be set before listening or
    *     connecting
    */
-  public void setMaxTPDUSizeParam(int maxTPduSizeParam) {
+  public void setMaxTPDUSizeParam(int maxTPDUSizeParam) {
     if (started == true) {
       throw new RuntimeException("Trying to set parameter although server has started.");
     }
-    if (maxTPduSizeParam < 7 || maxTPduSizeParam > 16) {
+    if (maxTPDUSizeParam < 7 || maxTPDUSizeParam > 16) {
       throw new IllegalArgumentException("maxTPDUSizeParam is out of bound");
     }
-    this.maxTPDUSizeParam = maxTPduSizeParam;
+    this.maxTPDUSizeParam = maxTPDUSizeParam;
   }
 
   TConnectionListener getConnectionListener() {

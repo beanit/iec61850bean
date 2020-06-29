@@ -106,6 +106,7 @@ final class ServerThread extends Thread {
       try {
         serverSocket.close();
       } catch (IOException e) {
+        // there is nothing meaningful to be done when closing fails
       }
     }
   }

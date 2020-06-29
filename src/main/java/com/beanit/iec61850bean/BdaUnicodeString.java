@@ -13,6 +13,8 @@
  */
 package com.beanit.iec61850bean;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import com.beanit.iec61850bean.internal.mms.asn1.Data;
 import com.beanit.iec61850bean.internal.mms.asn1.Integer32;
 import com.beanit.iec61850bean.internal.mms.asn1.MMSString;
@@ -108,6 +110,6 @@ public final class BdaUnicodeString extends BasicDataAttribute {
     if (value == null) {
       return getReference().toString() + ": null";
     }
-    return getReference().toString() + ": " + new String(value);
+    return getReference().toString() + ": " + new String(value, UTF_8);
   }
 }
