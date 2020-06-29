@@ -1,3 +1,5 @@
+import net.ltgt.gradle.errorprone.errorprone
+
 plugins {
     `java-library`
     `maven-publish`
@@ -6,6 +8,7 @@ plugins {
     id("biz.aQute.bnd.builder") version "5.1.1"
     id("com.diffplug.gradle.spotless") version "4.4.0"
     id("io.codearte.nexus-staging") version "0.21.2"
+    id("net.ltgt.errorprone") version "1.2.1"
 }
 
 var cfgJavaVersion = JavaVersion.VERSION_1_8
@@ -131,6 +134,7 @@ configure(javaProjects) {
     apply(plugin = "eclipse")
     apply(plugin = "biz.aQute.bnd.builder")
     apply(plugin = "com.diffplug.gradle.spotless")
+    apply(plugin = "net.ltgt.errorprone")
 
     tasks.publish {
         enabled = false
@@ -150,10 +154,18 @@ configure(javaProjects) {
     dependencies {
         testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
         testImplementation("com.tngtech.archunit:archunit-junit5:0.14.1")
+        errorprone("com.google.errorprone:error_prone_core:2.4.0")
     }
 
     tasks.test {
         useJUnitPlatform()
+    }
+
+    tasks.withType<JavaCompile>().configureEach {
+        options.errorprone.excludedPaths.set(".*java-gen.*")
+        if (!JavaVersion.current().isJava9Compatible) {
+            options.errorprone.isEnabled.set(false)
+        }
     }
 
     afterEvaluate {
