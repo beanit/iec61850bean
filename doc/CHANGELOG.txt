@@ -1,3 +1,13 @@
+- renamed OpenIEC61850 to IEC61850bean
+
+- moved from Java 7 to 8
+
+- run scripts support white space in paths
+
+- BdaTimestamp's getters and setters take Instant instead of Date now
+
+- significant code clean up
+
 v1.8.0 22-Mar-2019
 --------------------
 

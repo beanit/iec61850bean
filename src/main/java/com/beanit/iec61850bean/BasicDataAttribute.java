@@ -21,20 +21,16 @@ import java.util.List;
 
 public abstract class BasicDataAttribute extends FcModelNode {
 
+  final List<Urcb> chgRcbs;
+  final List<Urcb> dupdRcbs;
   BasicDataAttribute mirror;
-
   /** attribute value type */
   BdaType basicType = null;
-
   /** short address, can be used by SCSM and for local data mapping */
   String sAddr = null;
-
   boolean dchg;
   boolean qchg;
   boolean dupd;
-
-  final List<Urcb> chgRcbs;
-  final List<Urcb> dupdRcbs;
 
   protected BasicDataAttribute(
       ObjectReference objectReference, Fc fc, String sAddr, boolean dchg, boolean dupd) {
