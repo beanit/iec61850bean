@@ -28,6 +28,7 @@ public abstract class BasicDataAttribute extends FcModelNode {
   BdaType basicType = null;
   /** short address, can be used by SCSM and for local data mapping */
   String sAddr = null;
+
   boolean dchg;
   boolean qchg;
   boolean dupd;
