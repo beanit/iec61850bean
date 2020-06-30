@@ -1,3 +1,6 @@
+v1.9.0 30-Jun-2020
+--------------------
+
 - renamed OpenIEC61850 to IEC61850bean
 
 - moved from Java 7 to 8
