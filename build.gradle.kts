@@ -40,8 +40,6 @@ tasks.register<Tar>("tar") {
     into(project.name) {
         from("./") {
             include("build.gradle.kts")
-            include("configuration.gradle.kts")
-            include("settings.gradle.kts")
             include("LICENSE.txt")
             include("doc/**")
             include("bin/**")
