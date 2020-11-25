@@ -61,7 +61,7 @@ public final class BdaOptFlds extends BdaBitString {
     if (reportTimestamp) {
       value[0] = (byte) (value[0] | 0x20);
     } else {
-      value[0] = (byte) (value[0] & 0x2f);
+      value[0] = (byte) (value[0] & 0xdf);
     }
   }
 
