@@ -28,20 +28,25 @@ public class SequenceNumber {
 
   public static int getIncrement(int value, int minValue, int maxValue) {
     assert (value >= minValue) && (value <= maxValue);
-    if (value == maxValue) {
-      return minValue;
-    } else {
-      return ++value;
-    }
+    return (value == maxValue) ? minValue : value + 1;
   }
 
   public int getAndIncrement() {
     int oldValue = value;
-    if (value == maxValue) {
-      value = minValue;
-    } else {
-      ++value;
-    }
+    value = (value == maxValue) ? minValue : value + 1;
     return oldValue;
+  }
+
+  public int get() {
+    return value;
+  }
+
+  public void increment() {
+    value = (value == maxValue) ? minValue : value + 1;
+  }
+
+  public int incrementAndGet() {
+    value = (value == maxValue) ? minValue : value + 1;
+    return value;
   }
 }
