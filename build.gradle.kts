@@ -6,9 +6,9 @@ plugins {
     signing
     eclipse
     id("biz.aQute.bnd.builder") version "5.1.1"
-    id("com.diffplug.gradle.spotless") version "4.4.0"
-    id("io.codearte.nexus-staging") version "0.21.2"
-    id("net.ltgt.errorprone") version "1.2.1"
+    id("com.diffplug.spotless") version "5.9.0"
+    id("io.codearte.nexus-staging") version "0.22.0"
+    id("net.ltgt.errorprone") version "1.3.0"
 }
 
 var cfgJavaVersion = JavaVersion.VERSION_1_8
@@ -130,7 +130,7 @@ configure(javaProjects) {
     apply(plugin = "signing")
     apply(plugin = "eclipse")
     apply(plugin = "biz.aQute.bnd.builder")
-    apply(plugin = "com.diffplug.gradle.spotless")
+    apply(plugin = "com.diffplug.spotless")
     apply(plugin = "net.ltgt.errorprone")
 
     tasks.publish {
@@ -149,9 +149,9 @@ configure(javaProjects) {
     }
 
     dependencies {
-        testImplementation("org.junit.jupiter:junit-jupiter:5.6.2")
-        testImplementation("com.tngtech.archunit:archunit-junit5:0.14.1")
-        errorprone("com.google.errorprone:error_prone_core:2.4.0")
+        testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
+        testImplementation("com.tngtech.archunit:archunit-junit5:0.15.0")
+        errorprone("com.google.errorprone:error_prone_core:2.5.0")
     }
 
     tasks.test {
