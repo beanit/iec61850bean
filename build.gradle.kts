@@ -151,7 +151,7 @@ configure(javaProjects) {
     dependencies {
         testImplementation("org.junit.jupiter:junit-jupiter:5.7.0")
         testImplementation("com.tngtech.archunit:archunit-junit5:0.15.0")
-        errorprone("com.google.errorprone:error_prone_core:2.5.0")
+        errorprone("com.google.errorprone:error_prone_core:2.5.1")
     }
 
     tasks.test {
