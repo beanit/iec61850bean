@@ -13,10 +13,12 @@
  */
 package com.beanit.iec61850bean;
 
-import com.beanit.josistack.ClientAcseSap;
 import java.io.IOException;
 import java.net.InetAddress;
+
 import javax.net.SocketFactory;
+
+import com.beanit.josistack.ClientAcseSap;
 
 /**
  * The <code>ClientSap</code> class represents the IEC 61850 service access point for client
@@ -33,11 +35,11 @@ public final class ClientSap {
 
   private static final byte[] DEFAULT_TSEL_LOCAL = new byte[] {0, 0};
   private static final byte[] DEFAULT_TSEL_REMOTE = new byte[] {0, 1};
-  private static final int DEFAUTL_TPDU_SIZE_PARAMETER = 10; // size = 1024
-  private final int proposedMaxServOutstandingCalling = 5;
-  private final int proposedMaxServOutstandingCalled = 5;
-  private final int proposedDataStructureNestingLevel = 10;
+  private static final int DEFAULT_TPDU_SIZE_PARAMETER = 10; // size = 1024
   private final ClientAcseSap acseSap;
+  private int proposedMaxServOutstandingCalling = 5;
+  private int proposedMaxServOutstandingCalled = 5;
+  private int proposedDataStructureNestingLevel = 10;
   private int proposedMaxMmsPduSize = 65000;
   private byte[] servicesSupportedCalling =
       new byte[] {(byte) 0xee, 0x1c, 0, 0, 0x04, 0x08, 0, 0, 0x79, (byte) 0xef, 0x18};
@@ -49,7 +51,7 @@ public final class ClientSap {
     acseSap = new ClientAcseSap();
     acseSap.tSap.tSelLocal = DEFAULT_TSEL_LOCAL;
     acseSap.tSap.tSelRemote = DEFAULT_TSEL_REMOTE;
-    acseSap.tSap.setMaxTPDUSizeParam(DEFAUTL_TPDU_SIZE_PARAMETER);
+    acseSap.tSap.setMaxTPDUSizeParam(DEFAULT_TPDU_SIZE_PARAMETER);
   }
 
   /**
@@ -62,7 +64,7 @@ public final class ClientSap {
     acseSap = new ClientAcseSap(socketFactory);
     acseSap.tSap.tSelLocal = DEFAULT_TSEL_LOCAL;
     acseSap.tSap.tSelRemote = DEFAULT_TSEL_REMOTE;
-    acseSap.tSap.setMaxTPDUSizeParam(DEFAUTL_TPDU_SIZE_PARAMETER);
+    acseSap.tSap.setMaxTPDUSizeParam(DEFAULT_TPDU_SIZE_PARAMETER);
   }
 
   /**
@@ -90,7 +92,31 @@ public final class ClientSap {
       throw new IllegalArgumentException("maximum size is out of bound");
     }
   }
+  
+  public int getProposedMaxServOutstandingCalling() {
+	return proposedMaxServOutstandingCalling;
+  }
+  
+  public void setProposedMaxServOutstandingCalling(int proposedMaxServOutstandingCalling) {
+	this.proposedMaxServOutstandingCalling = proposedMaxServOutstandingCalling;
+  }
 
+  public int getProposedMaxServOutstandingCalled() {
+	return proposedMaxServOutstandingCalled;
+  }
+  
+  public void setProposedMaxServOutstandingCalled(int proposedMaxServOutstandingCalled) {
+	this.proposedMaxServOutstandingCalled = proposedMaxServOutstandingCalled;
+  }
+
+  public int getProposedDataStructureNestingLevel() {
+	return proposedDataStructureNestingLevel;
+  }
+  
+  public void setProposedDataStructureNestingLevel(int proposedDataStructureNestingLevel) {
+	this.proposedDataStructureNestingLevel = proposedDataStructureNestingLevel;
+  }
+  
   /**
    * Gets the ServicesSupportedCalling parameter.
    *

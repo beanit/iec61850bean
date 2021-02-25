@@ -99,12 +99,12 @@ import java.util.concurrent.TimeoutException;
 public final class ClientAssociation {
 
   private static final Integer16 version = new Integer16(new byte[] {(byte) 0x01, (byte) 0x01});
-  private static final ParameterSupportOptions proposedParameterCbbBitString =
-      new ParameterSupportOptions(new byte[] {0x03, 0x05, (byte) 0xf1, 0x00});
   private final ClientReceiver clientReceiver;
   private final BlockingQueue<MMSpdu> incomingResponses = new LinkedBlockingQueue<>();
   private final ReverseByteArrayOutputStream reverseOStream =
       new ReverseByteArrayOutputStream(500, true);
+  private static ParameterSupportOptions proposedParameterCbbBitString =
+		  new ParameterSupportOptions(new byte[] {0x03, 0x05, (byte) 0xf1, 0x00});
   ServerModel serverModel;
   private AcseAssociation acseAssociation = null;
   private int responseTimeout;
@@ -581,6 +581,15 @@ public final class ClientAssociation {
    */
   public void setServerModel(ServerModel model) {
     this.serverModel = model;
+  }
+  
+  /**
+   * Set the ProposedParameterCbbBitString parameter, default is byte[] {0x03, 0x05, (byte) 0xf1, 0x00}.
+   * 
+   * @param proposedParameterCbbBitString the new Proposed Parameter Cbb-Bit-String
+   */
+  public static void setProposedParameterCbbBitString(ParameterSupportOptions proposedParameterCbbBitString) {
+	ClientAssociation.proposedParameterCbbBitString = proposedParameterCbbBitString;
   }
 
   /**
