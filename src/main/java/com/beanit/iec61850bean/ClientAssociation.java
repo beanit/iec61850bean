@@ -2108,17 +2108,15 @@ public final class ClientAssociation {
           closed = true;
           acseAssociation.close();
           lastIOException = e;
-          if (reportListener != null) {
-            Thread t1 =
-                new Thread(
-                    new Runnable() {
-                      @Override
-                      public void run() {
-                        reportListener.associationClosed(lastIOException);
-                      }
-                    });
-            t1.start();
-          }
+          Thread t1 =
+              new Thread(
+                  new Runnable() {
+                    @Override
+                    public void run() {
+                      reportListener.associationClosed(lastIOException);
+                    }
+                  });
+          t1.start();
 
           MMSpdu mmsPdu = new MMSpdu();
           mmsPdu.setConfirmedRequestPDU(new ConfirmedRequestPDU());
