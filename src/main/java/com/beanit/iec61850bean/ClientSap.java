@@ -13,12 +13,10 @@
  */
 package com.beanit.iec61850bean;
 
+import com.beanit.josistack.ClientAcseSap;
 import java.io.IOException;
 import java.net.InetAddress;
-
 import javax.net.SocketFactory;
-
-import com.beanit.josistack.ClientAcseSap;
 
 /**
  * The <code>ClientSap</code> class represents the IEC 61850 service access point for client
@@ -92,31 +90,19 @@ public final class ClientSap {
       throw new IllegalArgumentException("maximum size is out of bound");
     }
   }
-  
-  public int getProposedMaxServOutstandingCalling() {
-	return proposedMaxServOutstandingCalling;
-  }
-  
+
   public void setProposedMaxServOutstandingCalling(int proposedMaxServOutstandingCalling) {
-	this.proposedMaxServOutstandingCalling = proposedMaxServOutstandingCalling;
+    this.proposedMaxServOutstandingCalling = proposedMaxServOutstandingCalling;
   }
 
-  public int getProposedMaxServOutstandingCalled() {
-	return proposedMaxServOutstandingCalled;
-  }
-  
   public void setProposedMaxServOutstandingCalled(int proposedMaxServOutstandingCalled) {
-	this.proposedMaxServOutstandingCalled = proposedMaxServOutstandingCalled;
+    this.proposedMaxServOutstandingCalled = proposedMaxServOutstandingCalled;
   }
 
-  public int getProposedDataStructureNestingLevel() {
-	return proposedDataStructureNestingLevel;
-  }
-  
   public void setProposedDataStructureNestingLevel(int proposedDataStructureNestingLevel) {
-	this.proposedDataStructureNestingLevel = proposedDataStructureNestingLevel;
+    this.proposedDataStructureNestingLevel = proposedDataStructureNestingLevel;
   }
-  
+
   /**
    * Gets the ServicesSupportedCalling parameter.
    *
