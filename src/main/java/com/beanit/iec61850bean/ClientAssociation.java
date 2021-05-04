@@ -110,6 +110,7 @@ public final class ClientAssociation {
   private int responseTimeout;
 
   private int invokeId = 0;
+  private byte[] servicesSupported = null;
 
   private int negotiatedMaxPduSize;
   private ClientEventListener reportListener = null;
@@ -390,6 +391,16 @@ public final class ClientAssociation {
     return invokeId;
   }
 
+  /**
+   * Gets the ServicesSupported. The 11-byte array of bit flags is available after InitiateResponse
+   * is received from the server, otherwise null is returned
+   *
+   * @return the ServicesSupported byte array, or null.
+   */
+  public byte[] getServicesSupported() {
+    return servicesSupported;
+  }
+
   private ConfirmedServiceResponse encodeWriteReadDecode(ConfirmedServiceRequest serviceRequest)
       throws ServiceError, IOException {
 
@@ -567,7 +578,7 @@ public final class ClientAssociation {
       throw new IOException("Unsupported version number was negotiated.");
     }
 
-    byte[] servicesSupported =
+    servicesSupported =
         initiateResponsePdu.getInitResponseDetail().getServicesSupportedCalled().value;
     if ((servicesSupported[0] & 0x40) != 0x40) {
       throw new IOException("Obligatory services are not supported by the server.");
