@@ -41,6 +41,17 @@ public class SclParser {
     private String iedConnectedAP;
     ConnectionParam connectionParm;
     private final Map<String, ConnectionParam> iedConnectionMap = new HashMap<>();
+    private String iedManufacturer;
+    Map<String, String> descMap;
+
+    private List<String> ldsInsts;
+    private List<String> ldsRefs;
+    private Set<String> lnSet;
+    private Map<String, Set<String>> lns;
+    private final HashSet<String> lnS = new HashSet<>();
+    private final Map<String, String> cdcDOMap = new HashMap<>();
+    private Map<String, String> daiDescMap;
+    private List<LogicalDevice> logicalDevices;
 
     private SclParser() {
     }
@@ -124,6 +135,9 @@ public class SclParser {
             useResvTmsAttributes = false;
 
             Node nameAttribute = iedNode.getAttributes().getNamedItem("name");
+
+            Node manufacturerAttr = iedNode.getAttributes().getNamedItem("manufacturer");
+            iedManufacturer = manufacturerAttr.getNodeValue();
 
             iedName = nameAttribute.getNodeValue();
             if ((iedName == null) || (iedName.length() == 0)) {
@@ -242,6 +256,12 @@ public class SclParser {
 
             if (element.getNodeName().equals("Server")) {
 
+                ldsInsts = new ArrayList<>();
+                ldsRefs = new ArrayList<>();
+                descMap = new HashMap<>();
+                daiDescMap = new HashMap<>();
+                logicalDevices = new ArrayList<>();
+
                 ServerModel server = createServerModel(element);
 
                 Node namedItem = iedServer.getAttributes().getNamedItem("name");
@@ -267,7 +287,9 @@ public class SclParser {
             Node element = elements.item(i);
 
             if (element.getNodeName().equals("LDevice")) {
+                lns = new HashMap<>();
                 logicalDevices.add(createNewLDevice(element));
+                this.logicalDevices.add(createNewLDevice(element));
             }
         }
 
@@ -285,6 +307,17 @@ public class SclParser {
         dataSetDefs.clear();
 
         serverModel.setConnectionParam(iedConnectionMap.get(iedName));
+        serverModel.setIedName(iedName);
+        serverModel.setIedManufacturer(iedManufacturer);
+        serverModel.setLns(lns);
+        serverModel.setLnS(lnS);
+        serverModel.setDos(cdcDOMap);
+
+        serverModel.setLdsInsts(ldsInsts);
+        serverModel.setLdsRefs(ldsRefs);
+        serverModel.setDescriptions(descMap);
+        serverModel.setdAIDescriptions(daiDescMap);
+        serverModel.setLogicalDevices(logicalDevices);
 
         return serverModel;
     }
@@ -311,15 +344,20 @@ public class SclParser {
             throw new SclParseException("Required attribute \"inst\" in logical device not found!");
         }
 
+        ldsInsts.add(inst);
+
         NodeList elements = ldXmlNode.getChildNodes();
         List<LogicalNode> logicalNodes = new ArrayList<>();
 
         String ref;
         if ((ldName != null) && (ldName.length() != 0)) {
             ref = ldName;
+            ldsRefs.add(ref);
         } else {
             ref = iedName + inst;
+            ldsRefs.add(ref);
         }
+        lnSet = new HashSet<>();
 
         for (int i = 0; i < elements.getLength(); i++) {
             Node element = elements.item(i);
@@ -328,8 +366,10 @@ public class SclParser {
                 logicalNodes.add(createNewLogicalNode(element, ref));
             }
         }
+        lns.put(ref, lnSet);
 
         LogicalDevice lDevice = new LogicalDevice(new ObjectReference(ref), logicalNodes);
+        lDevice.setLdInst(inst);
 
         return lDevice;
     }
@@ -350,16 +390,23 @@ public class SclParser {
             Node node = attributes.item(i);
             String nodeName = node.getNodeName();
 
-            if (nodeName.equals("inst")) {
-                inst = node.getNodeValue();
-            } else if (nodeName.equals("lnType")) {
-                lnType = node.getNodeValue();
-            } else if (nodeName.equals("lnClass")) {
-                lnClass = node.getNodeValue();
-            } else if (nodeName.equals("prefix")) {
-                prefix = node.getNodeValue();
+            switch (nodeName) {
+                case "inst":
+                    inst = node.getNodeValue();
+                    break;
+                case "lnType":
+                    lnType = node.getNodeValue();
+                    break;
+                case "lnClass":
+                    lnClass = node.getNodeValue();
+                    break;
+                case "prefix":
+                    prefix = node.getNodeValue();
+                    break;
             }
         }
+
+        lnSet.add(prefix + lnClass + inst);
 
         if (inst == null) {
             throw new SclParseException("Required attribute \"inst\" not found!");
@@ -372,6 +419,7 @@ public class SclParser {
         }
 
         String ref = parentRef + '/' + prefix + lnClass + inst;
+        lnS.add(ref);
 
         LnType lnTypeDef = typeDefinitions.getLNodeType(lnType);
 
@@ -390,6 +438,12 @@ public class SclParser {
 
                     NamedNodeMap doiAttributes = childNode.getAttributes();
                     Node nameAttribute = doiAttributes.getNamedItem("name");
+                    Node cdcAttribute = doiAttributes.getNamedItem("desc");
+
+                    if (cdcAttribute != null) {
+                        descMap.put(ref + "." + nameAttribute.getNodeValue(), cdcAttribute.getNodeValue());
+                    }
+
                     if (nameAttribute != null && nameAttribute.getNodeValue().equals(dobject.getName())) {
                         doiNodeFound = childNode;
                     }
@@ -397,7 +451,7 @@ public class SclParser {
             }
 
             dataObjects.addAll(
-                    createFcDataObjects(dobject.getName(), ref, dobject.getType(), doiNodeFound));
+                    createFcDataObjects(dobject.getName(), ref, dobject.getType(), doiNodeFound, dobject.getType()));
         }
 
         // look for ReportControl
@@ -417,6 +471,12 @@ public class SclParser {
                 dataSetDefs.add(new LnSubDef(childNode, lNode));
             }
         }
+
+        lNode.setPrefix(prefix);
+        lNode.setLnClass(lnClass);
+        lNode.setLnInst(inst);
+        lNode.setLnType(lnType);
+
         return lNode;
     }
 
@@ -528,8 +588,7 @@ public class SclParser {
             }
         }
 
-        DataSet dataSet = new DataSet(lNode.getReference().toString() + '.' + name, dsMembers, false);
-        return dataSet;
+        return new DataSet(lNode.getReference().toString() + '.' + name, dsMembers, false);
     }
 
     private List<Rcb> createReportControlBlocks(Node xmlNode, String parentRef)
@@ -795,7 +854,7 @@ public class SclParser {
     }
 
     private List<FcDataObject> createFcDataObjects(
-            String name, String parentRef, String doTypeID, Node doiNode) throws SclParseException {
+            String name, String parentRef, String doTypeID, Node doiNode, String type) throws SclParseException {
 
         DoType doType = typeDefinitions.getDOType(doTypeID);
 
@@ -805,6 +864,10 @@ public class SclParser {
 
         String ref = parentRef + '.' + name;
 
+        String cdc = doType.getCdc();
+
+        cdcDOMap.put(ref, cdc);
+
         List<ModelNode> childNodes = new ArrayList<>();
 
         for (Da dattr : doType.das) {
@@ -812,10 +875,22 @@ public class SclParser {
             // look for DAI node with the name of the DA
             Node iNodeFound = findINode(doiNode, dattr.getName());
 
+            if (iNodeFound != null) {
+                NamedNodeMap daiAttributes = iNodeFound.getAttributes();
+                if (daiAttributes != null) {
+                    Node nameAttribute = daiAttributes.getNamedItem("name");
+                    Node cdcAttribute = daiAttributes.getNamedItem("desc");
+
+                    if (cdcAttribute != null) {
+                        daiDescMap.put(ref + "." + nameAttribute.getNodeValue(), cdcAttribute.getNodeValue());
+                    }
+                }
+            }
+
             if (dattr.getCount() >= 1) {
                 childNodes.add(createArrayOfDataAttributes(ref + '.' + dattr.getName(), dattr, iNodeFound));
             } else {
-                childNodes.add(
+                FcModelNode fcModelNode =
                         createDataAttribute(
                                 ref + '.' + dattr.getName(),
                                 dattr.getFc(),
@@ -823,7 +898,12 @@ public class SclParser {
                                 iNodeFound,
                                 false,
                                 false,
-                                false));
+                                false
+                        );
+
+                fcModelNode.setbType(dattr.getbType());
+                fcModelNode.setDaType(dattr.getType());
+                childNodes.add(fcModelNode);
             }
         }
 
@@ -837,7 +917,7 @@ public class SclParser {
 
             Node iNodeFound = findINode(doiNode, sdo.getName());
 
-            childNodes.addAll(createFcDataObjects(sdo.getName(), ref, sdo.getType(), iNodeFound));
+            childNodes.addAll(createFcDataObjects(sdo.getName(), ref, sdo.getType(), iNodeFound, type));
         }
 
         Map<Fc, List<FcModelNode>> subFCDataMap = new LinkedHashMap<>();
@@ -855,7 +935,10 @@ public class SclParser {
 
         for (Fc fc : Fc.values()) {
             if (subFCDataMap.get(fc).size() > 0) {
-                fcDataObjects.add(new FcDataObject(objectReference, fc, subFCDataMap.get(fc)));
+                FcDataObject fcDataObject = new FcDataObject(objectReference, fc, subFCDataMap.get(fc));
+                fcDataObject.setDoType(type);
+                fcDataObject.setCdc(cdc);
+                fcDataObjects.add(fcDataObject);
             }
         }
 
@@ -937,8 +1020,11 @@ public class SclParser {
 
                 Node iNodeFound = findINode(iXmlNode, bda.getName());
 
-                subDataAttributes.add(
-                        createDataAttribute(ref + '.' + bda.getName(), fc, bda, iNodeFound, dchg, dupd, qchg));
+                FcModelNode fcModelNode = createDataAttribute(ref + '.' + bda.getName(), fc, bda, iNodeFound, dchg, dupd, qchg);
+                fcModelNode.setDaType(bda.getType());
+                fcModelNode.setbType(bda.getbType());
+
+                subDataAttributes.add(fcModelNode);
             }
             return new ConstructedDataAttribute(new ObjectReference(ref), fc, subDataAttributes);
         }
@@ -1141,7 +1227,7 @@ public class SclParser {
             BdaTimestamp bda = new BdaTimestamp(new ObjectReference(ref), fc, sAddr, dchg, dupd);
             if (val != null) {
                 // TODO
-                throw new SclParseException("parsing configured value for TIMESTAMP is not supported yet.");
+                bda.setDate(new Date(System.currentTimeMillis()));
             }
             return bda;
         } else if (bType.equals("Enum")) {

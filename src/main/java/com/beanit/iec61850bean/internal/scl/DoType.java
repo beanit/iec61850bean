@@ -14,36 +14,45 @@
 package com.beanit.iec61850bean.internal.scl;
 
 import com.beanit.iec61850bean.SclParseException;
-import java.util.ArrayList;
-import java.util.List;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class DoType extends AbstractType {
 
-  // attributes not needed: cdc, iedType
+    // attributes not needed: cdc, iedType
 
-  public List<Da> das = new ArrayList<>();
-  public List<Sdo> sdos = new ArrayList<>();
+    public List<Da> das = new ArrayList<>();
+    public List<Sdo> sdos = new ArrayList<>();
 
-  public DoType(Node xmlNode) throws SclParseException {
+    private String cdc;
 
-    super(xmlNode);
+    public DoType(Node xmlNode) throws SclParseException {
 
-    if (xmlNode.getAttributes().getNamedItem("cdc") == null) {
-      throw new SclParseException("Required attribute \"cdc\" not found in DOType!");
+        super(xmlNode);
+
+        if (xmlNode.getAttributes().getNamedItem("cdc") == null) {
+            throw new SclParseException("Required attribute \"cdc\" not found in DOType!");
+        } else {
+          cdc = xmlNode.getAttributes().getNamedItem("cdc").getNodeValue();
+        }
+
+        NodeList elements = xmlNode.getChildNodes();
+
+        for (int i = 0; i < elements.getLength(); i++) {
+            Node node = elements.item(i);
+            if (node.getNodeName().equals("SDO")) {
+                sdos.add(new Sdo(node));
+            }
+            if (node.getNodeName().equals("DA")) {
+                das.add(new Da(node));
+            }
+        }
     }
 
-    NodeList elements = xmlNode.getChildNodes();
-
-    for (int i = 0; i < elements.getLength(); i++) {
-      Node node = elements.item(i);
-      if (node.getNodeName().equals("SDO")) {
-        sdos.add(new Sdo(node));
-      }
-      if (node.getNodeName().equals("DA")) {
-        das.add(new Da(node));
-      }
+    public String getCdc() {
+        return cdc;
     }
-  }
 }

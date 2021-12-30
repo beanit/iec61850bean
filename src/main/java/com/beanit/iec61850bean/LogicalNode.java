@@ -28,7 +28,14 @@ public final class LogicalNode extends ModelNode {
   private final Map<String, Urcb> urcbs = new HashMap<>();
   private final Map<String, Brcb> brcbs = new HashMap<>();
 
+  private final List<FcDataObject> dataObjects;
+  private String prefix;
+  private String lnClass;
+  private String lnInst;
+  private String lnType;
+
   public LogicalNode(ObjectReference objectReference, List<FcDataObject> fcDataObjects) {
+    this.dataObjects = fcDataObjects;
     children = new LinkedHashMap<>();
     for (Fc fc : Fc.values()) {
       this.fcDataObjects.put(fc, new LinkedHashMap<String, FcDataObject>());
@@ -59,8 +66,7 @@ public final class LogicalNode extends ModelNode {
       dataObjectsCopy.add((FcDataObject) obj.copy());
     }
 
-    LogicalNode copy = new LogicalNode(objectReference, dataObjectsCopy);
-    return copy;
+    return new LogicalNode(objectReference, dataObjectsCopy);
   }
 
   public List<FcDataObject> getChildren(Fc fc) {
@@ -133,5 +139,37 @@ public final class LogicalNode extends ModelNode {
       }
     }
     return sb.toString();
+  }
+
+  public String getPrefix() {
+    return prefix;
+  }
+
+  public void setPrefix(String prefix) {
+    this.prefix = prefix;
+  }
+
+  public String getLnClass() {
+    return lnClass;
+  }
+
+  public void setLnClass(String lnClass) {
+    this.lnClass = lnClass;
+  }
+
+  public String getLnInst() {
+    return lnInst;
+  }
+
+  public void setLnInst(String lnInst) {
+    this.lnInst = lnInst;
+  }
+
+  public String getLnType() {
+    return lnType;
+  }
+
+  public void setLnType(String lnType) {
+    this.lnType = lnType;
   }
 }

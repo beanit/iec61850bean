@@ -28,6 +28,17 @@ public final class ServerModel extends ModelNode {
     private final Map<String, Brcb> brcbs = new HashMap<>();
 
     private ConnectionParam connectionParam;
+    private String iedName;
+    private String iedManufacturer;
+    private List<String> ldsInsts;
+    private List<String> ldsRefs;
+    private List<String> lnsRefs;
+    private Map<String, Set<String>> lns;
+    private HashSet<String> lnS;
+    private Map<String, String> descriptions;
+    private Map<String,String> dAIDescriptions;
+    private Map<String, String> dos;
+    private List<LogicalDevice> logicalDevices;
 
     public ServerModel(List<LogicalDevice> logicalDevices, Collection<DataSet> dataSets) {
         children = new LinkedHashMap<>();
@@ -401,5 +412,93 @@ public final class ServerModel extends ModelNode {
 
     public void setConnectionParam(ConnectionParam connectionParam) {
         this.connectionParam = connectionParam;
+    }
+
+    public String getIedName() {
+        return iedName;
+    }
+
+    public void setIedName(String iedName) {
+        this.iedName = iedName;
+    }
+
+    public String getIedManufacturer() {
+        return iedManufacturer;
+    }
+
+    public void setIedManufacturer(String iedManufacturer) {
+        this.iedManufacturer = iedManufacturer;
+    }
+
+    public List<String> getLdsInsts() {
+        return ldsInsts;
+    }
+
+    public void setLdsInsts(List<String> ldsInsts) {
+        this.ldsInsts = ldsInsts;
+    }
+
+    public List<String> getLdsRefs() {
+        return ldsRefs;
+    }
+
+    public void setLdsRefs(List<String> ldsRefs) {
+        this.ldsRefs = ldsRefs;
+    }
+
+    public List<String> getLnsRefs() {
+        return lnsRefs;
+    }
+
+    public void setLnsRefs(List<String> lnsRefs) {
+        this.lnsRefs = lnsRefs;
+    }
+
+    public Map<String, Set<String>> getLns() {
+        return lns;
+    }
+
+    public void setLns(Map<String, Set<String>> lns) {
+        this.lns = lns;
+    }
+
+    public HashSet<String> getLnS() {
+        return lnS;
+    }
+
+    public void setLnS(HashSet<String> lnS) {
+        this.lnS = lnS;
+    }
+
+    public Map<String, String> getDescriptions() {
+        return descriptions;
+    }
+
+    public void setDescriptions(Map<String, String> descriptions) {
+        this.descriptions = descriptions;
+    }
+
+    public Map<String, String> getdAIDescriptions() {
+        return dAIDescriptions;
+    }
+
+    public void setdAIDescriptions(Map<String, String> dAIDescriptions) {
+        this.dAIDescriptions = dAIDescriptions;
+    }
+
+    public Map<String, String> getDos() {
+        return dos;
+    }
+
+    public void setDos(Map<String, String> dos) {
+        this.dos = dos;
+    }
+
+    public List<LogicalDevice> getLogicalDevices() {
+        return logicalDevices;
+    }
+
+    public void setLogicalDevices(List<LogicalDevice> logicalDevices) {
+        this.logicalDevices = logicalDevices;
     }
 }
