@@ -17,13 +17,8 @@ import com.beanit.iec61850bean.internal.mms.asn1.AlternateAccessSelection;
 import com.beanit.iec61850bean.internal.mms.asn1.ObjectName;
 import com.beanit.iec61850bean.internal.mms.asn1.ObjectName.DomainSpecific;
 import com.beanit.iec61850bean.internal.mms.asn1.VariableDefs;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.util.*;
 
 public final class ServerModel extends ModelNode {
 
@@ -31,6 +26,8 @@ public final class ServerModel extends ModelNode {
 
   private final Map<String, Urcb> urcbs = new HashMap<>();
   private final Map<String, Brcb> brcbs = new HashMap<>();
+
+  private ConnectionParam connectionParam;
 
   public ServerModel(List<LogicalDevice> logicalDevices, Collection<DataSet> dataSets) {
     children = new LinkedHashMap<>();
@@ -136,7 +133,7 @@ public final class ServerModel extends ModelNode {
   /**
    * @param dataSetReference the data set reference
    * @return returns the DataSet that was removed, null if no DataSet with the given reference was
-   *     found or the data set is not deletable.
+   * found or the data set is not deletable.
    */
   DataSet removeDataSet(String dataSetReference) {
     DataSet dataSet = dataSets.get(dataSetReference);
@@ -228,9 +225,9 @@ public final class ServerModel extends ModelNode {
    * Logical Devices and Logical Nodes the given fc parameter may be <code>null</code>.
    *
    * @param objectReference the object reference of the node that is being searched for. It has a
-   *     syntax like "ldname/ln.do....".
-   * @param fc the functional constraint of the requested model node. May be null for Logical Device
-   *     and Logical Node references.
+   *                        syntax like "ldname/ln.do....".
+   * @param fc              the functional constraint of the requested model node. May be null for Logical Device
+   *                        and Logical Node references.
    * @return the model node if it was found or null otherwise
    */
   public ModelNode findModelNode(ObjectReference objectReference, Fc fc) {
@@ -252,9 +249,9 @@ public final class ServerModel extends ModelNode {
    * Logical Devices and Logical Nodes the given fc parameter may be <code>null</code>.
    *
    * @param objectReference the object reference of the node that is being searched for. It has a
-   *     syntax like "ldname/ln.do....".
-   * @param fc the functional constraint of the requested model node. May be null for Logical Device
-   *     and Logical Node references.
+   *                        syntax like "ldname/ln.do....".
+   * @param fc              the functional constraint of the requested model node. May be null for Logical Device
+   *                        and Logical Node references.
    * @return the model node if it was found or null otherwise
    */
   public ModelNode findModelNode(String objectReference, Fc fc) {
@@ -275,16 +272,16 @@ public final class ServerModel extends ModelNode {
 
     if (objectName == null) {
       throw new ServiceError(
-          ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-          "name in objectName is not selected");
+              ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
+              "name in objectName is not selected");
     }
 
     DomainSpecific domainSpecific = objectName.getDomainSpecific();
 
     if (domainSpecific == null) {
       throw new ServiceError(
-          ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-          "domain_specific in name is not selected");
+              ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
+              "domain_specific in name is not selected");
     }
 
     ModelNode modelNode = getChild(domainSpecific.getDomainID().toString());
@@ -298,8 +295,8 @@ public final class ServerModel extends ModelNode {
 
     if (index1 == -1) {
       throw new ServiceError(
-          ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-          "invalid mms item id: " + domainSpecific.getItemID());
+              ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
+              "invalid mms item id: " + domainSpecific.getItemID());
     }
 
     LogicalNode ln = (LogicalNode) modelNode.getChild(mmsItemId.substring(0, index1));
@@ -312,15 +309,15 @@ public final class ServerModel extends ModelNode {
 
     if (index2 == -1) {
       throw new ServiceError(
-          ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT, "invalid mms item id");
+              ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT, "invalid mms item id");
     }
 
     Fc fc = Fc.fromString(mmsItemId.substring(index1 + 1, index2));
 
     if (fc == null) {
       throw new ServiceError(
-          ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
-          "unknown functional constraint: " + mmsItemId.substring(index1 + 1, index2));
+              ServiceError.FAILED_DUE_TO_COMMUNICATIONS_CONSTRAINT,
+              "unknown functional constraint: " + mmsItemId.substring(index1 + 1, index2));
     }
 
     index1 = index2;
@@ -361,26 +358,26 @@ public final class ServerModel extends ModelNode {
     }
 
     AlternateAccessSelection altAccIt =
-        variableDef.getAlternateAccess().getCHOICE().get(0).getUnnamed();
+            variableDef.getAlternateAccess().getCHOICE().get(0).getUnnamed();
 
     if (altAccIt.getSelectAlternateAccess() != null) {
       // path to node below an array element
       modelNode =
-          ((Array) modelNode)
-              .getChild(
-                  altAccIt.getSelectAlternateAccess().getAccessSelection().getIndex().intValue());
+              ((Array) modelNode)
+                      .getChild(
+                              altAccIt.getSelectAlternateAccess().getAccessSelection().getIndex().intValue());
 
       String mmsSubArrayItemId =
-          altAccIt
-              .getSelectAlternateAccess()
-              .getAlternateAccess()
-              .getCHOICE()
-              .get(0)
-              .getUnnamed()
-              .getSelectAccess()
-              .getComponent()
-              .getBasic()
-              .toString();
+              altAccIt
+                      .getSelectAlternateAccess()
+                      .getAlternateAccess()
+                      .getCHOICE()
+                      .get(0)
+                      .getUnnamed()
+                      .getSelectAccess()
+                      .getComponent()
+                      .getBasic()
+                      .toString();
 
       index1 = -1;
       index2 = mmsSubArrayItemId.indexOf('$');
@@ -394,7 +391,15 @@ public final class ServerModel extends ModelNode {
     } else {
       // path to an array element
       return (FcModelNode)
-          ((Array) modelNode).getChild(altAccIt.getSelectAccess().getIndex().intValue());
+              ((Array) modelNode).getChild(altAccIt.getSelectAccess().getIndex().intValue());
     }
+  }
+
+  public ConnectionParam getConnectionParam() {
+    return connectionParam;
+  }
+
+  public void setConnectionParam(ConnectionParam connectionParam) {
+    this.connectionParam = connectionParam;
   }
 }
