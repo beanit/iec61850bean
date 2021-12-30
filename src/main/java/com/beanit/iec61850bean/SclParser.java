@@ -38,7 +38,6 @@ public class SclParser {
     private final List<ServerModel> serverModels = new ArrayList<>();
     private boolean useResvTmsAttributes = false;
 
-    private String iedConnectedAP;
     ConnectionParam connectionParm;
     private final Map<String, ConnectionParam> iedConnectionMap = new HashMap<>();
 
@@ -85,7 +84,7 @@ public class SclParser {
         for (int zz = 0; zz < connectedAPs.getLength(); zz++) {
             Node connectedAP = connectedAPs.item(zz);
             Node attributeName = connectedAP.getAttributes().getNamedItem("iedName");
-            iedConnectedAP = attributeName.getNodeValue();
+            String iedConnectedAP = attributeName.getNodeValue();
             connectionParm = new ConnectionParam();
             if ((iedConnectedAP == null) || (iedConnectedAP.length() == 0)) {
                 throw new SclParseException("ConnectedAP must has a name");
