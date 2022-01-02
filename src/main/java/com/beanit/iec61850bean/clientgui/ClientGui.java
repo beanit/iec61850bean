@@ -18,11 +18,13 @@ import com.beanit.iec61850bean.ClientSap;
 import com.beanit.iec61850bean.ServerModel;
 import com.beanit.iec61850bean.ServiceError;
 import com.beanit.iec61850bean.clientgui.util.Counter;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+
+import javax.swing.*;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
@@ -32,23 +34,6 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Properties;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JTextField;
-import javax.swing.JTree;
-import javax.swing.ToolTipManager;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 
 public class ClientGui extends JFrame implements ActionListener, TreeSelectionListener {
 
@@ -416,7 +401,7 @@ public class ClientGui extends JFrame implements ActionListener, TreeSelectionLi
       for (int i = 0; i < node.getChildCount(); i++) {
         y.increment();
         DataObjectTreeNode childNode = (DataObjectTreeNode) node.getChildAt(i);
-        showDataDetails(childNode, pre + "." + childNode.toString(), y);
+        showDataDetails(childNode, pre + "." + childNode, y);
         detailsPanel.add(new JSeparator());
         addDetailsComponent(new JSeparator(), 0, y.getValue(), 3, 1, 1, 0);
       }

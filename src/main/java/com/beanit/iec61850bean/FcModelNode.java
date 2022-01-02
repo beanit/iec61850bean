@@ -76,7 +76,7 @@ public abstract class FcModelNode extends ModelNode {
         }
 
         class SelectResetTask extends TimerTask {
-            ServerAssociation association;
+            final ServerAssociation association;
 
             SelectResetTask(ServerAssociation association) {
                 this.association = association;

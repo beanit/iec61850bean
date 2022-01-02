@@ -20,7 +20,7 @@ import org.w3c.dom.Node;
 public final class EnumVal {
 
   private final String id;
-  private int ord;
+    private final int ord;
 
   public EnumVal(String id, int ord) {
     this.id = id;

@@ -13,84 +13,45 @@
  */
 package com.beanit.iec61850bean;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import com.beanit.asn1bean.ber.ReverseByteArrayOutputStream;
 import com.beanit.asn1bean.ber.types.BerInteger;
 import com.beanit.asn1bean.ber.types.BerNull;
 import com.beanit.asn1bean.ber.types.string.BerVisibleString;
 import com.beanit.iec61850bean.internal.BerBoolean;
 import com.beanit.iec61850bean.internal.NamedThreadFactory;
-import com.beanit.iec61850bean.internal.mms.asn1.AccessResult;
-import com.beanit.iec61850bean.internal.mms.asn1.ConfirmedErrorPDU;
-import com.beanit.iec61850bean.internal.mms.asn1.ConfirmedRequestPDU;
-import com.beanit.iec61850bean.internal.mms.asn1.ConfirmedResponsePDU;
-import com.beanit.iec61850bean.internal.mms.asn1.ConfirmedServiceRequest;
-import com.beanit.iec61850bean.internal.mms.asn1.ConfirmedServiceResponse;
-import com.beanit.iec61850bean.internal.mms.asn1.Data;
-import com.beanit.iec61850bean.internal.mms.asn1.DataAccessError;
-import com.beanit.iec61850bean.internal.mms.asn1.DefineNamedVariableListRequest;
-import com.beanit.iec61850bean.internal.mms.asn1.DefineNamedVariableListResponse;
-import com.beanit.iec61850bean.internal.mms.asn1.DeleteNamedVariableListRequest;
-import com.beanit.iec61850bean.internal.mms.asn1.DeleteNamedVariableListResponse;
-import com.beanit.iec61850bean.internal.mms.asn1.GetNameListRequest;
-import com.beanit.iec61850bean.internal.mms.asn1.GetNameListResponse;
+import com.beanit.iec61850bean.internal.mms.asn1.*;
 import com.beanit.iec61850bean.internal.mms.asn1.GetNameListResponse.ListOfIdentifier;
-import com.beanit.iec61850bean.internal.mms.asn1.GetNamedVariableListAttributesResponse;
-import com.beanit.iec61850bean.internal.mms.asn1.GetVariableAccessAttributesRequest;
-import com.beanit.iec61850bean.internal.mms.asn1.GetVariableAccessAttributesResponse;
-import com.beanit.iec61850bean.internal.mms.asn1.Identifier;
-import com.beanit.iec61850bean.internal.mms.asn1.InitiateRequestPDU;
-import com.beanit.iec61850bean.internal.mms.asn1.InitiateResponsePDU;
-import com.beanit.iec61850bean.internal.mms.asn1.Integer16;
-import com.beanit.iec61850bean.internal.mms.asn1.Integer32;
-import com.beanit.iec61850bean.internal.mms.asn1.Integer8;
-import com.beanit.iec61850bean.internal.mms.asn1.MMSpdu;
-import com.beanit.iec61850bean.internal.mms.asn1.ObjectName;
 import com.beanit.iec61850bean.internal.mms.asn1.ObjectName.DomainSpecific;
-import com.beanit.iec61850bean.internal.mms.asn1.ParameterSupportOptions;
-import com.beanit.iec61850bean.internal.mms.asn1.ReadRequest;
-import com.beanit.iec61850bean.internal.mms.asn1.ReadResponse;
 import com.beanit.iec61850bean.internal.mms.asn1.ReadResponse.ListOfAccessResult;
 import com.beanit.iec61850bean.internal.mms.asn1.ServiceError.ErrorClass;
-import com.beanit.iec61850bean.internal.mms.asn1.ServiceSupportOptions;
-import com.beanit.iec61850bean.internal.mms.asn1.TypeDescription;
 import com.beanit.iec61850bean.internal.mms.asn1.TypeDescription.Structure;
 import com.beanit.iec61850bean.internal.mms.asn1.TypeDescription.Structure.Components;
-import com.beanit.iec61850bean.internal.mms.asn1.TypeSpecification;
-import com.beanit.iec61850bean.internal.mms.asn1.Unsigned32;
-import com.beanit.iec61850bean.internal.mms.asn1.VariableAccessSpecification;
-import com.beanit.iec61850bean.internal.mms.asn1.VariableDefs;
-import com.beanit.iec61850bean.internal.mms.asn1.WriteRequest;
-import com.beanit.iec61850bean.internal.mms.asn1.WriteResponse;
 import com.beanit.josistack.AcseAssociation;
 import com.beanit.josistack.ByteBufferInputStream;
 import com.beanit.josistack.DecodingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeoutException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 final class ServerAssociation {
 
   private static final Logger logger = LoggerFactory.getLogger(ServerAssociation.class);
 
   private static final WriteResponse.CHOICE writeSuccess = new WriteResponse.CHOICE();
-  private static String[] mmsFcs = {
-    "MX", "ST", "CO", "CF", "DC", "SP", "SG", "RP", "LG", "BR", "GO", "GS", "SV", "SE", "EX", "SR",
-    "OR", "BL"
+  private static final String[] mmsFcs = {
+          "MX", "ST", "CO", "CF", "DC", "SP", "SG", "RP", "LG", "BR", "GO", "GS", "SV", "SE", "EX", "SR",
+          "OR", "BL"
   };
 
   static {

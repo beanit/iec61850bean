@@ -15,13 +15,14 @@ package com.beanit.iec61850bean;
 
 import com.beanit.josistack.AcseAssociation;
 import com.beanit.josistack.ServerAcseSap;
+
+import javax.net.ServerSocketFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
-import javax.net.ServerSocketFactory;
 
 /**
  * The <code>ServerSap</code> class represents the IEC 61850 service access point for server
@@ -340,11 +341,7 @@ public final class ServerSap {
           bdaMirror.setValueFrom(bda);
           synchronized (bdaMirror.chgRcbs) {
             for (Urcb urcb : bdaMirror.chgRcbs) {
-              if (bdaMirror.dupd && urcb.getTrgOps().isDataUpdate()) {
-                urcb.report(bdaMirror, true, false, true);
-              } else {
-                urcb.report(bdaMirror, true, false, false);
-              }
+              urcb.report(bdaMirror, true, false, bdaMirror.dupd && urcb.getTrgOps().isDataUpdate());
             }
           }
         } else if (bdaMirror.dupd && bdaMirror.dupdRcbs.size() != 0) {

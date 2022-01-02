@@ -27,7 +27,7 @@ public final class DoType extends AbstractType {
     public List<Da> das = new ArrayList<>();
     public List<Sdo> sdos = new ArrayList<>();
 
-    private String cdc;
+    private final String cdc;
 
     public DoType(Node xmlNode) throws SclParseException {
 
