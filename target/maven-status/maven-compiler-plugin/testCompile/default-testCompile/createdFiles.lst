@@ -1,0 +1,10 @@
+com\beanit\jositransport\ClientServerITest.class
+com\beanit\jositransport\ClientServerITest$SampleServer.class
+com\beanit\iec61850bean\integrationtests\SclTests.class
+com\beanit\iec61850bean\integrationtests\ReportingTest$1.class
+com\beanit\josistack\SiemensClientITest.class
+com\beanit\josistack\SiemensClientITest$SampleServer.class
+com\beanit\iec61850bean\integrationtests\ReportingTest.class
+com\beanit\iec61850bean\integrationtests\ClientServerITest2.class
+com\beanit\iec61850bean\integrationtests\ArchitectureTest.class
+com\beanit\iec61850bean\integrationtests\ClientServerITest.class
