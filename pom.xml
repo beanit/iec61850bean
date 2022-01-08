@@ -23,6 +23,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <!--init commit-->
     <dependencies>
         <dependency>
             <groupId>com.beanit</groupId>
