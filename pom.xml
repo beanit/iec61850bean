@@ -6,7 +6,7 @@
 
     <parent>
         <groupId>org.master</groupId>
-        <artifactId>protocol_converter</artifactId>
+        <artifactId>protocol-converter</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
@@ -14,7 +14,7 @@
     <groupId>com.master</groupId>
     <artifactId>iec61850</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>IEC61850-Bean</name>
+    <name>iec61850</name>
     <description>IEC61850 library for MMS client and Server</description>
 
     <properties>
