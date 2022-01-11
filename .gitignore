@@ -15,3 +15,6 @@ out/
 .metadata/
 **/bin/main/
 **/bin/test/
+target/iec61850-0.0.1-SNAPSHOT.jar
+target/maven-archiver
+*.jar
