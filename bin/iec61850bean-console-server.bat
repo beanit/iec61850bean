@@ -1,6 +1,8 @@
 ::BATCH file to windows
+@echo off
 
 set BATDIR=%~dp0
-set LIBDIR="%BATDIR%..\build\libs-all"
+set LIBDIR="%BATDIR%..\build\libs-all\*"
 
-java -Dlogback.configurationFile=logback.xml -Djava.ext.dirs=%LIBDIR% com.beanit.iec61850bean.app.ConsoleServer %*
+java -Dlogback.configurationFile=logback.xml -cp %LIBDIR% com.beanit.iec61850bean.app.ConsoleServer %*
+

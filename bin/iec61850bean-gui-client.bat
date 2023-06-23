@@ -1,6 +1,7 @@
 ::BATCH file to windows
+@echo off
 
 set BATDIR=%~dp0
-set LIBDIR="%BATDIR%..\build\libs-all"
+set LIBDIR="%BATDIR%..\build\libs-all\*"
 
-java -Djava.ext.dirs=%LIBDIR% com.beanit.iec61850bean.clientgui.ClientGui %*
+java -cp %LIBDIR% com.beanit.iec61850bean.clientgui.ClientGui %*
