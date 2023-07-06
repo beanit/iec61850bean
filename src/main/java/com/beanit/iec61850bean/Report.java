@@ -14,6 +14,7 @@
 package com.beanit.iec61850bean;
 
 import com.beanit.iec61850bean.internal.HexString;
+
 import java.util.List;
 
 public class Report {
@@ -172,7 +173,7 @@ public class Report {
       sb.append("\nEntry ID: ").append(HexString.fromBytes(entryId.getValue()));
     }
     if (confRev != null) {
-      sb.append("\nConfiguration revision: ").append(confRev.toString());
+      sb.append("\nConfiguration revision: ").append(confRev);
     }
     sb.append("\nReported data set members:");
     int index = 0;

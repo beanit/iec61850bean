@@ -14,12 +14,8 @@
 package com.beanit.jositransport;
 
 import com.beanit.iec61850bean.internal.util.SequenceNumber;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
+
+import java.io.*;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.nio.ByteBuffer;

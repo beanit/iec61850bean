@@ -19,7 +19,11 @@ import java.util.List;
 
 public final class LogicalDevice extends ModelNode {
 
+  private final List<LogicalNode> logicalNodes;
+  private String ldInst;
+
   public LogicalDevice(ObjectReference objectReference, List<LogicalNode> logicalNodes) {
+    this.logicalNodes = logicalNodes;
     children = new LinkedHashMap<>((int) ((logicalNodes.size() / 0.75) + 1));
     this.objectReference = objectReference;
     for (LogicalNode logicalNode : logicalNodes) {
@@ -35,5 +39,17 @@ public final class LogicalDevice extends ModelNode {
       childCopies.add((LogicalNode) childNode.copy());
     }
     return new LogicalDevice(objectReference, childCopies);
+  }
+
+  public List<LogicalNode> getLogicalNodes() {
+    return logicalNodes;
+  }
+
+  public String getLdInst() {
+    return ldInst;
+  }
+
+  public void setLdInst(String ldInst) {
+    this.ldInst = ldInst;
   }
 }
