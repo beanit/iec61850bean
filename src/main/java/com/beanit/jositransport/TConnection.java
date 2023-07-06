@@ -33,7 +33,7 @@ public final class TConnection {
   private final ServerThread serverThread;
   public byte[] tSelRemote = null;
   public byte[] tSelLocal = null;
-  private final int srcRef;
+  private int srcRef;
   private int dstRef;
   private int maxTPduSizeParam;
   private int maxTPduSize;
