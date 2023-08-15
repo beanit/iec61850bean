@@ -14,32 +14,44 @@
 package com.beanit.iec61850bean.internal.scl;
 
 import com.beanit.iec61850bean.SclParseException;
-import java.util.ArrayList;
-import java.util.List;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public final class LnType extends AbstractType {
 
-  // attributes not needed: lnClass, iedType
+    // attributes not needed: lnClass, iedType
 
-  public List<Do> dos = new ArrayList<>();
+    public List<Do> dos = new ArrayList<>();
+    private String lnClass;
 
-  public LnType(Node xmlNode) throws SclParseException {
+    public LnType(Node xmlNode) throws SclParseException {
 
-    super(xmlNode);
+        super(xmlNode);
 
-    if (xmlNode.getAttributes().getNamedItem("lnClass") == null) {
-      throw new SclParseException("Required attribute \"lnClass\" not found in LNType!");
+        if (xmlNode.getAttributes().getNamedItem("lnClass") == null) {
+            throw new SclParseException("Required attribute \"lnClass\" not found in LNType!");
+        } else {
+            lnClass = xmlNode.getAttributes().getNamedItem("lnClass").getNodeValue();
+        }
+
+        NodeList elements = xmlNode.getChildNodes();
+
+        for (int i = 0; i < elements.getLength(); i++) {
+            Node node = elements.item(i);
+            if (node.getNodeName().equals("DO")) {
+                dos.add(new Do(node));
+            }
+        }
     }
 
-    NodeList elements = xmlNode.getChildNodes();
-
-    for (int i = 0; i < elements.getLength(); i++) {
-      Node node = elements.item(i);
-      if (node.getNodeName().equals("DO")) {
-        dos.add(new Do(node));
-      }
+    public String getLnClass() {
+        return lnClass;
     }
-  }
+
+    public void setLnClass(String lnClass) {
+        this.lnClass = lnClass;
+    }
 }
